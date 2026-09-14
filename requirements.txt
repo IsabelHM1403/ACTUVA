@@ -1,0 +1,6 @@
+Django>=5.1,<6.0
+openai>=1.30,<2.0
+python-dotenv>=1.0
+Pillow>=10.0
+gunicorn>=22.0
+demjson3>=3.0.6
