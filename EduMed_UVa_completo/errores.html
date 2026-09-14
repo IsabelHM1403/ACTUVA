@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ponerse en la piel del paciente · UVa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue-deep:#001e42;--blue:#003973;--blue-mid:#00509e;
+  --yellow:#F5C518;--yellow-dk:#c89800;--red:#c60046;
+  --ink:#0f1117;--ink-2:#343a47;--ink-3:#5e6575;--ink-4:#9aa0ad;
+  --surface:#fefcf8;--bg:#eae6dc;--line:#ddd9cf;--r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.025;}
+
+.topbar{background:var(--blue-deep);padding:.3rem 1.6rem;display:flex;align-items:center;}
+.back-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:700;color:rgba(180,210,250,.7);text-decoration:none;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+
+/* ── HERO — tono más cálido para diferenciar de la otra colección ── */
+.hero{
+  background:linear-gradient(150deg,#1a0a00 0%,#3d1000 50%,#5c2000 100%);
+  border-bottom:4px solid var(--yellow);
+  padding:3rem 2rem 2.8rem;position:relative;overflow:hidden;
+}
+.hero::after{content:'';position:absolute;right:-100px;top:-100px;width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,197,24,.15) 0%,transparent 65%);pointer-events:none;}
+.hero::before{content:'';position:absolute;left:-60px;bottom:-60px;width:240px;height:240px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,0,70,.12) 0%,transparent 65%);pointer-events:none;}
+.hero-inner{max-width:860px;margin:0 auto;position:relative;z-index:1;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,210,170,.9);font-size:.68rem;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;
+  padding:.3rem .9rem;border-radius:20px;margin-bottom:1rem;}
+.hero-eyebrow b{width:6px;height:6px;border-radius:50%;background:var(--yellow);display:inline-block;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.7rem,3vw,2.5rem);font-weight:900;color:#fff;line-height:1.15;margin-bottom:.75rem;}
+.hero h1 em{font-style:italic;color:var(--yellow);}
+.hero-sub{font-size:.95rem;color:rgba(255,210,180,.8);line-height:1.7;max-width:580px;margin-bottom:1.5rem;}
+.hero-meta{display:flex;gap:1.5rem;flex-wrap:wrap;}
+.hero-stat{display:flex;align-items:center;gap:.5rem;}
+.hero-stat-icon{width:30px;height:30px;background:rgba(255,255,255,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;}
+.hero-stat-text{font-size:.75rem;color:rgba(255,200,160,.75);line-height:1.35;}
+.hero-stat-text strong{display:block;color:#fff;font-size:.85rem;}
+
+.notice{max-width:860px;margin:1.4rem auto 0;padding:0 1.5rem;}
+.notice-inner{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.28);border-left:4px solid var(--yellow);
+  border-radius:0 8px 8px 0;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;
+  font-size:.8rem;color:var(--ink-2);line-height:1.5;}
+.notice-inner strong{color:var(--ink);}
+
+.main{max-width:860px;margin:0 auto;padding:1.8rem 1.5rem 4rem;}
+
+/* ── INTRO CARD ── */
+a.intro-card{
+  display:flex;flex-direction:row;
+  background:linear-gradient(135deg,#1a0a00 0%,#3d1800 100%);
+  border:1.5px solid rgba(255,255,255,.1);border-radius:var(--r);
+  overflow:hidden;text-decoration:none;
+  transition:transform .22s cubic-bezier(.34,1.35,.64,1),box-shadow .22s;
+  box-shadow:0 4px 20px rgba(60,10,0,.4);
+  margin-bottom:2rem;
+}
+a.intro-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(60,10,0,.55);}
+.intro-thumb{flex-shrink:0;width:280px;position:relative;overflow:hidden;}
+.intro-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s;}
+a.intro-card:hover .intro-thumb img{transform:scale(1.04);}
+.intro-thumb-overlay{position:absolute;inset:0;background:linear-gradient(to right,transparent 60%,rgba(26,8,0,.6));display:flex;align-items:center;justify-content:center;}
+.intro-body{padding:1.2rem 1.4rem;display:flex;flex-direction:column;justify-content:center;flex:1;}
+.intro-eyebrow{font-size:.62rem;font-weight:800;color:rgba(245,197,24,.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem;}
+.intro-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:#fff;line-height:1.25;margin-bottom:.5rem;}
+.intro-desc{font-size:.78rem;color:rgba(255,200,170,.8);line-height:1.55;margin-bottom:.85rem;}
+.intro-cta{display:inline-flex;align-items:center;gap:.35rem;font-size:.74rem;font-weight:700;
+  color:var(--yellow);padding:.4rem .95rem;background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);
+  border-radius:20px;width:fit-content;}
+.intro-cta svg{transition:transform .2s;}
+a.intro-card:hover .intro-cta svg{transform:translateX(3px);}
+
+/* ── ERRORES SECTION HEADER ── */
+.sec-header{display:flex;align-items:center;gap:.85rem;margin-bottom:1.2rem;}
+.sec-pip{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sec-label{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--ink);}
+.sec-rule{flex:1;height:1px;background:var(--line);}
+.sec-n{font-size:.62rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--ink-4);white-space:nowrap;}
+
+/* ── ERROR GRID ── */
+.error-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.1rem;}
+
+/* ── ERROR CARD ── */
+a.vcard{
+  display:flex;flex-direction:column;
+  background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);
+  overflow:hidden;text-decoration:none;
+  transition:transform .22s cubic-bezier(.34,1.35,.64,1),box-shadow .22s,border-color .22s;
+  box-shadow:0 1px 4px rgba(0,0,0,.05),0 5px 18px rgba(0,0,0,.07);
+}
+a.vcard:hover{transform:translateY(-5px);box-shadow:0 10px 32px rgba(0,0,0,.14),0 2px 6px rgba(0,0,0,.07);border-color:#c87000;}
+
+.vthumb{position:relative;width:100%;padding-top:56.25%;background:#111;overflow:hidden;}
+.vthumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
+a.vcard:hover .vthumb img{transform:scale(1.05);}
+.voverlay{position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(40,10,0,.7) 0%,rgba(0,0,0,.1) 55%,transparent 100%);
+  display:flex;align-items:center;justify-content:center;transition:background .2s;}
+a.vcard:hover .voverlay{background:linear-gradient(to top,rgba(60,20,0,.8) 0%,rgba(40,10,0,.2) 55%,transparent 100%);}
+
+/* error number badge — big and prominent */
+.err-num{
+  position:absolute;top:.55rem;left:.65rem;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--red);
+  color:#fff;font-size:.72rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.yt-badge{position:absolute;bottom:.55rem;right:.65rem;background:rgba(255,0,0,.82);color:#fff;font-size:.58rem;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:.4px;}
+
+.play-ring{width:48px;height:48px;border-radius:50%;background:rgba(245,197,24,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:transform .2s,background .2s;}
+a.vcard:hover .play-ring{transform:scale(1.1);background:var(--yellow);}
+.play-ring svg{margin-left:4px;}
+
+.vbody{padding:.85rem 1rem 1rem;display:flex;flex-direction:column;flex:1;border-top:1px solid var(--line);}
+/* error label chip */
+.err-chip{display:inline-flex;align-items:center;gap:.3rem;font-size:.6rem;font-weight:800;
+  color:var(--red);background:rgba(198,0,70,.07);border:1px solid rgba(198,0,70,.2);
+  border-radius:4px;padding:1px 7px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:.35rem;width:fit-content;}
+.vtitle{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:.3rem;}
+.vdesc{font-size:.71rem;color:var(--ink-3);line-height:1.52;flex:1;}
+.vdur{display:inline-flex;align-items:center;gap:.25rem;font-size:.6rem;font-weight:700;color:var(--ink-4);margin-bottom:.3rem;}
+.vlink{display:inline-flex;align-items:center;gap:.28rem;margin-top:.6rem;font-size:.7rem;font-weight:700;color:var(--red);}
+.vlink svg{transition:transform .2s;}
+a.vcard:hover .vlink svg{transform:translateX(3px);}
+
+footer{background:var(--surface);border-top:3px solid var(--yellow);text-align:center;padding:1.5rem;font-size:.7rem;color:var(--ink-3);line-height:2;}
+footer strong{color:var(--ink-2);}
+
+/* shared badges */
+.vnum-badge{position:absolute;top:.55rem;left:.65rem;background:var(--blue-deep);color:rgba(200,220,255,.9);font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:5px;letter-spacing:.5px;}
+
+@media(max-width:620px){
+  .hero{padding:2rem 1.2rem;}
+  a.intro-card{flex-direction:column;}
+  .intro-thumb{width:100%;height:200px;}
+  .error-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:400px){.error-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-btn">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    ← Volver al índice
+  </a>
+</div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><b></b>EduMed · Universidad de Valladolid · Propedéutica Clínica</div>
+    <h1>Ponerse en la<br><em>piel del paciente</em></h1>
+    <p class="hero-sub">10 errores frecuentes en las primeras anamnesis durante las prácticas, vistos desde el otro lado de la consulta. Todos los vídeos duran menos de 1 minuto.</p>
+    <div class="hero-meta">
+      <div class="hero-stat">
+        <div class="hero-stat-icon">🎬</div>
+        <div class="hero-stat-text"><strong>11 vídeos</strong>Menos de 1 minuto cada uno</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-icon">🎓</div>
+        <div class="hero-stat-text"><strong>UVa Online</strong>Dir. Luis Corral Gudino</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-icon">▶</div>
+        <div class="hero-stat-text"><strong>YouTube</strong>Se abre en nueva pestaña</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="notice">
+  <div class="notice-inner">
+    <span style="font-size:1.1rem">ℹ️</span>
+    <span>Los vídeos se abren directamente en <strong>YouTube</strong> en el vídeo correspondiente — pulsa cualquier tarjeta para verlo.</span>
+  </div>
+</div>
+
+<main class="main">
+
+  <!-- PRESENTACIÓN -->
+  <a href="https://www.youtube.com/watch?v=Ybf34xEtXJg" target="_blank" rel="noopener" class="intro-card">
+    <div class="intro-thumb">
+      <img src="https://img.youtube.com/vi/Ybf34xEtXJg/mqdefault.jpg" alt="Presentación">
+      <div class="intro-thumb-overlay">
+        <div class="play-ring"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 4l10 6-10 6V4z" fill="#3d1000"/></svg></div>
+      </div>
+      <div class="vnum-badge">00</div>
+      <div class="yt-badge">▶ YouTube</div>
+    </div>
+    <div class="intro-body">
+      <div class="intro-eyebrow">Vídeo de presentación</div>
+      <div class="intro-title">Errores comunes en la primera anamnesis</div>
+      <div class="intro-desc">Introducción a la colección «Ponerse en la piel del paciente». Vídeos de menos de un minuto en los que estudiantes de Medicina reproducen los errores más frecuentes al realizar sus primeras entrevistas clínicas, vistos desde la perspectiva del paciente.</div>
+      <div class="intro-cta">Ver en YouTube <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+  </a>
+
+  <!-- LOS 10 ERRORES -->
+  <div class="sec-header">
+    <div class="sec-pip" style="background:#c60046"></div>
+    <div class="sec-label">Los 10 errores más frecuentes</div>
+    <div class="sec-rule"></div>
+    <span class="sec-n">10 vídeos</span>
+  </div>
+
+  <div class="error-grid">
+
+    <a href="https://www.youtube.com/watch?v=yJwk8CNaArE" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/yJwk8CNaArE/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">1</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 01</div>
+        <div class="vtitle">No presentarse</div>
+        <div class="vdesc">El paciente no sabe quién tiene delante. La presentación establece la relación de confianza que hace posible una buena entrevista.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=KaSz3XNORGE" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/KaSz3XNORGE/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">2</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 02</div>
+        <div class="vtitle">No informar al paciente de lo que vamos a hacer</div>
+        <div class="vdesc">El paciente se siente interrogado sin saber por qué. Explicar el objetivo de la entrevista reduce la ansiedad y mejora la calidad de la información.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=UBYKZty7phU" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/UBYKZty7phU/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">3</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 03</div>
+        <div class="vtitle">Abusar de términos médicos y jerga</div>
+        <div class="vdesc">El paciente no entiende y asiente por no parecer ignorante. La comunicación eficaz exige adaptarse al nivel del interlocutor.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=9P3C_qgD8nU" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/9P3C_qgD8nU/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">4</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 04</div>
+        <div class="vtitle">Hacer preguntas que obligan a una respuesta concreta</div>
+        <div class="vdesc">Las preguntas cerradas o dirigidas sesgan la información. El paciente responde lo que cree que el médico quiere oír, no lo que realmente siente.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=ehd6UBTAO8E" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/ehd6UBTAO8E/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">5</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 05</div>
+        <div class="vtitle">No ir pregunta a pregunta</div>
+        <div class="vdesc">Lanzar varias preguntas a la vez desorienta al paciente, que no sabe cuál contestar primero y acaba respondiendo solo a la última.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=3WrxvSY-e8I" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/3WrxvSY-e8I/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">6</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 06</div>
+        <div class="vtitle">Perder la paciencia</div>
+        <div class="vdesc">El paciente habla lento, se desvía o repite. La impaciencia visible rompe la alianza terapéutica y cierra al paciente emocionalmente.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=zaw7Mj0UfKc" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/zaw7Mj0UfKc/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">7</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 07</div>
+        <div class="vtitle">No mirar al paciente</div>
+        <div class="vdesc">Mirar solo al papel o al ordenador transmite desinterés. El contacto visual es la base de la comunicación no verbal en la relación médico-paciente.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=UpVVLKJ0170" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/UpVVLKJ0170/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">8</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 08</div>
+        <div class="vtitle">No ser capaz de dirigir la entrevista</div>
+        <div class="vdesc">El paciente toma el control y la entrevista se convierte en una charla sin estructura. El médico debe guiar sin interrumpir bruscamente.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=NyecsuHf7Qk" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/NyecsuHf7Qk/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">9</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 09</div>
+        <div class="vtitle">Desordenar la anamnesis</div>
+        <div class="vdesc">Saltar de un bloque a otro sin orden confunde al paciente y genera lagunas de información. La estructura es la columna vertebral de la historia clínica.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+    <a href="https://www.youtube.com/watch?v=jsDeS1UST2Y" target="_blank" rel="noopener" class="vcard">
+      <div class="vthumb"><img src="https://img.youtube.com/vi/jsDeS1UST2Y/mqdefault.jpg" alt="" loading="lazy">
+        <div class="voverlay"><div class="play-ring"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 4l9 5-9 5V4z" fill="#3d1000"/></svg></div></div>
+        <div class="err-num">10</div><div class="yt-badge">▶ YouTube</div>
+      </div>
+      <div class="vbody">
+        <div class="vdur">⏱ &lt;1 min</div><div class="err-chip">Error 10</div>
+        <div class="vtitle">Evitar las «preguntas incómodas»</div>
+        <div class="vdesc">Saltarse preguntas sobre hábitos, sexualidad o salud mental por pudor deja puntos ciegos clínicos. El paciente espera ser preguntado con naturalidad y respeto.</div>
+        <div class="vlink">Ver en YouTube <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>
+
+  </div>
+
+</main>
+
+<footer>
+  <div><strong>EduMed · Universidad de Valladolid</strong> · Material docente de Propedéutica Clínica</div>
+  <div>Grado en Medicina · Facultad de Medicina UVa · Elaborado en mayo de 2026</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduMed · UVa — Anamnesis Clínica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue-deep:#001e42;
+  --blue:#003973;
+  --blue-mid:#00509e;
+  --yellow:#F5C518;
+  --yellow-dk:#c89800;
+  --red:#c60046;
+  --ink:#0f1117;
+  --ink-2:#343a47;
+  --ink-3:#5e6575;
+  --ink-4:#9aa0ad;
+  --surface:#fefcf8;
+  --bg:#eae6dc;
+  --line:#ddd9cf;
+  --r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.025;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(150deg,var(--blue-deep) 0%,var(--blue) 52%,#004d8f 100%);border-bottom:4px solid var(--yellow);padding:3.5rem 2rem 3.5rem;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-100px;top:-100px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(245,197,24,.14) 0%,transparent 65%);pointer-events:none;}
+.hero::before{content:'';position:absolute;left:-60px;bottom:-80px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(198,0,70,.09) 0%,transparent 65%);pointer-events:none;}
+.hero-inner{max-width:860px;margin:0 auto;display:block;position:relative;z-index:1;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:rgba(195,220,250,.9);font-size:.68rem;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;padding:.3rem .9rem;border-radius:20px;margin-bottom:1.1rem;}
+.hero-eyebrow b{width:6px;height:6px;border-radius:50%;background:var(--yellow);display:inline-block;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(1.85rem,3.5vw,2.85rem);font-weight:900;color:#fff;line-height:1.14;margin-bottom:.9rem;}
+h1.hero-title em{font-style:italic;color:var(--yellow);}
+.hero-sub{font-size:1rem;color:rgba(192,218,246,.85);line-height:1.72;max-width:490px;margin-bottom:2rem;}
+/* how-it-works pills */
+.how{display:flex;flex-wrap:wrap;gap:.65rem;}
+.how-item{display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:13px;padding:.75rem .95rem;flex:1;min-width:152px;}
+.how-icon{width:36px;height:36px;flex-shrink:0;background:var(--yellow);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.how-title{font-size:.76rem;font-weight:700;color:#fff;margin-bottom:.15rem;}
+.how-desc{font-size:.69rem;color:rgba(175,208,240,.75);line-height:1.5;}
+/* deco stethoscope */
+
+/* ── MAIN ── */
+.main{max-width:900px;margin:0 auto;padding:2.8rem 1.5rem 4rem;}
+
+/* ── GROUP ── */
+.group{margin-bottom:3rem;animation:fadeUp .55s ease both;}
+.group:nth-child(1){animation-delay:.08s}
+.group:nth-child(2){animation-delay:.18s}
+.group:nth-child(3){animation-delay:.28s}
+.group:nth-child(4){animation-delay:.38s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none;}}
+.group-header{display:flex;align-items:center;gap:.85rem;margin-bottom:1.25rem;}
+.pip{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.group-label{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--ink);white-space:nowrap;}
+.group-rule{flex:1;height:1px;background:var(--line);}
+.group-n{font-size:.62rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--ink-4);white-space:nowrap;}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;}
+
+/* ── CARD ── */
+a.card{display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);overflow:hidden;text-decoration:none;transition:transform .22s cubic-bezier(.34,1.35,.64,1),box-shadow .22s ease,border-color .22s ease;box-shadow:0 1px 4px rgba(0,0,0,.05),0 5px 18px rgba(0,0,0,.07);}
+a.card:hover{transform:translateY(-7px);box-shadow:0 12px 36px rgba(0,0,0,.15),0 2px 6px rgba(0,0,0,.07);border-color:var(--blue-mid);}
+a.card:active{transform:translateY(-2px);}
+
+
+
+
+
+
+
+
+.cta svg{transition:transform .2s;}
+a.card:hover .cta svg{transform:translateX(4px);}
+
+/* ── FOOTER ── */
+footer{background:var(--surface);border-top:3px solid var(--yellow);text-align:center;padding:1.5rem;font-size:.7rem;color:var(--ink-3);line-height:2;}
+footer strong{color:var(--ink-2);}
+
+@media(max-width:680px){
+  .hero-inner{grid-template-columns:1fr;}
+    .hero{padding:2.5rem 1.2rem 2.5rem;}
+  .grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:420px){.grid{grid-template-columns:1fr;}}
+
+/* ── CARD ANATOMY ── */
+.card-top {
+  height: 156px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.1rem 1.2rem .9rem;
+}
+
+/* Subtle inner vignette for depth */
+.card-top::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,.42) 100%);
+  pointer-events: none;
+}
+
+/* decorative code label — SELLO grande */
+.card-deco {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%) rotate(-14deg);
+  font-family: 'Source Sans 3', monospace;
+  font-size: 3.8rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.13);
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+  white-space: nowrap;
+  border: 4px solid rgba(255,255,255,.10);
+  padding: .15rem .6rem;
+  border-radius: 5px;
+}
+
+.card-emoji {
+  font-size: 1.9rem;
+  line-height: 1;
+  margin-bottom: .45rem;
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.45));
+  position: relative;
+  z-index: 1;
+}
+
+.card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.22;
+  text-shadow: 0 1px 4px rgba(0,0,0,.55);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── CARD FOOT ── */
+.card-foot {
+  padding: .95rem 1.1rem 1.05rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.card-desc {
+  font-size: .73rem;
+  color: var(--ink-3);
+  line-height: 1.58;
+  flex: 1;
+}
+
+.card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  margin-top: .7rem;
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--blue-mid);
+  letter-spacing: .01em;
+}
+.card-cta svg {
+  transition: transform .2s ease;
+}
+a.card:hover .card-cta svg {
+  transform: translateX(5px);
+}
+
+/* ══════════════════════════════════
+   CARDS DE VÍDEO — diseño especial
+══════════════════════════════════ */
+
+.card-video {
+  flex-direction: column;
+}
+
+/* Thumbnail de YouTube como portada */
+.card-video .card-top {
+  height: 180px;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-video .card-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+a.card.card-video:hover .card-thumb {
+  transform: scale(1.04);
+}
+
+/* overlay oscuro sobre thumbnail */
+.card-video .card-top::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.15) 0%, rgba(0,0,0,.62) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* botón play centrado */
+.card-video .play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  background: rgba(255,255,255,.92);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background .2s ease, transform .2s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,.35);
+}
+a.card.card-video:hover .play-btn {
+  background: #fff;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+.card-video .play-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--blue-deep);
+  margin-left: 3px; /* optical centering */
+}
+
+/* nombre sobre la imagen */
+.card-video .card-name {
+  position: absolute;
+  bottom: .85rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 2;
+  font-size: 1rem;
+}
+
+/* ocultar emoji y deco en vídeos */
+.card-video .card-emoji { display: none; }
+.card-video .card-deco  { display: none; }
+
+.card-video .card-foot {
+  border-top: 1px solid var(--line);
+  padding: .9rem 1.1rem 1rem;
+}
+
+.card-video .card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: rgba(0,57,115,.07);
+  border: 1px solid rgba(0,57,115,.14);
+  color: var(--blue-mid);
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .9px;
+  text-transform: uppercase;
+  padding: .22rem .7rem;
+  border-radius: 20px;
+  margin-bottom: .6rem;
+  width: fit-content;
+}
+.card-video .card-badge b {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--red);
+  display: inline-block;
+}
+
+.card-video .card-desc { font-size: .74rem; }
+.card-video .card-cta  { margin-top: .65rem; color: var(--red); }
+a.card.card-video:hover .card-cta svg { transform: translateX(5px); }
+
+/* grid de vídeos: 2 columnas */
+.grid-video {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+@media (max-width: 540px) {
+  .grid-video { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════
+   FOOTER
+══════════════════════════════════ */
+footer {
+  background: var(--surface);
+  border-top: 3px solid var(--yellow);
+  text-align: center;
+  padding: 1.75rem 1.5rem;
+  font-size: .7rem;
+  color: var(--ink-3);
+  line-height: 2.2;
+}
+footer strong {
+  color: var(--ink-2);
+  font-weight: 700;
+}
+
+/* ══════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 720px) {
+  .hero { padding: 2.8rem 1.25rem 2.5rem; }
+  .how { grid-template-columns: 1fr; gap: .6rem; }
+  .how-item { padding: .75rem .9rem; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .hero-footer-bar { flex-wrap: wrap; gap: 1rem; }
+  h2.group-label { font-size: 1.05rem; white-space: normal; }
+}
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; }
+  h1.hero-title { font-size: 1.75rem; }
+  .hero-sub { font-size: .95rem; }
+  .main { padding: 2.2rem 1rem 4rem; }
+}
+
+@media (min-width: 721px) and (max-width: 900px) {
+  .how { grid-template-columns: repeat(3, 1fr); }
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .group { animation: none; }
+  a.card { transition: none; }
+  a.card:hover { transform: none; }
+  .card-cta svg { transition: none; }
+}
+
+/* ── Print ── */
+@media print {
+  body::before { display: none; }
+  .hero { background: var(--blue-deep) !important; }
+  a.card { break-inside: avoid; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-eyebrow"><b></b>EduMed · Universidad de Valladolid · Propedéutica Clínica</div>
+      <h1 class="hero-title">Estudia cómo hacer la<br><em>anamnesis clínica</em><br>de los 12 síntomas<br>más frecuentes</h1>
+      <p class="hero-sub">Módulos interactivos para 3.º de Medicina. Razona antes de ver la respuesta, evalúa lo que sabes tarjeta a tarjeta y sigue tu progreso.</p>
+      <div class="how">
+        <div class="how-item">
+          <div class="how-icon">💡</div>
+          <div><div class="how-title">Un caso clínico real</div><div class="how-desc">Cada módulo sigue a un paciente concreto. Sus respuestas orientan el diagnóstico mientras tú aprendes a preguntar.</div></div>
+        </div>
+        <div class="how-item">
+          <div class="how-icon">🃏</div>
+          <div><div class="how-title">Gira las tarjetas</div><div class="how-desc">En cada módulo hay un caso clínico real que se va resolviendo paso a paso mientras aprendes la teoría.</div></div>
+        </div>
+        <div class="how-item">
+          <div class="how-icon">✓</div>
+          <div><div class="how-title">Ya lo sabía · Repasar</div><div class="how-desc">Evalúa tarjeta a tarjeta lo que ya dominabas. Al final ves el diagnóstico del caso y tu resultado.</div></div>
+        </div>
+      </div>
+    </div>
+    </div>
+</header>
+
+<main class="main">
+
+  <!-- ══ GRUPO 1: CARDIORRESPIRATORIOS ══ -->
+  <section class="group">
+    <div class="group-header">
+      <div class="pip" style="background:#c60046"></div>
+      <h2 class="group-label">Síntomas cardiorrespiratorios</h2>
+      <div class="group-rule"></div>
+      <span class="group-n">3 módulos</span>
+    </div>
+    <div class="grid">
+
+      <a href="Anamnesis_Dolor_Toracico_v2.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#5c0a1a 0%,#8b1a2e 100%)">
+          <span class="card-deco">DxTc</span>
+          <span class="card-emoji">🫀</span>
+          <div class="card-name">Dolor torácico</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo interpretar el dolor torácico? Diferenciando infarto, pericarditis, embolia pulmonar, disección aórtica o causas benignas.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Disnea_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#003060 0%,#004d8f 100%)">
+          <span class="card-deco">DxDs</span>
+          <span class="card-emoji">🫁</span>
+          <div class="card-name">Disnea</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo orientar la falta de aire? Navegando entre insuficiencia cardiaca, EPOC, asma, neumonía o embolia pulmonar.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Edema_MMII_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#003820 0%,#005c34 100%)">
+          <span class="card-deco">DxEd</span>
+          <span class="card-emoji">🦵</span>
+          <div class="card-name">Edema de MMII</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo interpretar unas piernas hinchadas? Buscando claves de insuficiencia cardiaca, renal, hepática, venosa o fármacos.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ GRUPO 2: DIGESTIVOS Y URINARIOS ══ -->
+  <section class="group">
+    <div class="group-header">
+      <div class="pip" style="background:#c87000"></div>
+      <h2 class="group-label">Síntomas digestivos y urinarios</h2>
+      <div class="group-rule"></div>
+      <span class="group-n">3 módulos</span>
+    </div>
+    <div class="grid">
+
+      <a href="Anamnesis_Dolor_Abdominal_v2.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#5c2800 0%,#8b4000 100%)">
+          <span class="card-deco">DxAb</span>
+          <span class="card-emoji">🫃</span>
+          <div class="card-name">Dolor abdominal</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo orientar el dolor abdominal? Navegando entre cólicos, pancreatitis, úlceras, abdomen agudo o embarazo ectópico.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Disuria_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#280a50 0%,#401070 100%)">
+          <span class="card-deco">DxDu</span>
+          <span class="card-emoji">💧</span>
+          <div class="card-name">Disuria</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo orientar el escozor al orinar? Diferenciando cistitis, pielonefritis, uretritis, litiasis o síntomas ginecológicos.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Diarrea_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#003a20 0%,#005c34 100%)">
+          <span class="card-deco">DxDi</span>
+          <span class="card-emoji">💩</span>
+          <div class="card-name">Diarrea</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo abordar la diarrea? Distinguiendo infección, inflamación, malabsorción, fármacos o signos de deshidratación y alarma.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ GRUPO 3: NEUROLÓGICOS ══ -->
+  <section class="group">
+    <div class="group-header">
+      <div class="pip" style="background:#5030a0"></div>
+      <h2 class="group-label">Sistema nervioso, equilibrio y pérdida de consciencia</h2>
+      <div class="group-rule"></div>
+      <span class="group-n">3 módulos</span>
+    </div>
+    <div class="grid">
+
+      <a href="Anamnesis_Cefalea_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#3a0860 0%,#5c1490 100%)">
+          <span class="card-deco">DxCf</span>
+          <span class="card-emoji">🧠</span>
+          <div class="card-name">Cefalea</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo orientar el dolor de cabeza? Navegando entre migrañas, cefalea tensional, meningitis, hemorragia subaracnoidea o neuralgias.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Mareo_Vertigo_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#0a2a50 0%,#103d70 100%)">
+          <span class="card-deco">DxMv</span>
+          <span class="card-emoji">🌀</span>
+          <div class="card-name">Mareo / Vértigo</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo abordar el mareo? Diferenciando vértigo periférico, causas neurológicas centrales, hipotensión ortostática o ansiedad.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Sincope_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#4a2800 0%,#704000 100%)">
+          <span class="card-deco">DxSn</span>
+          <span class="card-emoji">😵</span>
+          <div class="card-name">Síncope</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo estudiar un desmayo? Distinguiendo síncope vasovagal, cardiogénico, ortostático, crisis epilépticas o causas graves.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ GRUPO 4: SÍNTOMAS GENERALES ══ -->
+  <section class="group">
+    <div class="group-header">
+      <div class="pip" style="background:#c04000"></div>
+      <h2 class="group-label">Síntomas con pistas «generales»</h2>
+      <div class="group-rule"></div>
+      <span class="group-n">3 módulos</span>
+    </div>
+    <div class="grid">
+
+      <a href="Anamnesis_Fiebre_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#5c1800 0%,#8a2800 100%)">
+          <span class="card-deco">DxFb</span>
+          <span class="card-emoji">🌡️</span>
+          <div class="card-name">Fiebre</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo estudiar la fiebre? Aprendiendo a buscar foco, patrón temporal, contexto epidemiológico y signos de gravedad.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Dolor_Articular_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#2a1060 0%,#3d1a8a 100%)">
+          <span class="card-deco">DxAr</span>
+          <span class="card-emoji">🦴</span>
+          <div class="card-name">Dolor articular</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo explorar el dolor articular? Separando artritis inflamatoria, artrosis, gota, artritis séptica o enfermedades autoinmunes.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <a href="Anamnesis_Tos_v1.html" class="card">
+        <div class="card-top" style="background:linear-gradient(145deg,#3a0a60 0%,#5a1890 100%)">
+          <span class="card-deco">DxTo</span>
+          <span class="card-emoji">😮‍💨</span>
+          <div class="card-name">Tos</div>
+        </div>
+        <div class="card-foot">
+          <p class="card-desc">¿Cómo preguntar por la tos? Separando infección respiratoria, asma, EPOC, reflujo gastroesofágico, fármacos o señales de alarma.</p>
+          <div class="card-cta">Empezar módulo <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+
+  <!-- ══ COLECCIONES DE VÍDEO ══ -->
+  <section class="group" aria-labelledby="g5-label">
+    <div class="group-header">
+      <div class="pip" style="background:#c89800;" aria-hidden="true"></div>
+      <h2 class="group-label" id="g5-label">Colecciones de vídeo</h2>
+      <div class="group-rule" aria-hidden="true"></div>
+      <span class="group-n" aria-label="2 colecciones">2 colecciones</span>
+    </div>
+    <div class="grid-video">
+
+      <!-- thumbnail: primer vídeo de la lista PLSbo9kXA_LcxfY-Xd4S-t-X-nInRWtmZD -->
+      <a href="https://www.youtube.com/watch?v=4bRbyfd5Fb0&list=PLSbo9kXA_LcxfY-Xd4S-t-X-nInRWtmZD" class="card card-video" target="_blank" rel="noopener" aria-label="Anamnesis en vídeo — Ver lista en YouTube">
+        <div class="card-top">
+          <img class="card-thumb" src="https://img.youtube.com/vi/4bRbyfd5Fb0/mqdefault.jpg" alt="Miniatura: Anamnesis en vídeo" loading="lazy">
+          <div class="play-btn" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="card-name">Anamnesis en vídeo</div>
+        </div>
+        <div class="card-foot">
+          <div class="card-badge"><b aria-hidden="true"></b>11 vídeos docentes · YouTube</div>
+          <p class="card-desc">¿Cómo hacer la historia clínica? Estudiantes de la UVa demuestran cómo estructurar la anamnesis y explorar al paciente.</p>
+          <div class="card-cta" aria-hidden="true">Ver lista completa <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+      <!-- thumbnail: primer vídeo de la lista PLSbo9kXA_Lcxj-EJ31TIgE4l7ArxJktcA -->
+      <a href="https://www.youtube.com/watch?v=Ybf34xEtXJg&list=PLSbo9kXA_Lcxj-EJ31TIgE4l7ArxJktcA" class="card card-video" target="_blank" rel="noopener" aria-label="Ponerse en la piel del paciente — Ver lista en YouTube">
+        <div class="card-top">
+          <img class="card-thumb" src="https://img.youtube.com/vi/Ybf34xEtXJg/mqdefault.jpg" alt="Miniatura: Ponerse en la piel del paciente" loading="lazy">
+          <div class="play-btn" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="card-name">Ponerse en la piel del paciente</div>
+        </div>
+        <div class="card-foot">
+          <div class="card-badge"><b aria-hidden="true"></b>10 vídeos · menos de 1 min · YouTube</div>
+          <p class="card-desc">¿Qué errores cometemos sin darnos cuenta? Los fallos más frecuentes en las primeras anamnesis, vistos desde el lado del paciente.</p>
+          <div class="card-cta" aria-hidden="true">Ver lista completa <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M6.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div><strong>EduMed · Universidad de Valladolid</strong> · Material docente de Propedéutica Clínica</div>
+  <div>Grado en Medicina · Facultad de Medicina UVa · Elaborado en mayo de 2026</div>
+</footer>
+
+</body>
+</html>

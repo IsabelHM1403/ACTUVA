@@ -1,0 +1,225 @@
+/* ---------------------------------------------------------------------------
+ * EduMed shared styles (UVa). Used by every EduMed page.
+ * Extracted from EduMed_UVa_completo/Anamnesis_Cefalea_v1.html.
+ * --------------------------------------------------------------------------- */
+
+:root {
+  --yellow:#F5C518; --yellow-mid:#FEF0A0; --yellow-pale:#FFFDE7; --yellow-deep:#D4A000;
+  --uva-blue:#003973; --uva-blue-2:#00509e; --uva-red:#c60046;
+  --blue-deep:#002244;
+  --ink:#0F1117; --ink-2:#343A47; --ink-3:#5E6575; --ink-4:#9AA0AD;
+  --line:#DDD9CF; --line-light:#E8E4DB;
+  --surface:#FEFCF8; --bg:#EAE6DC;
+  --white:#FFFFFF;
+  --green:#059669; --green-pale:#D1FAE5; --green-border:#6EE7B7;
+  --red-pale:#FEE2E2; --red-border:#FCA5A5;
+  --radius:14px; --radius-sm:8px;
+  --shadow-card:0 1px 3px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.08);
+  --shadow-lift:0 4px 8px rgba(0,0,0,.07),0 16px 36px rgba(0,0,0,.11);
+  --shadow-fc:0 2px 6px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),inset 0 -1px 0 rgba(0,0,0,.04);
+  --font-sans:'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-serif:'Playfair Display',Georgia,'Times New Roman',serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.65;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: .022;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.topbar {
+  background: var(--blue-deep, #002244);
+  padding: .3rem 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.topbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: .85rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: .01em;
+  transition: color .15s;
+}
+.topbar-brand:hover { color: var(--yellow); }
+.topbar-brand:focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; border-radius: 4px; }
+.topbar-brand-mark {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  background: var(--yellow);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .68rem;
+  font-weight: 700;
+  color: rgba(180, 210, 250, .7);
+  text-decoration: none;
+  transition: color .15s;
+}
+.back-btn:hover { color: #fff; }
+.back-btn svg { opacity: .7; }
+.back-btn:hover svg { opacity: 1; }
+
+footer {
+  background: var(--surface);
+  color: var(--ink-3);
+  border-top: 2px solid var(--yellow);
+  text-align: center;
+  padding: 1.1rem 1.5rem;
+  font-size: .7rem;
+  line-height: 1.9;
+}
+footer strong { color: var(--ink-2); }
+
+/* ---------------------------------------------------------------------------
+ * Global topbar (.site-nav). Used by every page extending base.html.
+ *
+ * Design choice: a thin surface-colored bar with a subtle bottom border
+ * (rather than the dark blue band used by .topbar in module pages). This
+ * keeps it unobtrusive on the dashboard / chat / cases pages while still
+ * carrying the EduMed brand mark + yellow accent.
+ * --------------------------------------------------------------------------- */
+.site-nav {
+  position: relative;
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .65rem 1.6rem;
+  font-family: var(--font-sans);
+}
+.site-nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--blue-deep);
+  letter-spacing: .01em;
+}
+.site-nav-brand:hover { color: var(--uva-blue-2); }
+.site-nav-brand-mark {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: var(--yellow);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+}
+.site-nav-links {
+  display: inline-flex;
+  align-items: center;
+  gap: .85rem;
+}
+.site-nav-user {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  letter-spacing: .01em;
+}
+.site-nav-link {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--blue-deep);
+  text-decoration: none;
+  padding: .42rem .85rem;
+  border-radius: 8px;
+  transition: background .15s, color .15s;
+}
+.site-nav-link:hover {
+  background: var(--yellow-pale);
+  color: var(--blue-deep);
+}
+.site-nav-link-primary {
+  background: var(--blue-deep);
+  color: #fff;
+}
+.site-nav-link-primary:hover {
+  background: var(--uva-blue-2);
+  color: #fff;
+}
+.site-nav-logout-form {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+}
+.site-nav-link-button {
+  font-family: var(--font-sans);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.site-main {
+  display: block;
+  min-height: calc(100vh - 60px);
+}
+
+/* Focus visibility — WCAG 2.4.7. Applied to all clickable surfaces. */
+.site-nav-brand:focus-visible,
+.site-nav-link:focus-visible,
+.site-nav-link-button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Global form controls (used by Django form widgets via class attrs) ── */
+.edu-input,
+.edu-select,
+.edu-file {
+  width: 100%;
+  padding: .65rem .85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: .95rem;
+  color: var(--ink);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.edu-input:focus,
+.edu-select:focus,
+.edu-file:focus {
+  border-color: var(--yellow-deep);
+  box-shadow: 0 0 0 3px rgba(245,197,24,.25);
+  outline: none;
+}
+textarea.edu-input {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.55;
+}
+.edu-file {
+  padding: .5rem .65rem;
+  font-size: .85rem;
+}
+

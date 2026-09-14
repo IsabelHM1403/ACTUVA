@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anamnesis del Síncope · UVa</title>
+<style>
+:root {
+  --yellow:#F5C518; --yellow-mid:#FEF0A0; --yellow-pale:#FFFDE7; --yellow-deep:#D4A000;
+  --uva-blue:#003973; --uva-blue-2:#00509e; --uva-red:#c60046;
+  --ink:#0F1117; --ink-2:#343A47; --ink-3:#5E6575; --ink-4:#9AA0AD;
+  --line:#DDD9CF; --line-light:#E8E4DB;
+  --surface:#FEFCF8; --bg:#EAE6DC;
+  --white:#FFFFFF;
+  --green:#059669; --green-pale:#D1FAE5; --green-border:#6EE7B7;
+  --red-pale:#FEE2E2; --red-border:#FCA5A5;
+  --radius:14px; --radius-sm:8px;
+  --shadow-card:0 1px 3px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.08);
+  --shadow-lift:0 4px 8px rgba(0,0,0,.07),0 16px 36px rgba(0,0,0,.11);
+  --shadow-fc:0 2px 6px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),inset 0 -1px 0 rgba(0,0,0,.04);
+  --font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-serif:Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.65;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.022;pointer-events:none;z-index:9999;}
+.header{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 60%,#004d8f 100%);padding:1rem 1.6rem;display:flex;align-items:center;gap:1.1rem;border-bottom:3px solid var(--yellow);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(245,197,24,.12) 0%,transparent 70%);pointer-events:none;}
+.header-brand{display:flex;flex-direction:column;flex-shrink:0;}
+.header-badge{background:var(--uva-red);color:#fff;font-weight:800;font-size:.82rem;padding:3px 10px;border-radius:5px;letter-spacing:.6px;display:inline-block;}
+.header-sub{font-size:.6rem;color:rgba(160,180,204,.8);margin-top:4px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+.header-divider{width:1px;height:38px;background:rgba(255,255,255,.15);flex-shrink:0;}
+.header-text h1{font-family:var(--font-serif);font-size:1.05rem;font-weight:700;color:#fff;line-height:1.25;}
+.header-text p{font-size:.68rem;color:rgba(160,180,204,.85);margin-top:.2rem;}
+.progress-wrap{background:var(--line);height:6px;}
+.progress-fill{height:6px;background:linear-gradient(90deg,var(--uva-red),#e8005a);transition:width .55s cubic-bezier(.4,0,.2,1);}
+.step-nav{display:flex;flex-wrap:wrap;background:var(--surface);border-bottom:1px solid var(--line);padding:.55rem .75rem;gap:.35rem;align-items:center;}
+.step-pill{padding:.32rem .8rem;font-size:.7rem;border-radius:20px;font-weight:700;border:1.5px solid var(--line);cursor:pointer;transition:all .2s;white-space:nowrap;background:var(--surface);color:var(--ink-4);display:flex;align-items:center;gap:.3rem;}
+.step-pill:hover{background:var(--yellow-pale);border-color:var(--yellow-deep);color:var(--ink);transform:translateY(-1px);}
+.step-pill.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow-deep);font-weight:800;box-shadow:0 2px 10px rgba(245,197,24,.35);}
+.step-pill.done{background:var(--uva-blue);color:#fff;border-color:var(--uva-blue);}
+.step-pill.done:hover{background:var(--uva-blue-2);transform:translateY(-1px);}
+.step-pill.summary{background:var(--ink-2);color:#fff;border-color:var(--ink-2);}
+.step-pill.quiz{background:var(--uva-red);color:#fff;border-color:var(--uva-red);}
+.main{max-width:760px;margin:0 auto;padding:1.6rem 1.2rem 2.5rem;}
+.patient-card{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 55%,#004d8f 100%);border-radius:var(--radius);display:flex;overflow:hidden;margin-bottom:1.1rem;box-shadow:0 3px 12px rgba(0,57,115,.25);}
+.patient-stripe{background:var(--yellow);width:5px;flex-shrink:0;}
+.patient-inner{display:flex;gap:1rem;padding:.8rem 1rem;flex:1;position:relative;overflow:hidden;}
+.patient-inner::after{content:'URG';position:absolute;right:.6rem;top:50%;transform:translateY(-50%);font-size:3rem;font-weight:800;color:rgba(255,255,255,.04);pointer-events:none;line-height:1;}
+.patient-meta{flex-shrink:0;border-right:1px solid rgba(255,255,255,.12);padding-right:.9rem;display:flex;flex-direction:column;justify-content:center;gap:.25rem;}
+.patient-name-tag{font-size:.78rem;font-weight:800;color:var(--yellow);}
+.patient-age{font-size:.65rem;color:rgba(160,180,210,.8);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.patient-case{font-size:.58rem;color:rgba(160,180,210,.5);font-weight:600;}
+.patient-quote-area{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.patient-quote-label{font-size:.58rem;font-weight:700;color:rgba(245,197,24,.7);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.2rem;}
+.patient-quote{font-size:.88rem;color:rgba(230,238,250,.92);line-height:1.55;font-style:italic;}
+/* TESTIGO CARD */
+.witness-card{background:linear-gradient(135deg,#3b0764 0%,#6b21a8 60%,#7c3aed 100%);border-radius:var(--radius);display:flex;overflow:hidden;margin-bottom:.7rem;box-shadow:0 3px 12px rgba(109,40,217,.25);}
+.witness-stripe{background:var(--yellow);width:5px;flex-shrink:0;}
+.witness-inner{display:flex;gap:1rem;padding:.8rem 1rem;flex:1;}
+.witness-meta{flex-shrink:0;border-right:1px solid rgba(255,255,255,.15);padding-right:.9rem;display:flex;flex-direction:column;justify-content:center;gap:.2rem;}
+.witness-tag{font-size:.7rem;font-weight:800;color:var(--yellow);}
+.witness-role{font-size:.58rem;color:rgba(220,200,255,.75);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.witness-qa{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.witness-ql{font-size:.56rem;font-weight:700;color:rgba(200,170,255,.7);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.15rem;}
+.witness-q{font-size:.84rem;color:rgba(245,235,255,.9);line-height:1.5;font-style:italic;}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line-light);box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:1.5rem;}
+.card-head{background:var(--yellow);padding:1.1rem 1.6rem;border-bottom:2px solid var(--yellow-deep);position:relative;overflow:hidden;}
+.card-head-deco{position:absolute;right:-.02em;bottom:-.18em;font-family:var(--font-serif);font-size:6.5rem;font-weight:700;line-height:1;color:rgba(0,0,0,.07);pointer-events:none;user-select:none;}
+.card-num{font-size:.6rem;color:rgba(61,68,81,.65);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.2rem;font-weight:700;}
+.card-title{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--ink);line-height:1.2;}
+.card-body{padding:1.4rem 1.6rem;}
+.think-box{background:var(--yellow-pale);border:1px solid rgba(212,160,0,.25);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.9rem 1.1rem;margin-bottom:.9rem;}
+.think-box .lbl{font-size:.6rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.think-box p{font-size:.88rem;color:var(--ink-2);line-height:1.6;}
+.pause-p{font-size:.8rem;color:var(--ink-4);font-style:italic;margin-bottom:1rem;}
+.btn-reveal{background:var(--yellow);color:var(--ink);border:none;padding:.7rem 1.5rem;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;cursor:pointer;font-weight:800;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-reveal:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.btn-reveal:disabled{background:var(--line-light);color:var(--ink-4);cursor:default;box-shadow:none;transform:none;}
+.btn-next{margin-top:1.1rem;background:var(--yellow);color:var(--ink);border:none;padding:.8rem 1.8rem;border-radius:var(--radius-sm);font-size:.9rem;font-family:inherit;cursor:pointer;font-weight:800;width:100%;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-next:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.reveal{display:none;margin-top:1.3rem;border-top:1px solid var(--line-light);padding-top:1.3rem;}
+.reveal.on{display:block;animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.sec-label{font-size:.58rem;font-weight:800;color:var(--ink-4);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.65rem;}
+.example-q{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.85rem 1.1rem;margin-bottom:1rem;}
+.example-q .lbl{font-size:.58rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.example-q p{font-size:.9rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.tip-box{background:rgba(0,57,115,.03);border:1px solid rgba(0,57,115,.1);border-radius:var(--radius-sm);padding:.85rem 1.1rem;margin-bottom:1rem;}
+.tip-box .lbl{font-size:.58rem;color:var(--uva-blue);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.tip-box p{font-size:.84rem;color:var(--ink-2);margin-bottom:.35rem;line-height:1.65;}
+.tip-box p strong{color:var(--uva-blue);font-size:.9rem;}
+.tip-box p:last-child{margin-bottom:0;}
+.fc-hint{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-bottom:.8rem;}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem;margin-bottom:1.3rem;grid-auto-rows:1fr;}
+.fc{perspective:1200px;height:190px;cursor:pointer;}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1),box-shadow .25s;border-radius:12px;box-shadow:var(--shadow-fc);}
+.fc:hover .fc-inner{box-shadow:var(--shadow-lift);transform:translateY(-3px);}
+.fc.flipped .fc-inner{transform:rotateY(180deg);}
+.fc.flipped:hover .fc-inner{transform:rotateY(180deg) translateY(-3px);}
+.fc-front,.fc-back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:1.1rem;text-align:center;}
+.fc-front{background:#FEFCF8;border:1px solid var(--line);transition:background .3s,border-color .3s;}
+.fc-front.knew-state{background:linear-gradient(148deg,#F0FDF4,#DCFCE7);border-color:var(--green-border);}
+.fc-front.unknown-state{background:linear-gradient(148deg,#FFF1F2,#FFE4E6);border-color:var(--red-border);}
+.fc-front .fc-label{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:.4rem;}
+.fc-front .fc-badge{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;background:var(--uva-red);color:#fff;text-transform:uppercase;letter-spacing:.5px;}
+.fc-front .fc-tap{font-size:.62rem;color:var(--ink-4);margin-top:.65rem;}
+.fc-front .fc-state-badge{font-size:.7rem;font-weight:700;margin-top:.55rem;padding:3px 9px;border-radius:5px;}
+.fc-front .fc-state-badge.knew{background:var(--green-pale);color:var(--green);border:1px solid var(--green-border);}
+.fc-front .fc-state-badge.unknown{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.fc-back{background:var(--surface);border:1.5px solid var(--uva-blue);transform:rotateY(180deg);justify-content:flex-start;align-items:flex-start;text-align:left;overflow-y:auto;}
+.fc-back-header{background:var(--uva-blue);width:calc(100% + 2.2rem);margin:-1.1rem -1.1rem .75rem;padding:.5rem 1.1rem;border-radius:11px 11px 0 0;display:flex;align-items:center;justify-content:space-between;}
+.fc-back .fc-back-label{font-size:.75rem;font-weight:700;color:#fff;}
+.fc-back p{font-size:.83rem;color:var(--ink-2);line-height:1.6;flex:1;}
+.knowledge-btns{display:flex;gap:.5rem;margin-top:.85rem;width:100%;}
+.btn-knew{background:var(--green-pale);color:#065F46;border:1.5px solid var(--green-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-knew:hover{background:#A7F3D0;}
+.btn-unknown{background:var(--red-pale);color:#991B1B;border:1.5px solid var(--red-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-unknown:hover{background:#FECACA;}
+.irr-list{display:grid;gap:.5rem;margin-bottom:1.3rem;}
+.irr-item{border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;}
+.irr-trigger{width:100%;background:var(--yellow);border:none;padding:.65rem 1.1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;transition:background .15s;}
+.irr-trigger:hover{background:var(--yellow-deep);}
+.irr-trigger .irr-name{font-size:.92rem;font-weight:700;color:var(--ink);text-align:left;}
+.irr-trigger .irr-badge{font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:4px;background:var(--ink);color:var(--yellow);text-transform:uppercase;flex-shrink:0;margin-left:.5rem;}
+.irr-trigger .irr-arrow{color:var(--ink-2);font-size:.8rem;flex-shrink:0;margin-left:.5rem;transition:transform .3s;}
+.irr-item.open .irr-arrow{transform:rotate(180deg);}
+.irr-body{display:none;background:var(--bg);padding:.9rem 1.1rem;}
+.irr-item.open .irr-body{display:block;}
+.irr-text{font-size:.84rem;color:var(--ink-2);line-height:1.65;}
+.attr-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;}
+.attr-box h3{font-size:.72rem;font-weight:800;color:var(--uva-blue);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.8px;}
+.attr-list{display:grid;gap:.55rem;}
+.attr-item{display:flex;gap:.65rem;align-items:flex-start;}
+.attr-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.attr-item p{font-size:.86rem;color:var(--ink-2);line-height:1.6;}
+.attr-tip{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.75rem 1.1rem;margin-top:.9rem;font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.final-card{background:var(--yellow-pale);border:1.5px solid rgba(212,160,0,.3);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:1rem;}
+.summary-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;margin-bottom:1rem;box-shadow:var(--shadow-card);}
+.summary-card .sc-head{background:var(--yellow);color:var(--ink);padding:.8rem 1.4rem;font-weight:800;font-size:.92rem;border-bottom:2px solid var(--yellow-deep);}
+.summary-card .sc-body{padding:1rem 1.4rem;}
+.q-row{display:flex;gap:.8rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--line-light);}
+.q-row:last-child{border-bottom:none;}
+.q-num{background:var(--yellow);color:var(--ink);font-size:.62rem;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.q-title{font-size:.86rem;font-weight:700;color:var(--ink);}
+.q-ex{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-top:.05rem;}
+.score-panel{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.score-stat{text-align:center;flex:1;min-width:80px;}
+.score-stat .num{font-family:var(--font-serif);font-size:2rem;font-weight:700;line-height:1;}
+.score-stat .lbl{font-size:.6rem;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:.6px;margin-top:.15rem;}
+.score-stat.green .num{color:#6EE7B7;}.score-stat.red .num{color:#FCA5A5;}.score-stat.yellow .num{color:var(--yellow);}
+.score-divider{width:1px;height:44px;background:rgba(255,255,255,.12);}
+.dx-reveal{border-radius:var(--radius);overflow:hidden;margin-bottom:1.1rem;box-shadow:var(--shadow-card);}
+.dx-reveal-top{background:linear-gradient(135deg,var(--uva-red) 0%,#e8005a 100%);padding:1.4rem 1.6rem;text-align:center;}
+.dx-reveal-top .dx-eyebrow{font-size:.62rem;color:rgba(254,205,211,.85);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin-bottom:.4rem;}
+.dx-reveal-top .dx-name{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:#fff;}
+.dx-evidence{background:var(--surface);border:1.5px solid rgba(198,0,70,.15);border-top:none;padding:1.1rem 1.3rem;}
+.dx-evidence h4{font-size:.62rem;font-weight:800;color:var(--uva-blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.7rem;}
+.dx-clue{display:flex;gap:.65rem;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid var(--line-light);}
+.dx-clue:last-child{border-bottom:none;}
+.dx-clue-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.dx-clue p{font-size:.85rem;color:var(--ink-2);line-height:1.6;}
+.dx-fb{margin-top:1.3rem;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid rgba(0,57,115,.25);animation:fadeUp .35s ease both;}
+.dx-fb-head{background:linear-gradient(90deg,#002d5c,var(--uva-blue));padding:.6rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;}
+.dx-fb-eyebrow{font-size:.58rem;font-weight:800;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:1px;}
+.dx-fb-title{font-size:.78rem;font-weight:700;color:#fff;}
+.dx-compat{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;}
+.dx-compat.neutral{background:rgba(255,255,255,.12);color:rgba(200,216,232,.8);}
+.dx-compat.positive{background:rgba(245,197,24,.18);color:var(--yellow);}
+.dx-compat.strong{background:rgba(198,0,70,.25);color:#fca5a5;}
+.dx-fb-body{background:#eef4ff;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.75rem;border-top:none;}
+.dx-quote-box{background:var(--yellow-pale);border-left:3px solid var(--yellow-deep);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6rem .9rem;}
+.dx-quote-who{font-size:.57rem;font-weight:800;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.2rem;}
+.dx-quote-text{font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.55;}
+.dx-interp{font-size:.84rem;color:var(--ink);line-height:1.65;}
+.dx-tags-row{display:flex;flex-direction:column;gap:.4rem;}
+.dx-tags-label{font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.1rem;}
+.dx-tags-label.fits{color:var(--green);}.dx-tags-label.rules{color:#991b1b;}
+.dx-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.dx-tag{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:4px;}
+.dx-tag.fits{background:var(--green-pale);color:#065F46;border:1px solid var(--green-border);}
+.dx-tag.rules{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.ev-meter{display:flex;align-items:center;gap:.55rem;margin-top:.5rem;}
+.ev-meter-label{font-size:.6rem;font-weight:700;color:rgba(0,0,0,.35);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+.ev-dots{display:flex;gap:3px;}
+.ev-dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.1);}
+.ev-dot.neutral{background:#D1D5DB;}.ev-dot.positive{background:var(--uva-blue-2);}.ev-dot.strong{background:var(--uva-red);}
+.ev-score{font-size:.62rem;font-weight:800;color:var(--ink-3);}
+.quiz-intro{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);color:#fff;border-radius:var(--radius);padding:1.2rem 1.5rem;margin-bottom:1.2rem;}
+.quiz-intro h2{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;margin-bottom:.35rem;}
+.quiz-intro p{font-size:.84rem;color:rgba(160,180,210,.85);line-height:1.65;}
+footer{background:var(--surface);color:var(--ink-3);border-top:2px solid var(--yellow);text-align:center;padding:1.1rem 1.5rem;font-size:.7rem;line-height:1.9;}
+footer strong{color:var(--ink-2);}
+@media(max-width:520px){
+  .fc-grid{grid-template-columns:1fr;}
+  .header{padding:.75rem 1rem;gap:.75rem;}
+  .card-title{font-size:1.25rem;}
+  .card-body,.card-head{padding:.9rem 1.2rem;}
+}
+
+
+.topbar{background:var(--blue-deep,#002244);padding:.3rem 1.6rem;display:flex;align-items:center;}
+.back-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:700;color:rgba(180,210,250,.7);text-decoration:none;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+.back-btn svg{opacity:.7;}
+.back-btn:hover svg{opacity:1;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="importmap">
+{"imports":{"preact":"https://unpkg.com/preact@10.25.4/dist/preact.module.js","preact/hooks":"https://unpkg.com/preact@10.25.4/hooks/dist/hooks.module.js","htm":"https://unpkg.com/htm@3.1.1/dist/htm.module.js"}}
+</script>
+<script type="module">
+import{h,render}from'preact';
+import{useState,useCallback}from'preact/hooks';
+import htm from'htm';
+const html=htm.bind(h);
+
+// ── PACIENTE + TESTIGO ────────────────────────────────────────────────────────
+const PATIENT = {
+  name:'Luis F.', age:72,
+  diagnosis:'Síncope cardiogénico — Bloqueo auriculoventricular de 3.er grado',
+  diagnosisKey:[
+    'Sin pródromos: pérdida de consciencia súbita sin aviso previo — patrón cardiogénico (paso 1)',
+    'Duración < 1 minuto con recuperación completa y rápida — típico de síncope (paso 2)',
+    'Posición de pie en reposo, sin desencadenante claro — descarta vasovagal (paso 3)',
+    'Palpitaciones previas y FC muy baja al despertar — orienta a arritmia (paso 4)',
+    'Sin período postictal ni confusión prolongada — diferencia de epilepsia (paso 5)',
+    'Cardiopatía isquémica conocida + marcapasos previo — antecedente de alto riesgo (paso 7)',
+  ],
+  quotes:[
+    '«Estaba viendo la tele tranquilamente y de repente… ya estaba en el suelo. No noté nada antes.»',
+    '«Mi mujer dice que caí de golpe, que estuve en el suelo menos de un minuto. Cuando me desperté estaba confuso pero al cabo de un momento ya estaba bien.»',
+    '«Estaba sentado, en reposo. No hacía nada especial.»',
+    '«Antes de caerme noté que el corazón me iba muy lento, muy raro. Luego ya no sé nada.»',
+    '«No me mordí la lengua, no me hice pis. Cuando me desperté no me dolía la cabeza.»',
+    '«No me mareo cuando me levanto de la cama. Esto fue distinto a lo de siempre.»',
+    '«Me operaron del corazón hace tres años y llevo marcapasos desde entonces. Tengo el corazón dañado del infarto.»',
+  ],
+  witnessQuotes:[
+    '«Cayó de golpe, sin avisar. No dijo nada, no se agarró a nada.»',
+    '«Estuvo en el suelo menos de un minuto. Lo llamé y enseguida abrió los ojos.»',
+    '«No se le movía el cuerpo de forma rara. No hizo convulsiones.»',
+    '«Al despertar estaba un poco desorientado pero enseguida me reconoció y habló normal.»',
+  ],
+};
+
+// ── RESUMEN ───────────────────────────────────────────────────────────────────
+const ALL_QS = [
+  {n:1,title:'¿Cómo? — Descripción del episodio y pródromos',eq:'«¿Qué notó justo antes de caerse? ¿Tuvo algún aviso?»'},
+  {n:2,title:'¿Cuánto? — Duración y recuperación',eq:'«¿Cuánto tiempo estuvo inconsciente? ¿Cómo se encontró al despertar?»'},
+  {n:3,title:'¿Dónde? — Posición y contexto de aparición',eq:'«¿Estaba de pie, sentado o tumbado cuando ocurrió? ¿Qué estaba haciendo?»'},
+  {n:4,title:'¿Cuándo? — Inicio y episodios previos',eq:'«¿Cuándo ocurrió exactamente? ¿Le ha pasado alguna vez antes?»'},
+  {n:5,title:'Asociado — Síntomas acompañantes',eq:'«¿Se mordió la lengua? ¿Se orinó? ¿Tuvo convulsiones? ¿Le dolió la cabeza al despertar?»'},
+  {n:6,title:'¿Modificadores? — Factores desencadenantes',eq:'«¿Hay algo que lo haya provocado: un susto, dolor, mucho calor, levantarse de golpe?»'},
+  {n:7,title:'Antecedentes — El testigo y el contexto',eq:'«¿Hay alguien que lo viera caer? ¿Tiene enfermedades del corazón o toma medicación?»'},
+];
+
+// ── FEEDBACK DIAGNÓSTICO ──────────────────────────────────────────────────────
+const STEP_DX = [
+  {quoteIdx:0,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La ausencia de pródromos (sin aviso previo) es el hallazgo más diferenciador del síncope cardiogénico. El síncope vasovagal casi siempre tiene pródromos (mareo, sudoración, visión borrosa). La pérdida brusca sin aviso obliga a descartar arritmia o causa estructural cardíaca.',
+   fitsFor:['Síncope cardiogénico','Arritmia'],rulesOut:['Vasovagal (tiene pródromos)','Hipotensión ortostática (al levantarse)']},
+  {quoteIdx:1,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'Duración <1 minuto con recuperación rápida y completa es la definición clínica de síncope. Una pérdida de consciencia prolongada (>5 min) o recuperación lenta con confusión prolongada orienta a epilepsia o causa metabólica. La recuperación rápida es característica del síncope.',
+   fitsFor:['Síncope (cualquier causa)'],rulesOut:['Epilepsia (recuperación lenta, confusión postictal)','ACV (déficit residual)']},
+  {quoteIdx:2,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'El síncope en posición de sedestación o decúbito descarta la hipotensión ortostática (que solo ocurre al incorporarse) y reduce la probabilidad de síncope vasovagal (que ocurre de pie tras un desencadenante). El síncope en cualquier posición apunta a causa cardiogénica.',
+   fitsFor:['Síncope cardiogénico'],rulesOut:['Hipotensión ortostática','Vasovagal típico']},
+  {quoteIdx:3,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'Las palpitaciones previas con sensación de bradicardia y la pérdida brusca de consciencia son el patrón clásico de síncope por arritmia. La bradicardia severa (bloqueo AV completo, SSNS) reduce el gasto cardíaco bruscamente → hipoperfusión cerebral → síncope.',
+   fitsFor:['Síncope arrítmico','Bloqueo AV','SSNS'],rulesOut:['Vasovagal','Hipotensión ortostática']},
+  {quoteIdx:4,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La ausencia de mordedura de lengua, incontinencia y de confusión postictal prolongada diferencia el síncope de la epilepsia con alta especificidad. La epilepsia tónico-clónica casi siempre deja al paciente confuso y desorientado durante 10-30 minutos (período postictal).',
+   fitsFor:['Síncope (cualquier causa)'],rulesOut:['Epilepsia tónico-clónica','Crisis convulsiva']},
+  {quoteIdx:5,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'La ausencia de relación con los cambios posturales reduce la probabilidad de hipotensión ortostática. El síncope vasovagal ortostático ocurre típicamente al levantarse después de estar tumbado. Que este episodio sea diferente a los habituales es una señal de alarma que debe investigarse.',
+   fitsFor:['Causa nueva — investigar'],rulesOut:['Hipotensión ortostática','Vasovagal típico']},
+  {quoteIdx:6,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La cardiopatía isquémica previa con marcapasos es un antecedente de altísimo riesgo. Un síncope en un paciente con cardiopatía estructural tiene probabilidad de causa cardiogénica >70%. La disfunción del marcapasos o una arritmia ventricular maligna son las primeras hipótesis.',
+   fitsFor:['Síncope cardiogénico','Disfunción de marcapasos','Arritmia ventricular'],rulesOut:[]},
+];
+
+// ── COMBOS ────────────────────────────────────────────────────────────────────
+const COMBOS = [
+  {dx:'Síncope vasovagal',compat:'positive',
+   symptoms:['Pródromos (mareo, sudor)','Desencadenante (dolor, calor, emoción)','De pie','Joven','Recuperación rápida'],
+   key:'El más frecuente (50% de síncopes). Siempre tiene pródromos. Benigno. No requiere más estudio si el patrón es típico y no hay cardiopatía.'},
+  {dx:'Síncope cardiogénico — arritmia',compat:'strong',
+   symptoms:['Sin pródromos','Cualquier posición','Palpitaciones previas','Cardiopatía conocida','ECG anormal'],
+   key:'El más peligroso. Sin aviso previo. ECG urgente siempre. Holter si ECG normal. Riesgo de muerte súbita.'},
+  {dx:'Hipotensión ortostática',compat:'positive',
+   symptoms:['Al levantarse','Mareo gradual','Medicación hipotensora','Deshidratación','Anciano'],
+   key:'PA sistólica ↓≥20 mmHg al incorporarse. Muy frecuente en ancianos con fármacos. Revisar medicación siempre.'},
+  {dx:'Síncope situacional',compat:'neutral',
+   symptoms:['Al toser','Al orinar','Al defecar','Al tragar','Desencadenante específico'],
+   key:'Mediado por reflejo vagal en situaciones concretas. Generalmente benigno si no hay cardiopatía.'},
+  {dx:'Epilepsia (diagnóstico diferencial)',compat:'neutral',
+   symptoms:['Convulsiones tónico-clónicas','Mordedura de lengua','Incontinencia','Confusión postictal >10 min','Aura'],
+   key:'No es un síncope. La confusión postictal prolongada y la mordedura de lengua son los mejores discriminadores.'},
+  {dx:'Síncope por hipersensibilidad del seno carotídeo',compat:'neutral',
+   symptoms:['Al girar el cuello','Al afeitarse','Collar apretado','Anciano','Sin pródromos'],
+   key:'Poco frecuente pero importante en ancianos. El masaje del seno carotídeo reproduce el episodio (bajo supervisión médica).'},
+];
+
+// ── POSICIÓN SVG MAP ──────────────────────────────────────────────────────────
+const POS_ZONES = {
+  pie:{color:'#c60046',label:'De pie',
+    shapes:[{type:'arrow',x1:180,y1:60,x2:180,y2:240,col:'#c60046'}],
+    labels:[{x:180,y:155,t:'↓ Retorno venoso',c:'#c60046'},{x:180,y:170,t:'Vasovagal / Ortostático',c:'#c60046'}]},
+  sentado:{color:'#D4A000',label:'Sentado / en reposo',
+    shapes:[{type:'rect',x:130,y:110,w:100,h:120,rx:8,fill:'rgba(212,160,0,.15)',stroke:'#D4A000',sw:2.5}],
+    labels:[{x:180,y:175,t:'Cardiogénico',c:'#92400e'},{x:180,y:189,t:'Situacional',c:'#92400e'}]},
+  esfuerzo:{color:'#c60046',label:'Durante el esfuerzo',
+    shapes:[{type:'ellipse',cx:180,cy:100,rx:55,ry:28,fill:'rgba(198,0,70,.15)',stroke:'#c60046',sw:2.5}],
+    labels:[{x:180,y:155,t:'Estenosis aórtica',c:'#c60046'},{x:180,y:170,t:'Miocardiopatía hipertrófica',c:'#c60046'}]},
+  levantarse:{color:'#003973',label:'Al levantarse (ortostasis)',
+    shapes:[{type:'path',d:'M 140 200 Q 160 140 180 80',sw:4,dash:'8,4',col:'#003973'}],
+    labels:[{x:180,y:155,t:'Hipotensión',c:'#003973'},{x:180,y:169,t:'ortostática',c:'#003973'}]},
+};
+
+function SyncopeBodyMap({activeZone}) {
+  const z = activeZone ? POS_ZONES[activeZone] : null;
+  return html`<svg viewBox="0 0 360 280" style=${{width:'100%',maxWidth:230,display:'block',margin:'0 auto'}}>
+    <defs><filter id="glows"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <!-- Silueta humana -->
+    <ellipse cx="180" cy="34" rx="24" ry="28" fill="#EAE6DC" stroke="#C8C0B0" stroke-width="1.5"/>
+    <rect x="171" y="58" width="18" height="16" fill="#EAE6DC" stroke="#C8C0B0" stroke-width="1"/>
+    <path d="M 130 74 Q 116 80 114 100 L 112 210 Q 112 225 128 228 L 232 228 Q 248 225 248 210 L 246 100 Q 244 80 230 74 Z" fill="#EAE6DC" stroke="#C8C0B0" stroke-width="1.5"/>
+    <ellipse cx="122" cy="86" rx="14" ry="9" fill="#DDD8CC" stroke="#C8C0B0" stroke-width="1"/>
+    <ellipse cx="238" cy="86" rx="14" ry="9" fill="#DDD8CC" stroke="#C8C0B0" stroke-width="1"/>
+    <!-- Brazo izq -->
+    <path d="M 112 92 Q 96 110 90 145 Q 86 172 88 200 Q 89 212 96 214 Q 104 215 108 204 Q 112 185 116 155 Q 120 125 126 100 Z" fill="#E2DDD4" stroke="#C8C0B0" stroke-width="1"/>
+    <!-- Brazo der -->
+    <path d="M 248 92 Q 264 110 270 145 Q 274 172 272 200 Q 271 212 264 214 Q 256 215 252 204 Q 248 185 244 155 Q 240 125 234 100 Z" fill="#E2DDD4" stroke="#C8C0B0" stroke-width="1"/>
+    <!-- Piernas -->
+    <path d="M 148 228 Q 144 248 142 278" fill="none" stroke="#C8C0B0" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 168 228 Q 166 250 166 278" fill="none" stroke="#C8C0B0" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 212 228 Q 214 250 214 278" fill="none" stroke="#C8C0B0" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 232 228 Q 236 248 238 278" fill="none" stroke="#C8C0B0" stroke-width="14" stroke-linecap="round"/>
+    <!-- Corazón -->
+    <path d="M 175 110 Q 167 100 159 106 Q 151 112 159 124 L 175 140 L 191 124 Q 199 112 191 106 Q 183 100 175 110 Z" fill="rgba(198,0,70,.2)" stroke="#c60046" stroke-width="1.5"/>
+    <text x="175" y="125" text-anchor="middle" font-size="6" fill="#c60046" font-weight="800">♥</text>
+    <!-- Cerebro -->
+    <ellipse cx="180" cy="25" rx="16" ry="12" fill="rgba(0,57,115,.12)" stroke="#003973" stroke-width="1"/>
+    <text x="180" y="28" text-anchor="middle" font-size="5.5" fill="#003973" font-weight="700">cerebro</text>
+    <!-- ZONA ACTIVA -->
+    ${z && z.shapes.map((s,i)=>{
+      if(s.type==='rect') return html`<rect key=${i} x=${s.x} y=${s.y} width=${s.w} height=${s.h} rx=${s.rx||4} fill=${s.fill||'none'} stroke=${s.stroke||z.color} stroke-width=${s.sw||2} filter="url(#glows)" opacity=".9"/>`;
+      if(s.type==='ellipse') return html`<ellipse key=${i} cx=${s.cx} cy=${s.cy} rx=${s.rx} ry=${s.ry} fill=${s.fill||'none'} stroke=${s.stroke||z.color} stroke-width=${s.sw||2} filter="url(#glows)" opacity=".9"/>`;
+      if(s.type==='arrow') return html`<line key=${i} x1=${s.x1} y1=${s.y1} x2=${s.x2} y2=${s.y2} stroke=${s.col||z.color} stroke-width="4" stroke-dasharray="8,4" stroke-linecap="round" filter="url(#glows)" opacity=".8"/><polygon points="${s.x2-8},${s.y2-12} ${s.x2+8},${s.y2-12} ${s.x2},${s.y2}" fill=${s.col||z.color} opacity=".8"/>`;
+      if(s.type==='path') return html`<path key=${i} d=${s.d} fill="none" stroke=${s.col||z.color} stroke-width=${s.sw||2} stroke-dasharray=${s.dash||'none'} stroke-linecap="round" filter="url(#glows)" opacity=".9"/>`;
+      return null;
+    })}
+    ${z && z.labels.map((lb,i)=>html`<text key=${i} x=${lb.x} y=${lb.y} text-anchor="middle" font-size="7.5" font-weight="800" fill=${lb.c} font-family="Segoe UI,sans-serif">${lb.t}</text>`)}
+    <text x="180" y="290" text-anchor="middle" font-size="7" fill="#9AA0AD" font-family="Segoe UI,sans-serif">Vista anterior · Posición y mecanismo</text>
+  </svg>`;
+}
+
+// ── POSICIÓN ACCORDION ────────────────────────────────────────────────────────
+const POS_ITEMS = [
+  {name:'De pie (bipedestación)',badge:'VASOVAGAL / ORTOSTÁTICO',zone:'pie',
+   text:'El síncope vasovagal ocurre casi siempre de pie, tras un desencadenante (dolor, calor, emoción). El <strong>ortostatismo</strong> reduce el retorno venoso y activa el reflejo de Bezold-Jarisch → bradicardia + vasodilatación → caída de PA → síncope. La hipotensión ortostática ocurre también al incorporarse.'},
+  {name:'Sentado o en reposo',badge:'CARDIOGÉNICO',zone:'sentado',
+   text:'El síncope en sedestación o decúbito <strong>descarta la hipotensión ortostática</strong> y reduce mucho la probabilidad de vasovagal típico. Si ocurre en reposo o en cualquier posición → causa cardiogénica (arritmia, bloqueo AV) hasta que se demuestre lo contrario.'},
+  {name:'Durante o justo después del esfuerzo',badge:'ESTRUCTURAL CARDÍACO',zone:'esfuerzo',
+   text:'El síncope durante el esfuerzo físico es una <strong>señal de alarma máxima</strong>: puede indicar estenosis aórtica severa, miocardiopatía hipertrófica obstructiva (MCHO) o taquicardia ventricular de esfuerzo. Obliga a ecocardiograma urgente.'},
+  {name:'Al levantarse (posición supina → de pie)',badge:'HIPOTENSIÓN ORTOSTÁTICA',zone:'levantarse',
+   text:'La <strong>hipotensión ortostática</strong> se define como una caída de PA sistólica ≥20 mmHg o diastólica ≥10 mmHg a los 3 minutos de bipedestación. Muy frecuente en ancianos con medicación hipotensora (diuréticos, betabloqueantes, ARA-II, alfabloqueantes) o con deshidratación.'},
+];
+
+// ── FLASHCARD ─────────────────────────────────────────────────────────────────
+function FlashCard({id,label,badge,body,knowledge,onKnowledge}) {
+  const[flipped,setFlipped]=useState(false);
+  const k=knowledge[id];
+  const knew=useCallback(e=>{e.stopPropagation();onKnowledge(id,'knew');},[id,onKnowledge]);
+  const unknown=useCallback(e=>{e.stopPropagation();onKnowledge(id,'unknown');},[id,onKnowledge]);
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`}>
+          <div class="fc-label">${label}</div>
+          <div class="fc-badge">${badge}</div>
+          ${!k&&!flipped&&html`<div class="fc-tap">tocar para ver</div>`}
+          ${k==='knew'&&html`<div class="fc-state-badge knew">✓ Dominada</div>`}
+          ${k==='unknown'&&html`<div class="fc-state-badge unknown">↩ Para repasar</div>`}
+        </div>
+        <div class="fc-back">
+          <div class="fc-back-header">
+            <div class="fc-back-label">${label}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'rgba(255,255,255,.18)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{fontSize:'.6rem',fontWeight:800,padding:'3px 9px',borderRadius:'4px',background:'var(--uva-red)',color:'#fff',textTransform:'uppercase',letterSpacing:'.5px',display:'inline-block',marginBottom:'.65rem'}}>${badge}</div>
+          <p dangerouslySetInnerHTML=${{__html:body}}></p>
+          ${!k&&html`<div class="knowledge-btns">
+            <button class="btn-knew" onClick=${knew}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${unknown}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── COMBO GRID ────────────────────────────────────────────────────────────────
+function ComboGrid() {
+  const C = {
+    strong:{bg:'linear-gradient(135deg,#002d5c,var(--uva-blue))',lbl:'rgba(160,180,210,.7)',tag:{bg:'rgba(255,255,255,.1)',color:'rgba(224,234,244,.9)',border:'rgba(255,255,255,.15)'},key:'rgba(200,216,232,.8)',badge:{bg:'rgba(198,0,70,.3)',color:'#fca5a5'}},
+    positive:{bg:'linear-gradient(135deg,#1a3a5c,#2a5080)',lbl:'rgba(160,180,210,.65)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,220,240,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(180,200,224,.75)',badge:{bg:'rgba(245,197,24,.2)',color:'var(--yellow)'}},
+    neutral:{bg:'linear-gradient(135deg,#374151,#4b5563)',lbl:'rgba(200,210,220,.65)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,210,220,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(200,210,220,.75)',badge:{bg:'rgba(255,255,255,.12)',color:'rgba(220,228,236,.8)'}},
+  };
+  return html`<div style=${{marginTop:'1.4rem'}}>
+    <div class="sec-label">Combinaciones clave → diagnóstico del síncope</div>
+    <p class="fc-hint">La combinación de características es lo que orienta el diagnóstico — ningún dato aislado es suficiente</p>
+    <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'.85rem'}}>
+      ${COMBOS.map((c,i)=>{
+        const col=C[c.compat]||C.neutral;
+        return html`<div key=${i} style=${{background:col.bg,borderRadius:'var(--radius-sm)',overflow:'hidden',boxShadow:'var(--shadow-card)'}}>
+          <div style=${{padding:'.65rem 1rem',borderBottom:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'.5rem'}}>
+            <div style=${{fontSize:'.88rem',fontWeight:700,color:'#fff',fontFamily:'var(--font-serif)'}}>${c.dx}</div>
+            <div style=${{fontSize:'.58rem',fontWeight:800,padding:'2px 8px',borderRadius:'4px',background:col.badge.bg,color:col.badge.color,textTransform:'uppercase',letterSpacing:'.4px',flexShrink:0}}>${c.compat==='strong'?'Alta especificidad':'Orientativo'}</div>
+          </div>
+          <div style=${{padding:'.75rem 1rem'}}>
+            <div style=${{display:'flex',flexWrap:'wrap',gap:'.3rem',marginBottom:'.7rem'}}>
+              ${c.symptoms.map((s,j)=>html`<span key=${j} style=${{fontSize:'.72rem',fontWeight:600,padding:'2px 8px',borderRadius:'4px',background:col.tag.bg,color:col.tag.color,border:`1px solid ${col.tag.border}`}}>${s}</span>`)}
+            </div>
+            <div style=${{fontSize:'.78rem',color:col.key,lineHeight:1.55,fontStyle:'italic',borderTop:'1px solid rgba(255,255,255,.07)',paddingTop:'.55rem'}}>${c.key}</div>
+          </div>
+        </div>`;
+      })}
+    </div>
+  </div>`;
+}
+
+// ── POS ACCORDION ─────────────────────────────────────────────────────────────
+function PosAccordion({items}) {
+  const[open,setOpen]=useState(null);
+  const zone=open!==null?items[open]?.zone:null;
+  return html`<div>
+    <p class="fc-hint">Pulsa cada posición — el diagrama muestra el mecanismo fisiopatológico</p>
+    <div style=${{display:'grid',gridTemplateColumns:'170px 1fr',gap:'1rem',alignItems:'start'}}>
+      <div style=${{background:'var(--surface)',border:'1px solid var(--line)',borderRadius:10,padding:'.6rem .5rem'}}>
+        <div style=${{fontSize:'.55rem',fontWeight:800,color:'var(--ink-4)',textTransform:'uppercase',letterSpacing:'1px',textAlign:'center',marginBottom:'.3rem'}}>
+          ${open===null?'Selecciona una postura ↓':items[open].name}
+        </div>
+        <${SyncopeBodyMap} activeZone=${zone}/>
+        ${open!==null&&html`<div style=${{textAlign:'center',marginTop:'.35rem'}}>
+          <span style=${{fontSize:'.56rem',fontWeight:800,padding:'2px 8px',borderRadius:4,background:'var(--uva-blue)',color:'#fff',textTransform:'uppercase',letterSpacing:'.4px'}}>${items[open].badge}</span>
+        </div>`}
+      </div>
+      <div class="irr-list" style=${{margin:0}}>
+        ${items.map((it,i)=>html`
+          <div key=${i} class=${`irr-item ${open===i?'open':''}`}>
+            <button class="irr-trigger" onClick=${()=>setOpen(open===i?null:i)}>
+              <span class="irr-name">${it.name}</span>
+              <span class="irr-badge">${it.badge}</span>
+              <span class="irr-arrow">▼</span>
+            </button>
+            ${open===i&&html`<div style=${{background:'var(--bg)',padding:'.75rem 1rem',display:'block'}}>
+              <div class="irr-text" dangerouslySetInnerHTML=${{__html:it.text}}></div>
+            </div>`}
+          </div>`)}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── DX FEEDBACK ───────────────────────────────────────────────────────────────
+function DiagnosticFeedback({stepIdx}) {
+  const dx=STEP_DX[stepIdx];if(!dx)return null;
+  const quote=PATIENT.quotes[dx.quoteIdx];
+  return html`<div class="dx-fb">
+    <div class="dx-fb-head">
+      <div><div class="dx-fb-eyebrow">Diagnóstico en construcción</div><div class="dx-fb-title">¿Qué nos dice este dato de Luis?</div></div>
+      <div class=${`dx-compat ${dx.compat}`}>${dx.compatLabel}</div>
+    </div>
+    <div class="dx-fb-body">
+      ${quote&&html`<div class="dx-quote-box"><div class="dx-quote-who">Luis dice</div><div class="dx-quote-text">${quote}</div></div>`}
+      <p class="dx-interp">${dx.interpretation}</p>
+      <div class="dx-tags-row">
+        ${dx.fitsFor?.length>0&&html`<div><div class="dx-tags-label fits">Apunta hacia</div><div class="dx-tags">${dx.fitsFor.map((t,i)=>html`<span key=${i} class="dx-tag fits">${t}</span>`)}</div></div>`}
+        ${dx.rulesOut?.length>0&&html`<div><div class="dx-tags-label rules">Hace menos probable</div><div class="dx-tags">${dx.rulesOut.map((t,i)=>html`<span key=${i} class="dx-tag rules">${t}</span>`)}</div></div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── EVIDENCE METER ────────────────────────────────────────────────────────────
+function EvidenceMeter({revealedSteps}) {
+  const nSteps=STEPS.filter(s=>!s.isSummaryStep&&!s.isQuizStep).length;
+  const dots=Array.from({length:nSteps},(_,i)=>revealedSteps[i]?(STEP_DX[i]?STEP_DX[i].compat:'neutral'):'empty');
+  const completados=dots.filter(d=>d!=='empty').length;
+  if(!completados)return null;
+  const sospecha=dots.filter(d=>d==='strong').length;
+  return html`<div>
+    <div class="ev-meter">
+      <div class="ev-meter-label">Bloques completados</div>
+      <div class="ev-dots">${dots.map((d,i)=>html`<div key=${i} class=${`ev-dot ${d!=='empty'?d:''}`}></div>`)}</div>
+      <div class="ev-score" style=${{marginRight:'.2rem'}}>${completados}/${nSteps}</div>
+      ${sospecha>0&&html`<div style=${{fontSize:'.56rem',fontWeight:800,color:'var(--uva-red)',background:'rgba(198,0,70,.08)',border:'1px solid rgba(198,0,70,.2)',borderRadius:'4px',padding:'1px 7px',whiteSpace:'nowrap'}}>⚠ ${sospecha} señal${sospecha>1?'es':''} clave</div>`}
+    </div>
+    <div style=${{display:'flex',gap:'.75rem',marginTop:'.3rem',flexWrap:'wrap'}}>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'rgba(0,0,0,.12)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Pendiente</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-blue-2)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Dato orientativo</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-red)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Evidencia fuerte</span></div>
+    </div>
+  </div>`;
+}
+
+// ── ATRIB BOX ─────────────────────────────────────────────────────────────────
+function AtribBox() {
+  const items=[
+    ['Cardiopatía estructural conocida','El antecedente más importante. Cardiopatía isquémica, valvulopatía, miocardiopatía o insuficiencia cardíaca multiplican el riesgo de síncope cardiogénico. El síncope en un cardíópata es una emergencia hasta que se demuestre lo contrario.'],
+    ['Medicación: hipotensores, antiarrítmicos, diuréticos','Los fármacos son la causa más frecuente de hipotensión ortostática. Preguntar siempre: «¿Ha cambiado alguna pastilla recientemente? ¿Toma pastillas para la tensión o el corazón?» Los antiarrítmicos pueden causar arritmias paradójicas (efecto proarrítmico).'],
+    ['Historia familiar de muerte súbita','Muerte súbita de familiar de 1.º grado <40 años orienta a canalopatías (síndrome de Brugada, QT largo, MCHO). Preguntar: «¿Ha muerto algún familiar joven de forma inesperada?»'],
+    ['Episodio al girar el cuello o afeitarse','Síndrome del seno carotídeo hipersensible: el masaje o la presión sobre el seno carotídeo desencadena bradicardia/asistolia. Más frecuente en ancianos. Diagnóstico con masaje carotídeo supervisado.'],
+    ['Síncope durante el esfuerzo físico','Red flag máximo: obliga a descartar estenosis aórtica, miocardiopatía hipertrófica y taquicardia ventricular de esfuerzo. Ecocardiograma urgente. No autorizar al paciente a hacer ejercicio hasta el diagnóstico.'],
+    ['Testigo presencial del episodio','La información del testigo es única e irremplazable. Preguntar siempre: «¿Había alguien con usted?» y entrevistar al testigo directamente si es posible. El testigo puede ver convulsiones, coloración, duración y recuperación que el paciente no puede recordar.'],
+  ];
+  return html`<div class="attr-box">
+    <h3>Antecedentes y red flags del síncope</h3>
+    <div class="attr-list">
+      ${items.map(([t,txt],i)=>html`<div key=${i} class="attr-item"><div class="attr-dot"></div><p><strong>${t}:</strong> ${txt}</p></div>`)}
+    </div>
+    <div class="attr-tip">⚠ El testigo presencial es el examinador más valioso del síncope. Su descripción del episodio tiene más valor diagnóstico que cualquier prueba complementaria.</div>
+  </div>`;
+}
+
+// ── QUIZ CARDS ────────────────────────────────────────────────────────────────
+const QUIZ_CARDS=[
+  {dx:'Síncope vasovagal',
+   peli:'Pródromos (mareo, sudor frío, visión borrosa antes de caer)',
+   pos:'De pie, tras desencadenante (dolor, calor, emoción, ayuno)',
+   dur:'Segundos a <1 minuto. Recuperación rápida y completa',
+   asoc:'Sin convulsiones. Sin mordedura de lengua. Sin confusión postictal',
+   pat:'Reflejo de Bezold-Jarisch: bradicardia + vasodilatación → ↓ PA → hipoperfusión cerebral breve'},
+  {dx:'Síncope cardiogénico (arritmia)',
+   peli:'Sin pródromos. Caída brusca sin aviso',
+   pos:'Cualquier posición, incluso en reposo o decúbito',
+   dur:'Segundos. Recuperación rápida (si vuelve el ritmo) o no recuperación',
+   asoc:'Puede haber palpitaciones previas. ECG anormal. Cardiopatía conocida',
+   pat:'Arritmia (BAV completo, TVNS, FV) → ↓ gasto cardíaco brusco → hipoperfusión cerebral'},
+  {dx:'Hipotensión ortostática',
+   peli:'Mareo gradual al levantarse. A veces sin pérdida completa',
+   pos:'Al pasar de supino a bipedestación (primeros 3 minutos)',
+   dur:'Segundos. Mejora al volver a sentarse o tumbarse',
+   asoc:'Frecuente en ancianos. Medicación hipotensora. Deshidratación',
+   pat:'↓ retorno venoso al incorporarse → activación simpática insuficiente → ↓ PA → hipoperfusión cerebral'},
+  {dx:'Epilepsia (diagnóstico diferencial)',
+   peli:'Aura (sensación extraña, déjà vu, olor) antes de la crisis',
+   pos:'Cualquier posición. No relacionada con la postura',
+   dur:'>2-5 minutos. Confusión postictal prolongada (10-30 min)',
+   asoc:'Mordedura de lengua lateral. Incontinencia. Movimientos tónico-clónicos. Cianosis (el paciente en síncope cardiogénico está pálido, no cianótico)',
+   pat:'Descarga neuronal sincrónica anormal → activación motora + pérdida de consciencia + período postictal'},
+  {dx:'Síncope por estenosis aórtica',
+   peli:'Sin pródromos o tras esfuerzo. A veces angina o disnea previa',
+   pos:'Durante o justo después del esfuerzo físico',
+   dur:'Breve. Recuperación al cesar el esfuerzo',
+   asoc:'Soplo sistólico eyectivo en foco aórtico. Pulso parvus et tardus',
+   pat:'Estenosis aórtica fija → al esfuerzo, las resistencias periféricas caen pero el gasto no puede aumentar → ↓ PA → síncope'},
+  {dx:'Síncope situacional',
+   peli:'Ocurre siempre en la misma situación (tos, micción, deglución)',
+   pos:'Variable según el tipo (de pie al toser, sentado al orinar)',
+   dur:'Breve. Recuperación rápida',
+   asoc:'Sin síntomas interepisodio. No cardiopatía en jóvenes',
+   pat:'Reflejo vagal desencadenado por situación específica → bradicardia + ↓ PA → hipoperfusión cerebral'},
+];
+
+function starsFor(si,kn){const s=STEPS[si];if(!s?.items)return null;const tot=s.items.length;const ans=s.items.filter((_,i)=>kn[`s${si}_c${i}`]).length;if(!ans)return null;const k=s.items.filter((_,i)=>kn[`s${si}_c${i}`]==='knew').length;return Math.round(k/tot*3);}
+function StarDisplay({count,small}){if(count===null)return null;return html`<span style=${{fontSize:small?'.65rem':'.85rem',letterSpacing:'-1px'}}>${[0,1,2].map(i=>html`<span key=${i} style=${{color:i<count?'#F5C518':'#D1D5DB'}}>★</span>`)}</span>`;}
+
+// ── QUIZ CARD ─────────────────────────────────────────────────────────────────
+function QuizCard({card,id,knowledge,onKnowledge}){
+  const[flipped,setFlipped]=useState(false);const k=knowledge[id];
+  const rows=[['Pródromos / Aviso',card.peli],['Posición / Contexto',card.pos],['Duración / Recuperación',card.dur],['Síntomas asociados',card.asoc]];
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} style=${{minHeight:'270px'}} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`} style=${{background:'#F8F9FA',border:'1.5px solid #e5e7eb',justifyContent:'flex-start',alignItems:'stretch',padding:0,textAlign:'left',minHeight:'270px'}}>
+          <div style=${{background:'var(--uva-blue)',padding:'.6rem 1rem',borderRadius:'8px 8px 0 0'}}>
+            <div style=${{fontSize:'1rem',fontWeight:700,color:'#fff'}}>${card.dx}</div>
+          </div>
+          <div style=${{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem',flexDirection:'column',gap:'.4rem'}}>
+            <div style=${{textAlign:'center',fontSize:'.9rem',fontWeight:600,color:'var(--ink-2)'}}>¿Cómo se caracteriza este síncope?</div>
+            ${k==='knew'&&html`<div class="fc-state-badge knew">✓ Dominada</div>`}
+            ${k==='unknown'&&html`<div class="fc-state-badge unknown">↩ Para repasar</div>`}
+            ${!k&&html`<div style=${{fontSize:'.65rem',color:'var(--ink-4)',fontStyle:'italic'}}>tocar para ver</div>`}
+          </div>
+        </div>
+        <div class="fc-back" style=${{padding:'.65rem .85rem',background:'#F8F9FA',minHeight:'270px'}}>
+          <div style=${{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'.5rem'}}>
+            <div style=${{fontSize:'.75rem',fontWeight:700,color:'var(--uva-blue)'}}>${card.dx}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'var(--uva-blue)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{display:'grid',gap:'.3rem',flex:1}}>
+            ${rows.map(([l,v])=>html`
+              <div key=${l} style=${{background:'#fff',borderRadius:'6px',border:'1px solid var(--line-light)',padding:'.35rem .6rem'}}>
+                <div style=${{fontSize:'.6rem',fontWeight:700,color:'var(--uva-red)',textTransform:'uppercase',letterSpacing:'.4px',marginBottom:'.1rem'}}>${l}</div>
+                <div style=${{fontSize:'.75rem',color:'var(--ink-2)',lineHeight:1.4}}>${v}</div>
+              </div>`)}
+            <div style=${{background:'var(--yellow-pale)',borderLeft:'3px solid var(--yellow)',padding:'.35rem .6rem',borderRadius:'0 5px 5px 0'}}>
+              <div style=${{fontSize:'.6rem',fontWeight:700,color:'var(--yellow-deep)',textTransform:'uppercase',letterSpacing:'.4px',marginBottom:'.1rem'}}>Por qué</div>
+              <div style=${{fontSize:'.72rem',color:'var(--ink-2)',lineHeight:1.4,fontStyle:'italic'}}>${card.pat}</div>
+            </div>
+          </div>
+          ${!k&&html`<div class="knowledge-btns" style=${{marginTop:'.5rem'}}>
+            <button class="btn-knew" onClick=${e=>{e.stopPropagation();onKnowledge(id,'knew');}}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${e=>{e.stopPropagation();onKnowledge(id,'unknown');}}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── PASOS ─────────────────────────────────────────────────────────────────────
+const STEPS = [
+  {
+    nav:'¿Cómo?', title:'¿Cómo fue el episodio? — Descripción y pródromos',
+    think:'El síncope es una pérdida transitoria de consciencia por hipoperfusión cerebral global. Antes de preguntar, piensa: ¿qué tres datos del episodio en sí tienen más valor diagnóstico para diferencia sus causas?',
+    pause:'¿Qué diferencia a un paciente que «se va poco a poco» de uno que «cae de repente»? ¿Qué diagnósticos te sugiere cada uno?',
+    eq:'«¿Qué notó usted justo antes de caerse? ¿Tuvo algún aviso, alguna sensación?»',
+    tipT:'Los pródromos son el dato más discriminador del síncope',
+    tip:['Los pródromos (síntomas previos a la pérdida de consciencia) son el hallazgo más diferenciador: el síncope vasovagal casi siempre tiene pródromos (mareo, sudoración, visión borrosa o en túnel, debilidad). El síncope cardiogénico por arritmia típicamente NO tiene pródromos — el paciente cae sin aviso.','El síncope convulsivo (síncope cardiogénico con movimientos) puede confundirse con epilepsia: los movimientos son breves (<15 segundos) y ocurren DESPUÉS de la caída, no antes.'],
+    items:[
+      {label:'Sin pródromos — caída brusca',badge:'CARDIOGÉNICO',body:'El síncope sin aviso previo es el patrón del <strong>síncope cardiogénico por arritmia</strong>. El corazón falla de forma brusca → el gasto cardíaco cae → hipoperfusión cerebral en segundos → pérdida de consciencia instantánea. Red flag: obligar ECG urgente.'},
+      {label:'Pródromos: mareo, sudor, visión borrosa',badge:'VASOVAGAL',body:'<strong>Síncope vasovagal:</strong> pródromos casi siempre presentes (80-90% de casos). El paciente nota que «se va» antes de caer. Puede sentarse o agarrarse. Los pródromos reflejan la activación del sistema nervioso autónomo antes del síncope.'},
+      {label:'Mareo gradual al levantarse',badge:'ORTOSTÁTICO',body:'<strong>Hipotensión ortostática:</strong> el mareo aparece progresivamente al incorporarse y mejora si el paciente vuelve a sentarse o tumbarse. Clásico en ancianos medicados con antihipertensivos, diuréticos o alfabloqueantes.'},
+      {label:'Aura (sensación extraña, déjà vu, olor)',badge:'EPILEPSIA',body:'<strong>Diferencial con epilepsia:</strong> el aura epiléptica precede a la crisis y tiene características específicas (déjà vu, sensación de miedo, olor extraño, hormigueo). Diferente a los pródromos del síncope vasovagal.'},
+      {label:'Palpitaciones previas a la pérdida',badge:'ARRITMIA',body:'La sensación de corazón acelerado, lento o irregular justo antes del síncope es muy específica de <strong>síncope arrítmico</strong>. El paciente recuerda las palpitaciones pero no recuerda caerse.'},
+    ],
+  },
+  {
+    nav:'¿Cuánto?', title:'¿Cuánto duró? — Duración y calidad de la recuperación',
+    think:'La duración de la pérdida de consciencia y la recuperación posterior son los dos datos más útiles para distinguir síncope de epilepsia. ¿Cuánto dura un síncope? ¿Cuánto dura una crisis epiléptica tónico-clónica?',
+    pause:'¿Cuánto tiempo de confusión postictal es normal en una epilepsia? ¿Y en un síncope?',
+    eq:'«¿Cuánto tiempo estuvo usted en el suelo? ¿Cuándo abrió los ojos cómo se encontraba, estaba confuso o estaba bien enseguida?»',
+    tipT:'La recuperación es más diagnóstica que la pérdida de consciencia',
+    tip:['El síncope dura típicamente <1 minuto. La recuperación es rápida y el paciente vuelve a su estado basal en segundos o pocos minutos. La debilidad y el malestar residual (astenia possincopal) pueden durar horas pero sin confusión.','La epilepsia tónico-clónica deja un período postictal de 10-30 minutos de confusión, somnolencia y desorientación. Este dato es uno de los mejores discriminadores entre síncope y epilepsia.'],
+    items:[
+      {label:'Duración <1 min — recuperación inmediata',badge:'SÍNCOPE',body:'<strong>Patrón de síncope:</strong> pérdida breve con recuperación rápida y completa. El paciente reconoce a los presentes enseguida. Puede quedar pálido, sudoroso y con astenia pero sin confusión. Si la pérdida dura >5 minutos, buscar otra causa.'},
+      {label:'Recuperación inmediata pero con astenia',badge:'VASOVAGAL',body:'El síncope vasovagal produce astenia y malestar possincopal que puede durar horas, pero el nivel de consciencia es normal desde el primer momento. La «debilidad» posvasovagal es muy característica.'},
+      {label:'Confusión postictal >10 minutos',badge:'EPILEPSIA',body:'<strong>El mejor discriminador frente a epilepsia:</strong> confusión, somnolencia y desorientación que duran 10-30 minutos. El paciente no sabe dónde está, no recuerda lo que ha pasado. Esto NO ocurre en el síncope (salvo síncope muy prolongado).'},
+      {label:'Déficit neurológico tras el episodio',badge:'ACV / AIT',body:'Si persiste una debilidad, alteración del habla o pérdida de campo visual tras recuperar la consciencia → NO es síncope sino <strong>accidente cerebrovascular</strong>. El síncope no deja déficit neurológico residual.'},
+    ],
+  },
+  {
+    nav:'¿Dónde?', title:'¿Dónde ocurrió? — Posición y contexto',
+    think:'La posición en que ocurre el síncope y el contexto inmediato tienen un valor diagnóstico extraordinario. Hay causas de síncope que SOLO ocurren de pie, y otras que ocurren en cualquier posición. ¿Cuáles?',
+    pause:'Pulsa cada posición en el diagrama y piensa qué mecanismo fisiopatológico explica el síncope en esa postura.',
+    eq:'«¿Estaba usted de pie, sentado o tumbado cuando ocurrió? ¿Qué estaba haciendo en ese momento?»',
+    tipT:'La posición discrimina el mecanismo y reduce el diagnóstico diferencial',
+    tip:['Regla de oro: si el síncope ocurre en decúbito o sedestación → causa cardiogénica hasta que se demuestre lo contrario. El vasovagal y la hipotensión ortostática NO ocurren tumbado.\n\nPregunta clave que muchos olvidan: «¿Llevaba mucho tiempo de pie antes de caerse?» (vasovagal en bipedestación prolongada) vs «¿Se acababa de levantar de la cama o de la silla?» (hipotensión ortostática).'],
+    posicional:true,
+  },
+  {
+    nav:'¿Cuándo?', title:'¿Cuándo ocurrió? — Temporalidad y episodios previos',
+    think:'¿En qué momento del día ocurrió? ¿Es la primera vez? ¿Hay un patrón de repetición? ¿Ha ocurrido en situaciones similares antes?',
+    pause:'Si un paciente ha tenido 5 síncopes idénticos siempre de pie en aglomeraciones y sin cardiopatía, ¿qué diagnóstico tienes claro? ¿Necesitarías más pruebas?',
+    eq:'«¿Cuándo exactamente ocurrió? ¿Le ha pasado alguna vez antes? ¿En qué situaciones?»',
+    tipT:'El patrón de repetición y las circunstancias orientan fuertemente el diagnóstico',
+    tip:['Un primer episodio de síncope en un adulto mayor con cardiopatía es una urgencia. El mismo episodio en un joven de 20 años sin antecedentes, en bipedestación prolongada con pródromos clásicos, es casi con certeza vasovagal y no requiere hospitalización.\n\nLa Escala de Riesgo de San Francisco (CHESS: cardiopatía, Hcto <30%, ECG anormal, disnea, PA sistólica <90) identifica pacientes de alto riesgo que deben ingresar.'],
+    items:[
+      {label:'Primer episodio, adulto mayor, sin causa clara',badge:'INVESTIGAR URGENTE',body:'El primer síncope en un adulto >60 años sin causa claramente benigna obliga a ECG, monitorización y valoración cardiológica. El riesgo de evento grave es mayor en este grupo. No dar el alta sin estudio.'},
+      {label:'Episodios recurrentes, siempre en la misma situación',badge:'SITUACIONAL / VASOVAGAL',body:'Síncopes repetidos siempre en la misma circunstancia (aglomeraciones, calor, extracción de sangre, micción) apuntan fuertemente a síncope situacional o vasovagal. Si el patrón es perfectamente reproducible y no hay cardiopatía → diagnóstico clínico sin más pruebas.'},
+      {label:'Síncope nocturno — al despertar',badge:'ARRITMIA NOCTURNA',body:'El síncope que ocurre de noche o al despertar, sin levantarse, es altamente sugestivo de <strong>arritmia nocturna</strong> (bloqueo AV paroxístico, síndrome de Brugada, SSNS). Holter de 24-48 h o monitor de eventos implantable.'},
+      {label:'Síncope durante el esfuerzo físico',badge:'EMERGENCIA ESTRUCTURAL',body:'<strong>Red flag máximo.</strong> El síncope de esfuerzo obliga a descartar estenosis aórtica severa, miocardiopatía hipertrófica y taquicardia ventricular catecolaminérgica. Ecocardiograma urgente. No autorizar esfuerzo hasta diagnóstico.'},
+    ],
+  },
+  {
+    nav:'Asociado', title:'¿Qué acompañó al episodio? — La clave está en los detalles',
+    think:'Los síntomas que acompañan al síncope son, en muchos casos, la información que lo diferencia de epilepsia, ACV o hipoglucemia. ¿Cuáles son los más discriminadores?',
+    pause:'¿Cuáles son los 3 signos que apuntan más a epilepsia que a síncope? ¿Y los que apuntan a síncope cardiogénico?',
+    eq:'«¿Se mordió la lengua? ¿Se hizo pis o caca encima? ¿Le movía el cuerpo de forma rara? ¿Le dolía la cabeza al despertar?»',
+    tipT:'Mordedura de lengua lateral + confusión postictal = epilepsia hasta que se demuestre lo contrario',
+    tip:['La mordedura de lengua LATERAL (no de punta) tiene alta especificidad para epilepsia tónico-clónica. La incontinencia urinaria puede ocurrir en síncope prolongado pero es mucho más frecuente en epilepsia.\n\nEl síncope convulsivo (movimientos breves durante un síncope cardiogénico) puede confundirse con epilepsia: los movimientos son asincrónicos, breves (<15 seg) y ocurren en el suelo, nunca antes de caer.'],
+    hasCombos:true,
+    items:[
+      {label:'Mordedura de lengua lateral',badge:'EPILEPSIA',body:'<strong>Alta especificidad para epilepsia:</strong> la mordedura de la cara lateral de la lengua (no la punta) ocurre durante la fase tónica de la crisis. Es prácticamente diagnóstica de epilepsia si es lateral. La mordedura de punta puede ocurrir en síncope al caer.'},
+      {label:'Convulsiones / movimientos tónico-clónicos',badge:'EPILEPSIA vs SÍNCOPE CONVULSIVO',body:'<strong>Crucial diferenciarlo:</strong> en epilepsia, los movimientos son rítmicos, sincrónicos y duran >30 segundos. En el síncope convulsivo, los movimientos son breves (<15 seg), asincrónicos, aparecen DESPUÉS de la caída y cesan al recuperar el riego cerebral.'},
+      {label:'Incontinencia urinaria o fecal',badge:'EPILEPSIA (frecuente) / SÍNCOPE (raro)',body:'La incontinencia es mucho más frecuente en epilepsia (pérdida del control esfinteriano durante la fase tónica). Puede ocurrir en síncope prolongado. No es diagnóstica, pero su presencia orienta a epilepsia.'},
+      {label:'Confusión postictal >10 minutos',badge:'EPILEPSIA',body:'<strong>El mejor discriminador:</strong> la confusión, somnolencia y desorientación prolongadas (10-30 min) son características de la epilepsia. En el síncope, la recuperación es casi inmediata. Si el paciente no reconoce a sus familiares durante más de 5 minutos → epilepsia.'},
+      {label:'Palidez intensa o cianosis durante el episodio',badge:'CARDIOGÉNICO / EPILEPSIA',body:'<strong>Palidez intensa y repentina</strong> (lividez, «blanco como el papel») durante la caída: signo clásico del síncope cardiogénico. La vasoconstricción periférica por bajo gasto redistribuye la sangre hacia los órganos vitales → piel pálida, fría y sudorosa.<br><br><strong>Cianosis</strong> (coloración azulada): signo más tardío y grave; indica parada cardiocirculatoria prolongada o apnea durante una crisis epiléptica. En el síncope vasovagal el paciente también palidece, pero la palidez del síncope cardiogénico es más intensa y brusca, sin los pródromos previos típicos del vasovagal.'},
+      {label:'Cefalea intensa al despertar',badge:'HSA / EPILEPSIA',body:'La cefalea intensa al recuperar la consciencia es un red flag: puede indicar <strong>hemorragia subaracnoidea</strong> (el síncope fue por el sangrado) o cefalea postictal epiléptica. En el síncope vasovagal no hay cefalea significativa al despertar.'},
+    ],
+  },
+  {
+    nav:'¿Modificadores?', title:'¿Qué lo desencadenó o lo provocó?',
+    think:'Los factores desencadenantes son tests diagnósticos naturales. Un síncope que siempre ocurre en la misma circunstancia tiene ya un diagnóstico casi seguro. ¿Cuáles son los desencadenantes más específicos de cada causa?',
+    pause:'Ordena de más a menos específico: dolor intenso, levantarse de golpe, girar el cuello, hacer esfuerzo físico intenso.',
+    eq:'«¿Recuerda qué estaba pasando justo antes? ¿Tuvo miedo, dolor, calor? ¿Se acababa de levantar? ¿Estaba haciendo deporte?»',
+    tipT:'El desencadenante específico puede ser diagnóstico por sí solo',
+    tip:['En el síncope vasovagal, el desencadenante es casi siempre identificable y reproducible: dolor, emoción intensa, extracción de sangre, visión de sangre, calor, aglomeración, bipedestación prolongada.\n\nEl síncope sin desencadenante claro o en posición de decúbito/sedestación es cardiogénico hasta que se demuestre lo contrario.'],
+    items:[
+      {label:'Dolor intenso, emoción, visión de sangre',badge:'VASOVAGAL REFLEJO',body:'El desencadenante emocional o doloroso activa el sistema vagal → bradicardia + vasodilatación → caída de PA → síncope. El paciente suele referir que «sabía que iba a caerse» (pródromos). Benigno. Tratamiento: evitar desencadenante y maniobras físicas (cruzar piernas, apretar brazos).'},
+      {label:'Bipedestación prolongada, calor, ayuno',badge:'VASOVAGAL ORTOSTÁTICO',body:'Bipedestación prolongada (en filas, ceremonias, transporte público) con calor y ayuno: la tríada clásica del síncope vasovagal. El retorno venoso disminuye progresivamente → se activa el reflejo → síncope. Jóvenes y mujeres predominantemente.'},
+      {label:'Levantarse rápido de la cama o silla',badge:'HIPOTENSIÓN ORTOSTÁTICA',body:'El paciente pierde el conocimiento o se marea al incorporarse. La PA cae >20 mmHg sistólica. Común en ancianos con medicación hipotensora. Medir PA en decúbito y de pie a los 1 y 3 minutos.'},
+      {label:'Toser, orinar, defecar, tragar',badge:'SITUACIONAL',body:'Cada uno de estos tiene su nombre: síncope tusígeno (toser), miccional (orinar, típico en varones de noche), defecatorio, deglutorio. Mediados por reflejo vagal. Generalmente benignos si no hay cardiopatía.'},
+      {label:'Girar el cuello o collar apretado',badge:'SENO CAROTÍDEO',body:'Síndrome del seno carotídeo hipersensible: la presión en el seno carotídeo desencadena bradicardia severa y/o vasodilatación. Clásico en varones >60 años al afeitarse, llevar corbata apretada o girarse bruscamente.'},
+      {label:'Sin desencadenante claro, en reposo',badge:'CARDIOGÉNICO — URGENTE',body:'<strong>Red flag:</strong> el síncope sin desencadenante identificable, especialmente en reposo o durante el sueño, es cardiogénico hasta que se demuestre lo contrario. ECG urgente, monitorización y valoración cardiológica.'},
+    ],
+  },
+  {
+    nav:'Antecedentes', title:'Antecedentes — El testigo y el contexto clínico',
+    think:'El síncope tiene una particularidad única en medicina: el paciente no recuerda el episodio. El testigo presencial es el único observador del evento. ¿Cómo estructurarías la entrevista al testigo?',
+    pause:'¿Qué 4 preguntas concretas harías al testigo para diferenciar síncope de epilepsia?',
+    eq:'«¿Había alguien con usted cuando ocurrió? ¿Tiene alguna enfermedad del corazón? ¿Qué medicación toma?»',
+    tipT:'La entrevista al testigo: las 4 preguntas clave',
+    tip:['Preguntas al testigo: 1) «¿Cómo cayó? ¿De golpe o se fue a pique poco a poco?» 2) «¿Cuánto tiempo estuvo en el suelo?» 3) «¿Le movía el cuerpo de forma rara? ¿Cuánto rato?» 4) «¿Al despertar estaba confuso o estaba normal enseguida?»\n\nEsta información es irremplazable y cambia completamente el diagnóstico. Si no hay testigo, preguntar si hay cámaras de seguridad (en el trabajo, supermercados, etc.).'],
+    isAtrib:true,
+    hasWitness:true,
+  },
+  {nav:'Resumen',title:'Resumen: Anamnesis del Síncope',isSummaryStep:true,isFinal:true},
+  {nav:'Pruébate',title:'Comprueba cuánto has aprendido',isQuizStep:true},
+];
+
+// ── WITNESS BOX ───────────────────────────────────────────────────────────────
+function WitnessSection() {
+  return html`<div style=${{marginBottom:'1rem'}}>
+    <div class="sec-label" style=${{marginBottom:'.6rem'}}>Lo que vio la testigo — la esposa de Luis</div>
+    ${PATIENT.witnessQuotes.map((q,i)=>html`<div key=${i} class="witness-card">
+      <div class="witness-stripe"></div>
+      <div class="witness-inner">
+        <div class="witness-meta">
+          <div class="witness-tag">Mª Carmen</div>
+          <div class="witness-role">Esposa / testigo</div>
+        </div>
+        <div class="witness-qa">
+          <div class="witness-ql">Dice la testigo</div>
+          <div class="witness-q">${q}</div>
+        </div>
+      </div>
+    </div>`)}
+  </div>`;
+}
+
+// ── STEP CONTENT ──────────────────────────────────────────────────────────────
+function boldTip(p){return p.replace(/^([^\n:]{2,}?):/gm,'<strong style="color:var(--uva-blue);font-size:.88rem">$1:</strong>');}
+function StepContent({step,stepIdx,revealed,knowledge,onReveal,onKnowledge,onNext}){
+  if(step.isSummaryStep){
+    const kw=Object.values(knowledge).filter(v=>v==='knew').length;
+    const an=Object.values(knowledge).length;
+    const uk=Object.values(knowledge).filter(v=>v==='unknown').length;
+    return html`<div>
+      <div class="dx-reveal">
+        <div class="dx-reveal-top"><div class="dx-eyebrow">Diagnóstico del caso de Luis</div><div class="dx-name">${PATIENT.diagnosis}</div></div>
+        <div class="dx-evidence">
+          <h4>Claves de la anamnesis que lo orientaban</h4>
+          ${PATIENT.diagnosisKey.map((c,i)=>html`<div key=${i} class="dx-clue"><div class="dx-clue-dot"></div><p>${c}</p></div>`)}
+        </div>
+      </div>
+      ${an>0&&html`<div class="score-panel">
+        <div class="score-stat yellow"><div class="num">${an}</div><div class="lbl">Evaluadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat green"><div class="num">${kw}</div><div class="lbl">Dominadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat red"><div class="num">${uk}</div><div class="lbl">Para repasar</div></div>
+      </div>`}
+      <div class="final-card">
+        <div style=${{fontSize:'1.4rem',marginBottom:'.4rem'}}>✓</div>
+        <h2 style=${{fontSize:'1rem',marginBottom:'.3rem'}}>Anamnesis completada</h2>
+        <p style=${{fontSize:'.84rem',color:'var(--ink-2)',lineHeight:'1.6'}}>El síncope es el síntoma en el que la anamnesis tiene mayor rentabilidad diagnóstica — superior a cualquier prueba complementaria. La información del testigo presencial es irremplazable.</p>
+      </div>
+      <div class="summary-card">
+        <div class="sc-head">Las 7 preguntas clave de la anamnesis del síncope</div>
+        <div class="sc-body">${ALL_QS.map(q=>html`<div key=${q.n} class="q-row"><div class="q-num">${q.n}</div><div><div class="q-title">${q.title}</div><div class="q-ex">${q.eq}</div></div></div>`)}</div>
+      </div>
+      <button class="btn-next" onClick=${onNext}>¿Cuánto has aprendido? →</button>
+    </div>`;}
+
+  if(step.isQuizStep){return html`<div>
+    <div class="quiz-intro"><h2>Comprueba cuánto has aprendido</h2><p>Antes de girar cada tarjeta, intenta recordar los pródromos, la posición, la duración, los síntomas asociados y la fisiopatología de cada tipo de síncope.</p></div>
+    <div class="fc-grid">${QUIZ_CARDS.map((q,i)=>html`<${QuizCard} key=${i} card=${q} id=${`qc${i}`} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}
+    </div>
+  </div>`;}
+
+  const tipParts=Array.isArray(step.tip)?step.tip:(step.tip||'').split('\n\n');
+  let contentBlock=null;
+  if(step.posicional){
+    contentBlock=html`<div>
+      <div class="sec-label">Explora cada posición — pulsa para ver el mecanismo</div>
+      <${PosAccordion} items=${POS_ITEMS}/>
+    </div>`;
+  } else if(step.isAtrib){
+    contentBlock=html`<div>
+      ${step.hasWitness&&html`<${WitnessSection}/>`}
+      <${AtribBox}/>
+    </div>`;
+  } else if(step.items){
+    contentBlock=html`<div>
+      <div class="sec-label">¿Qué nos dice cada hallazgo? — Evalúa lo que sabes</div>
+      <p class="fc-hint">Toca cada tarjeta para ver la orientación diagnóstica, luego indica si ya lo sabías</p>
+      <div class="fc-grid">${step.items.map((it,i)=>html`<${FlashCard} key=${i} id=${`s${stepIdx}_c${i}`} label=${it.label} badge=${it.badge} body=${it.body} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}</div>
+      ${step.hasCombos&&html`<${ComboGrid}/>`}
+    </div>`;}
+
+  return html`<div>
+    <div class="think-box"><div class="lbl">Piensa antes de continuar</div><p>${step.think}</p></div>
+    <p class="pause-p">${step.pause}</p>
+    <button class="btn-reveal" disabled=${revealed} onClick=${onReveal}>Ver ejemplo y claves diagnósticas</button>
+    ${revealed&&html`<div class="reveal on">
+      <div class="sec-label">Ejemplo de pregunta al paciente</div>
+      <div class="example-q"><div class="lbl">Cómo preguntarlo</div><p>${step.eq}</p></div>
+      ${step.tipT&&html`<div class="tip-box"><div class="lbl">${step.tipT}</div>${tipParts.map((p,i)=>html`<p key=${i} dangerouslySetInnerHTML=${{__html:boldTip(p)}}/>`)} </div>`}
+      <${DiagnosticFeedback} stepIdx=${stepIdx}/>
+      ${contentBlock}
+      <button class="btn-next" onClick=${onNext}>${step.isFinal?'Ver ficha resumen →':'Siguiente bloque →'}</button>
+    </div>`}
+  </div>`;}
+
+// ── PATIENT + WITNESS CARDS ───────────────────────────────────────────────────
+function PatientAndWitness({ qIdx }) {
+  const hasWitness = qIdx < PATIENT.witnessQuotes.length;
+  return html`<div>
+    <div class="patient-card">
+      <div class="patient-stripe"></div>
+      <div class="patient-inner">
+        <div class="patient-meta">
+          <div class="patient-name-tag">${PATIENT.name}</div>
+          <div class="patient-age">${PATIENT.age} años · Varón</div>
+          <div class="patient-case">URG-2026 · 16:30 h</div>
+        </div>
+        <div class="patient-quote-area">
+          <div class="patient-quote-label">Dice el paciente</div>
+          <div class="patient-quote">${PATIENT.quotes[qIdx]}</div>
+        </div>
+      </div>
+    </div>
+    ${hasWitness && html`<div class="witness-card">
+      <div class="witness-stripe"></div>
+      <div class="witness-inner">
+        <div class="witness-meta">
+          <div class="witness-tag">Mª Carmen</div>
+          <div class="witness-role">Esposa · testigo</div>
+        </div>
+        <div class="witness-qa">
+          <div class="witness-ql">Dice la testigo</div>
+          <div class="witness-q">${PATIENT.witnessQuotes[qIdx]}</div>
+        </div>
+      </div>
+    </div>`}
+  </div>`;
+}
+
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+function App(){
+  const[cur,setCur]=useState(0);
+  const[revealed,setRevealed]=useState({});
+  const[knowledge,setKnowledge]=useState({});
+  const onKnowledge=useCallback((id,val)=>setKnowledge(p=>({...p,[id]:val})),[]);
+  const goTo=i=>{setCur(i);window.scrollTo({top:0});};
+  const doReveal=()=>setRevealed(p=>({...p,[cur]:true}));
+  const doNext=()=>{if(cur<STEPS.length-1){setCur(c=>c+1);window.scrollTo({top:0});}};
+  const step=STEPS[cur];
+  const isL=!step.isSummaryStep&&!step.isQuizStep;
+  const qIdx=isL?Math.min(cur,PATIENT.quotes.length-1):-1;
+  const pct=(cur/(STEPS.length-1))*100;
+
+  return html`<div>
+    <div class="topbar"><a href="index.html" class="back-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>← Volver al índice</a></div>
+<div class="header">
+      <div class="header-brand"><span class="header-badge">EduMed · UVa</span><span class="header-sub">Educación Médica</span></div>
+      <div class="header-divider"></div>
+      <div class="header-text"><h1>Anamnesis del Síncope</h1><p>Facultad de Medicina · Universidad de Valladolid</p></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" style=${{width:`${pct}%`}}></div></div>
+    <div class="step-nav">
+      ${STEPS.map((s,i)=>{
+        const st=starsFor(i,knowledge);
+        let cls='step-pill';
+        if(s.isSummaryStep)cls+=' summary';
+        else if(s.isQuizStep)cls+=' quiz';
+        else if(i<cur&&revealed[i])cls+=' done';
+        if(i===cur)cls+=' active';
+        return html`<div key=${i} class=${cls} onClick=${()=>goTo(i)}>
+          ${s.nav}${st!==null&&html`<${StarDisplay} count=${st} small/>`}
+        </div>`;
+      })}
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">Paso ${cur+1} de ${STEPS.length}</div>
+          <div class="card-title">${step.title}</div>
+          ${isL&&html`<${EvidenceMeter} revealedSteps=${revealed}/>`}
+          ${isL&&html`<span class="card-head-deco" aria-hidden="true">${String(cur+1).padStart(2,'0')}</span>`}
+        </div>
+        <div class="card-body">
+          ${isL&&qIdx>=0&&html`<${PatientAndWitness} qIdx=${qIdx}/>`}
+          <${StepContent} step=${step} stepIdx=${cur} revealed=${!!revealed[cur]} knowledge=${knowledge} onReveal=${doReveal} onKnowledge=${onKnowledge} onNext=${doNext}/>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div><strong>Material docente</strong> para mejorar la anamnesis clínica</div>
+      <div>Propedéutica Clínica · Grado en Medicina · Universidad de Valladolid · Elaborado en mayo de 2026</div>
+    </footer>
+  </div>`;}
+
+render(h(App,null),document.getElementById('root'));
+</script>
+</body></html>

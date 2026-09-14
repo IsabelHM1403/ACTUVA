@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anamnesis de la Tos · UVa</title>
+<style>
+:root {
+  --yellow:#F5C518; --yellow-mid:#FEF0A0; --yellow-pale:#FFFDE7; --yellow-deep:#D4A000;
+  --uva-blue:#003973; --uva-blue-2:#00509e; --uva-red:#c60046;
+  --ink:#0F1117; --ink-2:#343A47; --ink-3:#5E6575; --ink-4:#9AA0AD;
+  --line:#DDD9CF; --line-light:#E8E4DB;
+  --surface:#FEFCF8; --bg:#EAE6DC;
+  --green:#059669; --green-pale:#D1FAE5; --green-border:#6EE7B7;
+  --red-pale:#FEE2E2; --red-border:#FCA5A5;
+  --radius:14px; --radius-sm:8px;
+  --shadow-card:0 1px 3px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.08);
+  --shadow-lift:0 4px 8px rgba(0,0,0,.07),0 16px 36px rgba(0,0,0,.11);
+  --shadow-fc:0 2px 6px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),inset 0 -1px 0 rgba(0,0,0,.04);
+  --font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-serif:Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.65;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.022;pointer-events:none;z-index:9999;}
+.header{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 60%,#004d8f 100%);padding:1rem 1.6rem;display:flex;align-items:center;gap:1.1rem;border-bottom:3px solid var(--yellow);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(245,197,24,.12) 0%,transparent 70%);pointer-events:none;}
+.header-brand{display:flex;flex-direction:column;flex-shrink:0;}
+.header-badge{background:var(--uva-red);color:#fff;font-weight:800;font-size:.82rem;padding:3px 10px;border-radius:5px;letter-spacing:.6px;display:inline-block;}
+.header-sub{font-size:.6rem;color:rgba(160,180,204,.8);margin-top:4px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+.header-divider{width:1px;height:38px;background:rgba(255,255,255,.15);flex-shrink:0;}
+.header-text h1{font-family:var(--font-serif);font-size:1.05rem;font-weight:700;color:#fff;line-height:1.25;}
+.header-text p{font-size:.68rem;color:rgba(160,180,204,.85);margin-top:.2rem;}
+.progress-wrap{background:var(--line);height:6px;}
+.progress-fill{height:6px;background:linear-gradient(90deg,var(--uva-red),#e8005a);transition:width .55s cubic-bezier(.4,0,.2,1);}
+.step-nav{display:flex;flex-wrap:wrap;background:var(--surface);border-bottom:1px solid var(--line);padding:.55rem .75rem;gap:.35rem;align-items:center;}
+.step-pill{padding:.32rem .8rem;font-size:.7rem;border-radius:20px;font-weight:700;border:1.5px solid var(--line);cursor:pointer;transition:all .2s;white-space:nowrap;background:var(--surface);color:var(--ink-4);display:flex;align-items:center;gap:.3rem;}
+.step-pill:hover{background:var(--yellow-pale);border-color:var(--yellow-deep);color:var(--ink);transform:translateY(-1px);}
+.step-pill.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow-deep);font-weight:800;box-shadow:0 2px 10px rgba(245,197,24,.35);}
+.step-pill.done{background:var(--uva-blue);color:#fff;border-color:var(--uva-blue);}
+.step-pill.done:hover{background:var(--uva-blue-2);transform:translateY(-1px);}
+.step-pill.summary{background:var(--ink-2);color:#fff;border-color:var(--ink-2);}
+.step-pill.quiz{background:var(--uva-red);color:#fff;border-color:var(--uva-red);}
+.main{max-width:760px;margin:0 auto;padding:1.6rem 1.2rem 2.5rem;}
+.patient-card{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 55%,#004d8f 100%);border-radius:var(--radius);display:flex;overflow:hidden;margin-bottom:1.1rem;box-shadow:0 3px 12px rgba(0,57,115,.25);}
+.patient-stripe{background:var(--yellow);width:5px;flex-shrink:0;}
+.patient-inner{display:flex;gap:1rem;padding:.8rem 1rem;flex:1;position:relative;overflow:hidden;}
+.patient-inner::after{content:'URG';position:absolute;right:.6rem;top:50%;transform:translateY(-50%);font-size:3rem;font-weight:800;color:rgba(255,255,255,.04);pointer-events:none;line-height:1;}
+.patient-meta{flex-shrink:0;border-right:1px solid rgba(255,255,255,.12);padding-right:.9rem;display:flex;flex-direction:column;justify-content:center;gap:.25rem;}
+.patient-name-tag{font-size:.78rem;font-weight:800;color:var(--yellow);}
+.patient-age{font-size:.65rem;color:rgba(160,180,210,.8);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.patient-case{font-size:.58rem;color:rgba(160,180,210,.5);font-weight:600;}
+.patient-quote-area{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.patient-quote-label{font-size:.58rem;font-weight:700;color:rgba(245,197,24,.7);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.2rem;}
+.patient-quote{font-size:.88rem;color:rgba(230,238,250,.92);line-height:1.55;font-style:italic;}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line-light);box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:1.5rem;}
+.card-head{background:var(--yellow);padding:1.1rem 1.6rem;border-bottom:2px solid var(--yellow-deep);position:relative;overflow:hidden;}
+.card-head-deco{position:absolute;right:-.02em;bottom:-.18em;font-family:var(--font-serif);font-size:6.5rem;font-weight:700;line-height:1;color:rgba(0,0,0,.07);pointer-events:none;user-select:none;}
+.card-num{font-size:.6rem;color:rgba(61,68,81,.65);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.2rem;font-weight:700;}
+.card-title{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--ink);line-height:1.2;}
+.card-body{padding:1.4rem 1.6rem;}
+.think-box{background:var(--yellow-pale);border:1px solid rgba(212,160,0,.25);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.9rem 1.1rem;margin-bottom:.9rem;}
+.think-box .lbl{font-size:.6rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.think-box p{font-size:.88rem;color:var(--ink-2);line-height:1.6;}
+.pause-p{font-size:.8rem;color:var(--ink-4);font-style:italic;margin-bottom:1rem;}
+.btn-reveal{background:var(--yellow);color:var(--ink);border:none;padding:.7rem 1.5rem;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;cursor:pointer;font-weight:800;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-reveal:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.btn-reveal:disabled{background:var(--line-light);color:var(--ink-4);cursor:default;box-shadow:none;transform:none;}
+.btn-next{margin-top:1.1rem;background:var(--yellow);color:var(--ink);border:none;padding:.8rem 1.8rem;border-radius:var(--radius-sm);font-size:.9rem;font-family:inherit;cursor:pointer;font-weight:800;width:100%;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-next:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.reveal{display:none;margin-top:1.3rem;border-top:1px solid var(--line-light);padding-top:1.3rem;}
+.reveal.on{display:block;animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.sec-label{font-size:.58rem;font-weight:800;color:var(--ink-4);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.65rem;}
+.example-q{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.85rem 1.1rem;margin-bottom:1rem;}
+.example-q .lbl{font-size:.58rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.example-q p{font-size:.9rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.tip-box{background:rgba(0,57,115,.03);border:1px solid rgba(0,57,115,.1);border-radius:var(--radius-sm);padding:.85rem 1.1rem;margin-bottom:1rem;}
+.tip-box .lbl{font-size:.58rem;color:var(--uva-blue);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.tip-box p{font-size:.84rem;color:var(--ink-2);margin-bottom:.35rem;line-height:1.65;}
+.tip-box p strong{color:var(--uva-blue);font-size:.9rem;}
+.tip-box p:last-child{margin-bottom:0;}
+.fc-hint{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-bottom:.8rem;}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem;margin-bottom:1.3rem;grid-auto-rows:1fr;}
+.fc{perspective:1200px;height:190px;cursor:pointer;}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1),box-shadow .25s;border-radius:12px;box-shadow:var(--shadow-fc);}
+.fc:hover .fc-inner{box-shadow:var(--shadow-lift);transform:translateY(-3px);}
+.fc.flipped .fc-inner{transform:rotateY(180deg);}
+.fc.flipped:hover .fc-inner{transform:rotateY(180deg) translateY(-3px);}
+.fc-front,.fc-back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:1.1rem;text-align:center;}
+.fc-front{background:#FEFCF8;border:1px solid var(--line);transition:background .3s,border-color .3s;}
+.fc-front.knew-state{background:linear-gradient(148deg,#F0FDF4,#DCFCE7);border-color:var(--green-border);}
+.fc-front.unknown-state{background:linear-gradient(148deg,#FFF1F2,#FFE4E6);border-color:var(--red-border);}
+.fc-front .fc-label{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:.4rem;}
+.fc-front .fc-badge{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;background:var(--uva-red);color:#fff;text-transform:uppercase;letter-spacing:.5px;}
+.fc-front .fc-tap{font-size:.62rem;color:var(--ink-4);margin-top:.65rem;}
+.fc-front .fc-state-badge{font-size:.7rem;font-weight:700;margin-top:.55rem;padding:3px 9px;border-radius:5px;}
+.fc-front .fc-state-badge.knew{background:var(--green-pale);color:var(--green);border:1px solid var(--green-border);}
+.fc-front .fc-state-badge.unknown{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.fc-back{background:var(--surface);border:1.5px solid var(--uva-blue);transform:rotateY(180deg);justify-content:flex-start;align-items:flex-start;text-align:left;overflow-y:auto;}
+.fc-back-header{background:var(--uva-blue);width:calc(100% + 2.2rem);margin:-1.1rem -1.1rem .75rem;padding:.5rem 1.1rem;border-radius:11px 11px 0 0;display:flex;align-items:center;justify-content:space-between;}
+.fc-back .fc-back-label{font-size:.75rem;font-weight:700;color:#fff;}
+.fc-back p{font-size:.83rem;color:var(--ink-2);line-height:1.6;flex:1;}
+.knowledge-btns{display:flex;gap:.5rem;margin-top:.85rem;width:100%;}
+.btn-knew{background:var(--green-pale);color:#065F46;border:1.5px solid var(--green-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-knew:hover{background:#A7F3D0;}
+.btn-unknown{background:var(--red-pale);color:#991B1B;border:1.5px solid var(--red-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-unknown:hover{background:#FECACA;}
+.attr-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;}
+.attr-box h3{font-size:.72rem;font-weight:800;color:var(--uva-blue);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.8px;}
+.attr-list{display:grid;gap:.55rem;}
+.attr-item{display:flex;gap:.65rem;align-items:flex-start;}
+.attr-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.attr-item p{font-size:.86rem;color:var(--ink-2);line-height:1.6;}
+.attr-tip{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.75rem 1.1rem;margin-top:.9rem;font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.final-card{background:var(--yellow-pale);border:1.5px solid rgba(212,160,0,.3);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:1rem;}
+.summary-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;margin-bottom:1rem;box-shadow:var(--shadow-card);}
+.summary-card .sc-head{background:var(--yellow);color:var(--ink);padding:.8rem 1.4rem;font-weight:800;font-size:.92rem;border-bottom:2px solid var(--yellow-deep);}
+.summary-card .sc-body{padding:1rem 1.4rem;}
+.q-row{display:flex;gap:.8rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--line-light);}
+.q-row:last-child{border-bottom:none;}
+.q-num{background:var(--yellow);color:var(--ink);font-size:.62rem;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.q-title{font-size:.86rem;font-weight:700;color:var(--ink);}
+.q-ex{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-top:.05rem;}
+.score-panel{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.score-stat{text-align:center;flex:1;min-width:80px;}
+.score-stat .num{font-family:var(--font-serif);font-size:2rem;font-weight:700;line-height:1;}
+.score-stat .lbl{font-size:.6rem;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:.6px;margin-top:.15rem;}
+.score-stat.green .num{color:#6EE7B7;}.score-stat.red .num{color:#FCA5A5;}.score-stat.yellow .num{color:var(--yellow);}
+.score-divider{width:1px;height:44px;background:rgba(255,255,255,.12);}
+.dx-reveal{border-radius:var(--radius);overflow:hidden;margin-bottom:1.1rem;box-shadow:var(--shadow-card);}
+.dx-reveal-top{background:linear-gradient(135deg,var(--uva-red) 0%,#e8005a 100%);padding:1.4rem 1.6rem;text-align:center;}
+.dx-reveal-top .dx-eyebrow{font-size:.62rem;color:rgba(254,205,211,.85);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin-bottom:.4rem;}
+.dx-reveal-top .dx-name{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:#fff;}
+.dx-evidence{background:var(--surface);border:1.5px solid rgba(198,0,70,.15);border-top:none;padding:1.1rem 1.3rem;}
+.dx-evidence h4{font-size:.62rem;font-weight:800;color:var(--uva-blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.7rem;}
+.dx-clue{display:flex;gap:.65rem;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid var(--line-light);}
+.dx-clue:last-child{border-bottom:none;}
+.dx-clue-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.dx-clue p{font-size:.85rem;color:var(--ink-2);line-height:1.6;}
+.dx-fb{margin-top:1.3rem;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid rgba(0,57,115,.25);animation:fadeUp .35s ease both;}
+.dx-fb-head{background:linear-gradient(90deg,#002d5c,var(--uva-blue));padding:.6rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;}
+.dx-fb-eyebrow{font-size:.58rem;font-weight:800;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:1px;}
+.dx-fb-title{font-size:.78rem;font-weight:700;color:#fff;}
+.dx-compat{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;}
+.dx-compat.neutral{background:rgba(255,255,255,.12);color:rgba(200,216,232,.8);}
+.dx-compat.positive{background:rgba(245,197,24,.18);color:var(--yellow);}
+.dx-compat.strong{background:rgba(198,0,70,.25);color:#fca5a5;}
+.dx-fb-body{background:#eef4ff;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.75rem;border-top:none;}
+.dx-quote-box{background:var(--yellow-pale);border-left:3px solid var(--yellow-deep);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6rem .9rem;}
+.dx-quote-who{font-size:.57rem;font-weight:800;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.2rem;}
+.dx-quote-text{font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.55;}
+.dx-interp{font-size:.84rem;color:var(--ink);line-height:1.65;}
+.dx-tags-row{display:flex;flex-direction:column;gap:.4rem;}
+.dx-tags-label{font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.1rem;}
+.dx-tags-label.fits{color:var(--green);}.dx-tags-label.rules{color:#991b1b;}
+.dx-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.dx-tag{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:4px;}
+.dx-tag.fits{background:var(--green-pale);color:#065F46;border:1px solid var(--green-border);}
+.dx-tag.rules{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.ev-meter{display:flex;align-items:center;gap:.55rem;margin-top:.5rem;}
+.ev-meter-label{font-size:.6rem;font-weight:700;color:rgba(0,0,0,.35);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+.ev-dots{display:flex;gap:3px;}
+.ev-dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.1);}
+.ev-dot.neutral{background:#D1D5DB;}.ev-dot.positive{background:var(--uva-blue-2);}.ev-dot.strong{background:var(--uva-red);}
+.ev-score{font-size:.62rem;font-weight:800;color:var(--ink-3);}
+.quiz-intro{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);color:#fff;border-radius:var(--radius);padding:1.2rem 1.5rem;margin-bottom:1.2rem;}
+.quiz-intro h2{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;margin-bottom:.35rem;}
+.quiz-intro p{font-size:.84rem;color:rgba(160,180,210,.85);line-height:1.65;}
+footer{background:var(--surface);color:var(--ink-3);border-top:2px solid var(--yellow);text-align:center;padding:1.1rem 1.5rem;font-size:.7rem;line-height:1.9;}
+footer strong{color:var(--ink-2);}
+@media(max-width:520px){.fc-grid{grid-template-columns:1fr;}.header{padding:.75rem 1rem;gap:.75rem;}.card-title{font-size:1.25rem;}.card-body,.card-head{padding:.9rem 1.2rem;}}
+
+
+.topbar{background:var(--blue-deep,#002244);padding:.3rem 1.6rem;display:flex;align-items:center;}
+.back-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:700;color:rgba(180,210,250,.7);text-decoration:none;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+.back-btn svg{opacity:.7;}
+.back-btn:hover svg{opacity:1;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="importmap">
+{"imports":{"preact":"https://unpkg.com/preact@10.25.4/dist/preact.module.js","preact/hooks":"https://unpkg.com/preact@10.25.4/hooks/dist/hooks.module.js","htm":"https://unpkg.com/htm@3.1.1/dist/htm.module.js"}}
+</script>
+<script type="module">
+import{h,render}from'preact';
+import{useState,useCallback}from'preact/hooks';
+import htm from'htm';
+const html=htm.bind(h);
+
+// ── PACIENTE ──────────────────────────────────────────────────────────────────
+const PATIENT = {
+  name:'Roberto S.', age:52,
+  diagnosis:'Tos crónica por reflujo gastroesofágico (RGE) — tos extrapulmonar',
+  diagnosisKey:[
+    'Tos seca irritativa sin expectoración — perfil de tos extrapulmonar (paso 1)',
+    'Más de 8 semanas de evolución — tos crónica por definición (paso 2)',
+    'Impacto funcional moderado: disturba el sueño y le afecta en el trabajo (paso 3)',
+    'Sin fiebre ni expectoración — descarta infección activa (paso 4)',
+    'Empeora claramente tras las comidas copiosas y en decúbito — patrón de RGE (paso 5)',
+    'Fumador exfumador, sin IECAs, sin rinorrea — RGE como causa más probable (paso 6)',
+  ],
+  quotes:[
+    '«Llevo semanas con una tos que no me deja en paz. Es seca, sin flemas, muy irritante.»',
+    '«Llevo con esto unos dos meses largos. No se me va.»',
+    '«Me molesta bastante. Por la noche me despierta y en el trabajo me da vergüenza.»',
+    '«No tengo fiebre. No expulso nada, es tos seca. A veces noto un regüeldo ácido.»',
+    '«Empeora mucho después de comer, sobre todo si me tumbo. Con la cabeza elevada algo mejora.»',
+    '«Fumé durante 20 años pero lo dejé hace 5. No tomo IECA ni nada nuevo. Tengo algo de acidez de vez en cuando.»',
+  ],
+};
+
+// ── RESUMEN ───────────────────────────────────────────────────────────────────
+const ALL_QS = [
+  {n:1,title:'¿Cómo? — Características de la tos: seca o productiva',eq:'«¿La tos es seca o saca algo? ¿Cómo es lo que expectora? ¿De qué color?»'},
+  {n:2,title:'¿Cuándo? — Inicio y duración: aguda, subaguda o crónica',eq:'«¿Cuándo empezó? ¿Cuánto lleva con esta tos? ¿Ha tenido algo parecido antes?»'},
+  {n:3,title:'¿Cuánto? — Intensidad y repercusión funcional',eq:'«¿Le afecta al sueño? ¿Le cuesta respirar? ¿Le da vómitos o se le escapa la orina?»'},
+  {n:4,title:'Asociado — Síntomas acompañantes orientadores',eq:'«¿Tiene fiebre, pitidos en el pecho, ahogo, dolor de garganta, mucosidad, acidez?»'},
+  {n:5,title:'¿Modificadores? — Qué la mejora o empeora',eq:'«¿Empeora en algún momento del día, con el ejercicio, al hablar, tumbado, tras las comidas?»'},
+  {n:6,title:'Antecedentes — Tabaco, fármacos y enfermedades previas',eq:'«¿Fuma o ha fumado? ¿Toma algún medicamento, sobre todo para la tensión? ¿Tiene asma, alergias?»'},
+];
+
+// ── FEEDBACK DIAGNÓSTICO ──────────────────────────────────────────────────────
+const STEP_DX = [
+  {quoteIdx:0,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'La tos seca sin expectoración es el primer filtro: orienta hacia causas irritativas o extrapulmonares (RGE, goteo posnasal, IECA, asma de tos) más que hacia infección o EPOC. La tos productiva con expectoración orienta a infección, bronquitis o bronquiectasias. La calidad de la expectoración — color, cantidad, sangre — tiene alto valor diagnóstico.',
+   fitsFor:['RGE','Goteo posnasal','Asma','IECA','Tos postinfecciosa'],rulesOut:['Neumonía (expectoración purulenta)','EPOC (expectoración crónica)','Bronquiectasias (mucopurulenta abundante)']},
+  {quoteIdx:1,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'Dos meses de tos es tos CRÓNICA por definición (>8 semanas). Esta clasificación temporal no es arbitraria: determina el diferencial. La tos aguda (<3 semanas) es casi siempre infecciosa o viral. La tos subaguda (3-8 semanas) puede ser postinfecciosa o bacteriana. La tos crónica (>8 semanas) tiene sus propias tres grandes causas: RGE, goteo posnasal y asma — que juntas explican el 90% de los casos en no fumadores sin IECAs.',
+   fitsFor:['RGE','Goteo posnasal crónico','Asma','Tos por IECAs'],rulesOut:['Infección viral aguda (<3 semanas)','Neumonía aguda']},
+  {quoteIdx:2,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'La repercusión en el sueño y la actividad laboral indica una tos de intensidad moderada-alta. La tos que despierta por la noche es especialmente orientadora: en el RGE el decúbito facilita el reflujo ácido al esófago → irritación del nervio laríngeo recurrente → tos nocturna. El asma también suele empeorar de noche.',
+   fitsFor:['RGE (tos nocturna en decúbito)','Asma nocturno'],rulesOut:['Tos leve sin repercusión']},
+  {quoteIdx:3,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La ausencia de fiebre descarta infección activa. La tos seca con regurgitación ácida ocasional es muy orientadora de RGE: el ácido gástrico irrita el árbol bronquial por microaspiración o por reflejo vagal esofagobronquial. Hasta el 40% de las tos crónicas por RGE no tienen pirosis — el paciente puede no saber que tiene reflujo.',
+   fitsFor:['RGE (tos sin pirosis en 40%)'],rulesOut:['Infección (sin fiebre)','Neumonía']},
+  {quoteIdx:4,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'El empeoramiento postprandial y en decúbito es el patrón más específico del RGE. Tras las comidas copiosas el estómago está lleno y la presión intragástrica sube → el ácido asciende al esófago y a la vía aérea → tos refleja. La mejoría con la cabeza elevada es la consecuencia lógica: la gravedad dificulta el reflujo.',
+   fitsFor:['RGE'],rulesOut:['Asma (no empeora específicamente tras comidas)','Goteo posnasal (no mejora con la postura del esófago)']},
+  {quoteIdx:5,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'Tres datos de alto valor: 1) Ex-fumador (el tabaco activo produce tos crónica directamente, pero lo dejó hace 5 años — ya no es causa activa). 2) No toma IECAs (causa muy frecuente e infradiagnosticada de tos seca crónica — debe preguntarse siempre). 3) Acidez ocasional previa — refuerza el diagnóstico de RGE. La triada tos crónica seca + sin IECAs + acidez = RGE hasta que se demuestre lo contrario.',
+   fitsFor:['RGE como causa de tos crónica'],rulesOut:['Tos por IECA (no los toma)','Tos del fumador activo (ex desde hace 5 años)']},
+];
+
+// ── COMBOS ────────────────────────────────────────────────────────────────────
+const COMBOS = [
+  {dx:'Infección respiratoria aguda (viral o bacteriana)',compat:'strong',
+   symptoms:['Tos aguda <3 semanas','Fiebre','Expectoración purulenta','Malestar general','Inicio brusco'],
+   key:'La causa más frecuente de tos aguda. Viral (catarro, gripe) o bacteriana (neumonía, bronquitis aguda). Fiebre + expectoración + inicio brusco orientan a infección.'},
+  {dx:'EPOC — exacerbación o tos crónica',compat:'strong',
+   symptoms:['Fumador importante (>10 paq-año)','Tos crónica matutina','Expectoración mucopurulenta','Disnea de esfuerzo','>40 años'],
+   key:'Tos crónica + expectoración matutina en fumador = EPOC hasta que se demuestre lo contrario. Espirometría con FEV1/FVC <0.7 post-broncodilatador.'},
+  {dx:'Asma — tos como único síntoma',compat:'positive',
+   symptoms:['Tos seca nocturna o con ejercicio','Silbidos / pitidos','Empeora con frío, alérgenos','Joven o con atopia','Reversible con broncodilatador'],
+   key:'El asma puede presentarse SOLO como tos crónica (variante tusígena). Empeoramiento nocturno y con ejercicio. Espirometría + prueba broncodilatadora o test de provocación.'},
+  {dx:'RGE — tos extrapulmonar',compat:'positive',
+   symptoms:['Tos crónica seca','Empeora tras comidas y en decúbito','Pirosis / regurgitación (no siempre)','Mejora con cabeza elevada','Sin síntomas respiratorios'],
+   key:'Segunda causa más frecuente de tos crónica. El 40% no tienen pirosis. El diagnóstico puede hacerse con pH-metría esofágica o con respuesta al tratamiento empírico.'},
+  {dx:'Goteo posnasal (síndrome de tos de vía aérea superior)',compat:'positive',
+   symptoms:['Tos crónica seca','Rinorrea posterior','Aclaramiento de garganta frecuente','Sensación de moco en la garganta','Empeora al hablar o reír'],
+   key:'Primera causa de tos crónica en algunas series. El moco de la nariz o senos gotea por la faringe posterior → irrita los receptores de la tos. Rinitis alérgica o crónica subyacente.'},
+  {dx:'Tos por IECAs',compat:'strong',
+   symptoms:['Tos seca crónica irritativa','Toma IECA (enalapril, ramipril, lisinopril...)','Inicio semanas tras iniciar IECA','Sin otros síntomas respiratorios','Desaparece al suspender'],
+   key:'Causa muy frecuente e infradiagnosticada. El 10-20% de los pacientes con IECAs desarrollan tos seca. Desaparece a las 1-4 semanas de suspender. Cambiar a ARA-II.'},
+];
+
+// ── PASOS ─────────────────────────────────────────────────────────────────────
+const STEPS = [
+  {
+    nav:'¿Cómo?', title:'¿Cómo es la tos? — Seca o productiva',
+    think:'El primer dato que orientará el diagnóstico es si la tos es seca o productiva. Esta distinción no es cosmética: separa dos grupos diagnósticos completamente distintos. ¿Qué preguntas harías para caracterizar bien la tos?',
+    pause:'¿Qué diferencia diagnóstica hay entre tos seca y tos productiva? ¿Qué características del esputo tienen valor orientador?',
+    eq:'«¿La tos es seca o saca algo de la garganta o los pulmones? Si saca algo, ¿de qué color es? ¿Cuánta cantidad? ¿Ha visto sangre alguna vez?»',
+    tipT:'Seca vs productiva: dos grupos diagnósticos distintos',
+    tip:'Tos seca (sin expectoración): causas irritativas o extrapulmonares — RGE, goteo posnasal, asma variante tusígena, IECAs, tos postinfecciosa, tumor.\n\nTos productiva (con expectoración): causas con secreción en la vía aérea — infección aguda, EPOC, bronquiectasias, neumonía. El color del esputo orienta: blanquecino (viral/alérgico), amarillo/verde (bacteriano), herrumbroso (neumonía neumocócica), rosado espumoso (edema pulmonar).',
+    items:[
+      {label:'Tos seca — sin expectoración',badge:'RGE / GOTEO POSNASAL / ASMA / IECA',body:'La tos seca irritativa sin producción de moco orienta hacia causas que irritan los receptores de la tos sin generar secreción: RGE (ácido), goteo posnasal (moco nasal posterior), asma (inflamación bronquial), IECA (bradicinina), tos postinfecciosa. Preguntar siempre por fármacos antihipertensivos.'},
+      {label:'Tos productiva — expectoración mucopurulenta',badge:'INFECCIÓN / EPOC / BRONQUIECTASIAS',body:'La expectoración purulenta (amarilla o verde) indica infección bacteriana activa. La expectoración crónica diaria matutina en fumador = bronquitis crónica/EPOC. La expectoración mucopurulenta abundante en paciente joven = bronquiectasias (fibrosis quística, síndrome de Kartagener).'},
+      {label:'Hemoptisis — sangre en el esputo',badge:'RED FLAG — TUBERCULOSIS / TUMOR / TEP',body:'La sangre en el esputo siempre requiere estudio. Las causas van desde la leve (hemoptisis de bronquitis) a la grave (carcinoma broncogénico, tuberculosis, TEP). <strong>En fumador >40 años, la hemoptisis obliga a descartar carcinoma</strong> con Rx tórax y TC. La hemoptisis masiva (>200 ml/24h) es emergencia.'},
+      {label:'Esputo blanquecino o transparente',badge:'VIRAL / ALÉRGICO',body:'El moco claro o blanquecino indica inflamación sin infección bacteriana: catarro viral, rinitis alérgica, asma, EPOC estable. No implica infección bacteriana y no requiere antibiótico por sí solo.'},
+      {label:'Esputo espumoso rosado',badge:'EDEMA AGUDO DE PULMÓN — URGENTE',body:'La expectoración espumosa rosada (como espuma de fresa) es el signo clásico del edema agudo de pulmón: el trasudado plasmático inunda los alvéolos. Va siempre acompañada de disnea intensa y ortopnea. Emergencia cardiorrespiratoria.'},
+    ],
+  },
+  {
+    nav:'¿Cuándo?', title:'¿Cuándo empezó? — Duración: aguda, subaguda o crónica',
+    think:'La duración de la tos es el segundo filtro diagnóstico más importante. Divide el diferencial en tres grupos casi no solapables. ¿Cuántas semanas marcan el límite entre tos aguda y crónica?',
+    pause:'¿Cuál es el diagnóstico más probable de una tos que lleva exactamente 3 días tras un catarro? ¿Y si lleva 3 meses sin infección previa?',
+    eq:'«¿Cuánto tiempo lleva con esta tos? ¿Empezó con un catarro o gripe, o apareció sola? ¿Ha tenido episodios similares antes?»',
+    tipT:'La duración hace el diagnóstico diferencial',
+    tip:'Tos aguda (<3 semanas): infección viral (catarro, gripe), bacteriana (neumonía, sinusitis), o inicio de una causa crónica. La causa más frecuente es el catarro común.\n\nTos subaguda (3-8 semanas): tos postinfecciosa (la más frecuente), sinusitis bacteriana, Bordetella pertussis (tos ferina — regresa en adultos no vacunados).\n\nTos crónica (>8 semanas): RGE, goteo posnasal, asma variante tusígena, IECAs — explican el 90% en no fumadores sin patología pulmonar conocida. En fumadores, añadir EPOC y carcinoma.',
+    items:[
+      {label:'Aguda — menos de 3 semanas',badge:'INFECCIÓN VIRAL / BACTERIANA',body:'La tos aguda es casi siempre de causa infecciosa. El catarro común (rinovirus) es la causa más frecuente de tos en urgencias. Neumonía: fiebre + tos + expectoración purulenta. Inicio brusco sin pródromos catarrales → pensar en TEP o edema agudo de pulmón.'},
+      {label:'Subaguda — 3 a 8 semanas',badge:'POSTINFECCIOSA / TOS FERINA',body:'La tos postinfecciosa es la causa más frecuente de tos subaguda: persiste tras un catarro por hiperreactividad bronquial transitoria. La tos ferina (pertussis) produce tos paroxística con gallo inspiratorio, puede durar semanas. Está regresando en adultos no vacunados.'},
+      {label:'Crónica — más de 8 semanas',badge:'RGE / GOTEO POSNASAL / ASMA / IECA',body:'Más de 8 semanas obliga a un estudio sistematizado. En no fumadores sin IECAs: la tríada RGE + goteo posnasal + asma explica el 90%. En fumadores: añadir EPOC y carcinoma. La causa siempre puede ser más de una simultáneamente.'},
+      {label:'Tos de años de evolución',badge:'EPOC / BRONQUIECTASIAS / IDIOPÁTICA',body:'Una tos que lleva años y el paciente ha «normalizado» orienta a EPOC (fumador), bronquiectasias (infecciones de repetición en infancia, fibrosis quística) o tos idiopática/refractaria. Preguntar: «¿Ha llevado esta tos toda su vida adulta?» puede revelar años de síntomas ignorados.'},
+      {label:'Estacional — solo en primavera o en invierno',badge:'ALÉRGICA / INFECCIOSA RECURRENTE',body:'La tos que aparece cada primavera con los pólenes orienta a rinitis/asma alérgica. La tos que aparece cada invierno con el frío orienta a EPOC o hiperreactividad bronquial. El patrón estacional es un dato fácil de obtener con la pregunta «¿le pasa todos los años por estas fechas?»'},
+    ],
+  },
+  {
+    nav:'¿Cuánto?', title:'¿Cuánto afecta? — Intensidad y repercusión',
+    think:'La tos puede ir desde una molestia leve hasta ser completamente incapacitante. ¿Qué complicaciones puede producir una tos muy intensa y prolongada? ¿Qué preguntas evalúan el impacto real en la vida del paciente?',
+    pause:'¿Qué complicaciones mecánicas puede producir la tos paroxística intensa? ¿En qué pacientes son más relevantes?',
+    eq:'«¿Le afecta al sueño? ¿Le interrumpe las conversaciones? ¿Le ha provocado vómitos, se le escapa la orina, le ha dolido el costado?»',
+    tipT:'La tos intensa produce complicaciones mecánicas propias',
+    tip:'La tos muy intensa puede producir: síncope por tos (hipotensión transitoria), fractura costal (sobre todo en osteoporosis), neumotórax espontáneo, vómitos postusivos, incontinencia urinaria (especialmente en multíparas) y rotura de vasos conjuntivales (petequias oculares).\n\nEl impacto en el sueño es un marcador de gravedad: la tos que despierta al paciente de noche sugiere causas activas como RGE nocturno o asma nocturno.',
+    items:[
+      {label:'Perturba el sueño — despierta de noche',badge:'RGE NOCTURNO / ASMA',body:'La tos nocturna que interrumpe el sueño tiene causas específicas. En decúbito → RGE: el ácido gástrico asciende sin la ayuda de la gravedad. Asma nocturno: el tono vagal broncoconstrictor es mayor de noche (ritmo circadiano). Ambos son tratables específicamente.'},
+      {label:'Paroxística — accesos incoercibles',badge:'TOS FERINA / ASMA',body:'Los accesos de tos incoercibles (el paciente no puede parar) con gallo inspiratorio final son muy sugestivos de tos ferina (Bordetella pertussis). También en el asma grave y en la tos por compresión mediastínica (adenopatías, tumor). Los paroxismos nocturnos que despiertan al paciente tienen valor orientador.'},
+      {label:'Leve — no interrumpe la actividad',badge:'TOS RESIDUAL / POSTINFECCIOSA',body:'Una tos leve que no despierta ni interrumpe la conversación puede ser tos postinfecciosa residual, goteo posnasal leve o RGE leve. No requiere estudio urgente si es breve. Si persiste >8 semanas, estudio sistemático.'},
+      {label:'Con vómitos postusivos — al final del acceso',badge:'TOS FERINA / ASMA GRAVE',body:'El vómito al final del acceso de tos (vómito postusivo) es característico de tos ferina en niños, pero también ocurre en adultos con tos paroxística intensa de cualquier causa. Junto al gallo inspiratorio, es muy orientador de pertussis.'},
+      {label:'Con dolor costal — al respirar tras toser',badge:'FRACTURA COSTAL / PLEURITIS',body:'El dolor costal al respirar profundo tras tos intensa puede indicar fractura costal por tos (en osteoporosis, corticoterapia crónica) o pleuritis. El dolor que aumenta con la inspiración y disminuye en apnea es dolor pleurítico. Rx tórax para descartar fractura y derrame pleural.'},
+    ],
+  },
+  {
+    nav:'Asociado', title:'¿Qué la acompaña? — Síntomas orientadores',
+    think:'Los síntomas acompañantes son los que localizan la causa de la tos en el aparato respiratorio, digestivo, cardíaco o alérgico. ¿Qué combinación de síntomas te haría pensar en una causa urgente de tos?',
+    pause:'¿Qué síntomas acompañantes te obligarían a considerar una causa grave de tos (tumor, TEP, IC)? ¿Qué combinación descartaría la infección?',
+    eq:'«¿Tiene fiebre? ¿Pitos en el pecho al respirar? ¿Le falta el aire? ¿Acidez o ardor? ¿Moco cayendo por la garganta? ¿Ha perdido peso sin querer?»',
+    tipT:'Los red flags de la tos que obligan a estudio urgente',
+    tip:'Red flags que obligan a Rx tórax urgente y estudio: hemoptisis, pérdida de peso inexplicada, disnea progresiva, fiebre prolongada >3 semanas, adenopatías, ronquera persistente, disfagia.\n\nEn fumador >40 años con tos crónica: siempre Rx tórax para descartar carcinoma broncogénico, aunque la tos tenga aspecto benigno.',
+    hasCombos:true,
+    items:[
+      {label:'Fiebre + expectoración purulenta',badge:'INFECCIÓN — NEUMONÍA / BRONQUITIS',body:'La tríada tos + fiebre + expectoración purulenta es infección hasta que se demuestre lo contrario. Si hay consolidación en Rx tórax → neumonía. Si la Rx es normal → bronquitis aguda (casi siempre viral). La fiebre alta + escalofríos + expectoración herrumbrosa orienta a neumococo.'},
+      {label:'Sibilancias / pitidos + disnea de esfuerzo',badge:'ASMA / EPOC',body:'Los pitidos al respirar (sibilancias) indican obstrucción bronquial. Con atopia/historia alérgica y episódico → asma. Con tabaquismo intenso y progresivo → EPOC. La reversibilidad con broncodilatador (>12% en espirometría) distingue asma de EPOC.'},
+      {label:'Rinorrea posterior + aclaramiento de garganta',badge:'GOTEO POSNASAL',body:'La sensación de moco cayendo por la garganta, la necesidad frecuente de carraspear y la rinorrea posterior son el síndrome de tos de vía aérea superior (goteo posnasal). Es la primera o segunda causa de tos crónica según las series. Causa: rinitis alérgica, rinitis crónica, sinusitis.'},
+      {label:'Acidez / pirosis + regurgitación ácida',badge:'RGE',body:'La pirosis (ardor retroesternal) y la regurgitación ácida son los síntomas digestivos del RGE. Su presencia junto a tos seca crónica hace el diagnóstico muy probable. <strong>Importante:</strong> el 40% de la tos por RGE no tiene pirosis — la tos puede ser el único síntoma.'},
+      {label:'Pérdida de peso + hemoptisis + ronquera',badge:'RED FLAG — CARCINOMA',body:'La tríada tos crónica + pérdida de peso inexplicada + hemoptisis en fumador >40 años debe hacer pensar en carcinoma broncogénico hasta que se demuestre lo contrario. La ronquera añadida sugiere afectación del nervio laríngeo recurrente por adenopatías mediastínicas.'},
+      {label:'Disnea paroxística nocturna + ortopnea',badge:'INSUFICIENCIA CARDÍACA',body:'La tos nocturna en decúbito que obliga a sentarse, acompañada de ortopnea y disnea paroxística nocturna, puede ser IC izquierda: el edema pulmonar intersticial nocturno irrita los receptores de la tos. BNP elevado + Rx tórax con redistribución vascular confirman.'},
+    ],
+  },
+  {
+    nav:'¿Modificadores?', title:'¿Qué la modifica? — Factores desencadenantes y horarios',
+    think:'Los factores que modifican la tos son casi diagnósticos en la tos crónica. El momento del día, la postura, el ejercicio o la exposición a ciertos estímulos orientan directamente a la causa.',
+    pause:'¿En qué postura empeora la tos del RGE? ¿Cuándo empeora la tos del asma? ¿Qué estímulo desencadena la tos del goteo posnasal?',
+    eq:'«¿Empeora en algún momento concreto del día? ¿Al acostarse o por la mañana? ¿Después de comer? ¿Al hacer ejercicio, al hablar, con el frío, con el humo?»',
+    tipT:'El patrón horario y los desencadenantes casi hacen el diagnóstico',
+    tip:'RGE: empeora postprandial y en decúbito, mejora con la cabeza elevada. Asma: empeora de noche, con ejercicio, con frío o alérgenos. Goteo posnasal: empeora al hablar, reír o cambiar de postura, con sensación de moco en garganta. Fumador: tos matutina productiva clásica de EPOC. IECA: continua, sin horario claro, seca irritativa.',
+    items:[
+      {label:'Empeora tras las comidas o en decúbito',badge:'RGE',body:'El reflujo gastroesofágico empeora cuando el estómago está lleno (postprandial) y cuando la gravedad no ayuda a retener el ácido (decúbito). El ácido irrita la laringe y los bronquios por microaspiración o reflejo vagal. Mejoría con cabeza elevada: la inclinación dificulta el reflujo.'},
+      {label:'Empeora de noche y con ejercicio',badge:'ASMA',body:'El asma tiene un claro ritmo circadiano: el tono vagal es mayor de noche y de madrugada → broncoconstricción → tos y pitos nocturnos. El ejercicio físico activa la hiperreactividad bronquial → tos de esfuerzo. El frío y los alérgenos son también desencadenantes clásicos.'},
+      {label:'Empeora al hablar, reír o cantar',badge:'GOTEO POSNASAL / TOS IRRITATIVA',body:'La tos que se desencadena al hablar o reír (sin ejercicio físico) orienta a irritación laríngea: goteo posnasal que irrita la laringe, laringitis crónica o tos neuropática. El paciente a veces describe que «no puede terminar una frase sin toser».'},
+      {label:'Tos matutina con expectoración',badge:'EPOC / FUMADOR / BRONQUIECTASIAS',body:'La tos productiva matutina al levantarse (el «primer cigarrillo» en fumadores o el primer café) es la tos del EPOC: durante el sueño las secreciones se acumulan en los bronquios y al incorporarse el paciente empieza a expectorar. También en bronquiectasias con gran producción de moco.'},
+      {label:'Exposición a irritantes — humo, perfumes, polvo',badge:'HIPERREACTIVIDAD / ASMA',body:'La tos desencadenada por cambios de temperatura, humo, perfumes fuertes o polvo indica hiperreactividad bronquial: los receptores de la tos están en umbral bajo. Es característica del asma pero también de la tos postinfecciosa con hiperreactividad transitoria.'},
+      {label:'Sin patrón claro — continua e irritante',badge:'IECA / TOS NEUROPÁTICA',body:'La tos por IECAs no tiene horario ni desencadenante claro: es una tos seca irritativa continua que apareció semanas después de iniciar el fármaco. El mecanismo es la acumulación de bradicinina (el IECA inhibe su degradación) → irritación del árbol bronquial. Desaparece al suspender el fármaco en 1-4 semanas.'},
+    ],
+  },
+  {
+    nav:'Antecedentes', title:'Antecedentes — Tabaco, fármacos y exposiciones',
+    think:'En la tos crónica los antecedentes son determinantes. Hay tres preguntas que nunca pueden faltar. ¿Cuáles son? ¿Por qué el tabaquismo, los IECAs y la atopia son los tres antecedentes más rentables?',
+    pause:'¿Cuántos paquetes-año de tabaco se necesitan para que la tos sea atribuible al tabaquismo? ¿Qué fármaco de los más usados en España produce tos en el 10-20% de los pacientes?',
+    eq:'«¿Fuma o ha fumado? ¿Cuántos cigarrillos al día y durante cuántos años? ¿Toma algún medicamento para la tensión o el corazón? ¿Tiene alergias, eccema o asma en la familia?»',
+    tipT:'Las tres preguntas que nunca pueden faltar en la tos crónica',
+    tip:'1) ¿Fuma? El tabaquismo es la causa más frecuente de tos crónica en fumadores activos. Calcular el índice paquetes-año: (cigarrillos/día ÷ 20) × años fumando. >20 paq-año = riesgo significativo de EPOC y carcinoma.\n\n2) ¿Toma IECAs? El 10-20% de los pacientes con IECAs (enalapril, ramipril, lisinopril, perindopril) desarrollan tos seca. Es la causa más infradiagnosticada de tos crónica.\n\n3) ¿Tiene atopia / asma / alergias? El antecedente atópico personal o familiar aumenta la probabilidad de asma como causa de tos.',
+    isAtrib:true,
+  },
+  {nav:'Resumen',title:'Resumen: Anamnesis de la Tos',isSummaryStep:true,isFinal:true},
+  {nav:'Pruébate',title:'Comprueba cuánto has aprendido',isQuizStep:true},
+];
+
+// ── QUIZ CARDS ────────────────────────────────────────────────────────────────
+const QUIZ_CARDS = [
+  {dx:'Infección respiratoria aguda (neumonía)',
+   caso:'Varón de 45 años. Desde hace 4 días: tos con expectoración amarilla, fiebre de 38.8°C, dolor en el costado derecho al respirar. Se encontraba bien antes.',
+   claves:'Tos productiva purulenta · Fiebre · Dolor pleurítico · Inicio agudo (<3 semanas) · Sin antecedentes relevantes',
+   prueba:'Rx tórax: consolidación pulmonar. Analítica: leucocitosis, PCR elevada. Saturación de oxígeno.',
+   pat:'Bacteria (neumococo más frecuente) coloniza alvéolos → inflamación → exudado → consolidación → tos + fiebre + expectoración purulenta',
+   orienta:'Tos aguda + fiebre + expectoración purulenta + Rx tórax con consolidación = neumonía. La gravedad se evalúa con escalas CRB-65 o PSI'},
+  {dx:'EPOC — tos del fumador',
+   caso:'Mujer de 62 años, fumadora de 30 cigarrillos/día desde los 20 años. Tos matutina crónica con expectoración blanquecina desde hace años. Ahora nota que se ahoga más al subir escaleras.',
+   claves:'Fumadora importante (>30 paq-año) · Tos crónica matutina con expectoración · Disnea de esfuerzo progresiva · >40 años',
+   prueba:'Espirometría: FEV1/FVC <0.7 post-broncodilatador confirma obstrucción fija. Rx tórax: hiperinsuflación, diafragmas aplanados.',
+   pat:'Tabaco → inflamación crónica bronquial → hipersecreción mucosa (bronquitis crónica) + destrucción alveolar (enfisema) → obstrucción fija → tos + disnea',
+   orienta:'Tos crónica en fumador con disnea progresiva = EPOC hasta que se demuestre. Índice paquetes-año: (30 cig/día ÷ 20) × 42 años = 63 paq-año'},
+  {dx:'Asma — variante tusígena',
+   caso:'Mujer de 28 años con rinitis alérgica. Tos seca que la despierta por la noche, empeora en primavera y con el ejercicio. Sin expectoración. Sin fiebre. Espirometría normal en reposo.',
+   claves:'Tos seca nocturna · Con ejercicio y alérgenos · Atopia (rinitis alérgica) · Joven · Sin disnea de reposo · Espirometría normal (en reposo)',
+   prueba:'Test de provocación bronquial (metacolina): positivo. Prueba broncodilatadora: reversibilidad >12%. Peak-flow: variabilidad diurna >20%.',
+   pat:'Inflamación alérgica bronquial → hiperreactividad → los estímulos (frío, alérgenos, ejercicio) bajan el umbral de los receptores de la tos → tos seca paroxística',
+   orienta:'Tos seca nocturna + atopia + empeora con ejercicio = asma variante tusígena. La espirometría puede ser normal — necesita test de provocación'},
+  {dx:'Tos por IECA',
+   caso:'Varón de 58 años hipertenso. Tos seca irritativa que empezó hace 2 meses, sin causa aparente. Sin fiebre, sin flemas, sin alergia conocida. Toma enalapril desde hace 3 meses.',
+   claves:'Tos seca irritativa · Sin patrón horario claro · IECA iniciado semanas antes · Sin otros síntomas respiratorios · Sin antecedentes pulmonares',
+   prueba:'Diagnóstico clínico: suspender el IECA y observar. La tos debe desaparecer en 1-4 semanas. Cambiar a ARA-II (no producen tos).',
+   pat:'IECAs inhiben la enzima conversora → acumulación de bradicinina y sustancia P → irritación de los receptores de la tos traqueobronquiales → tos seca crónica',
+   orienta:'La causa más infradiagnosticada de tos crónica. Preguntar SIEMPRE la medicación. El 10-20% de los pacientes con IECAs desarrollan tos. Resuelve al suspender'},
+  {dx:'RGE — tos extrapulmonar',
+   caso:'Mujer de 50 años. Tos seca crónica de 3 meses. Empeora tras las comidas copiosas y por la noche. A veces nota acidez. Sin fiebre. No fuma. No toma IECAs. Rx tórax normal.',
+   claves:'Tos seca crónica (>8 semanas) · Empeora postprandial y en decúbito · Acidez ocasional · Sin síntomas respiratorios · Sin IECAs · Rx normal',
+   prueba:'Diagnóstico clínico o con pH-metría esofágica de 24 h. Puede hacerse diagnóstico empírico: mejoría con inhibidores de la bomba de protones (IBP) en 4-8 semanas.',
+   pat:'Ácido gástrico asciende al esófago → microaspiración o reflejo vagal esofagobronquial → irritación de receptores de la tos laríngeos → tos seca crónica sin pirosis obligatoria',
+   orienta:'Tos crónica seca + sin IECAs + empeora postprandial/decúbito = RGE hasta que se demuestre. El 40% no tienen pirosis — la tos es el único síntoma'},
+];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function starsFor(si,kn){const s=STEPS[si];if(!s?.items)return null;const tot=s.items.length;const ans=s.items.filter((_,i)=>kn[`s${si}_c${i}`]).length;if(!ans)return null;const k=s.items.filter((_,i)=>kn[`s${si}_c${i}`]==='knew').length;return Math.round(k/tot*3);}
+function StarDisplay({count,small}){if(count===null)return null;return html`<span style=${{fontSize:small?'.65rem':'.85rem',letterSpacing:'-1px'}}>${[0,1,2].map(i=>html`<span key=${i} style=${{color:i<count?'#F5C518':'#D1D5DB'}}>★</span>`)}</span>`;}
+
+// ── FLASHCARD ─────────────────────────────────────────────────────────────────
+function FlashCard({id,label,badge,body,knowledge,onKnowledge}){
+  const[flipped,setFlipped]=useState(false);
+  const k=knowledge[id];
+  const knew=useCallback(e=>{e.stopPropagation();onKnowledge(id,'knew');},[id,onKnowledge]);
+  const unknown=useCallback(e=>{e.stopPropagation();onKnowledge(id,'unknown');},[id,onKnowledge]);
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`}>
+          <div class="fc-label">${label}</div>
+          <div class="fc-badge">${badge}</div>
+          ${!k&&!flipped&&html`<div class="fc-tap">tocar para ver</div>`}
+          ${k==='knew'&&html`<div class="fc-state-badge knew">✓ Dominada</div>`}
+          ${k==='unknown'&&html`<div class="fc-state-badge unknown">↩ Para repasar</div>`}
+        </div>
+        <div class="fc-back">
+          <div class="fc-back-header">
+            <div class="fc-back-label">${label}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'rgba(255,255,255,.18)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{fontSize:'.6rem',fontWeight:800,padding:'3px 9px',borderRadius:'4px',background:'var(--uva-red)',color:'#fff',textTransform:'uppercase',letterSpacing:'.5px',display:'inline-block',marginBottom:'.65rem'}}>${badge}</div>
+          <p dangerouslySetInnerHTML=${{__html:body}}></p>
+          ${!k&&html`<div class="knowledge-btns">
+            <button class="btn-knew" onClick=${knew}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${unknown}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── COMBO GRID ────────────────────────────────────────────────────────────────
+function ComboGrid(){
+  const C={
+    strong:{bg:'linear-gradient(135deg,#002d5c,var(--uva-blue))',tag:{bg:'rgba(255,255,255,.1)',color:'rgba(224,234,244,.9)',border:'rgba(255,255,255,.15)'},key:'rgba(200,216,232,.8)',badge:{bg:'rgba(198,0,70,.3)',color:'#fca5a5'}},
+    positive:{bg:'linear-gradient(135deg,#1a3a5c,#2a5080)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,220,240,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(180,200,224,.75)',badge:{bg:'rgba(245,197,24,.2)',color:'var(--yellow)'}},
+    neutral:{bg:'linear-gradient(135deg,#374151,#4b5563)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,210,220,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(200,210,220,.75)',badge:{bg:'rgba(255,255,255,.12)',color:'rgba(220,228,236,.8)'}},
+  };
+  return html`<div style=${{marginTop:'1.4rem'}}>
+    <div class="sec-label">Combinaciones clave → diagnóstico orientativo</div>
+    <p class="fc-hint">La duración + el tipo de tos + los síntomas asociados orientan el diagnóstico en la mayoría de casos</p>
+    <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'.85rem'}}>
+      ${COMBOS.map((c,i)=>{
+        const col=C[c.compat]||C.neutral;
+        return html`<div key=${i} style=${{background:col.bg,borderRadius:'var(--radius-sm)',overflow:'hidden',boxShadow:'var(--shadow-card)'}}>
+          <div style=${{padding:'.65rem 1rem',borderBottom:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'.5rem'}}>
+            <div style=${{fontSize:'.88rem',fontWeight:700,color:'#fff',fontFamily:'var(--font-serif)'}}>${c.dx}</div>
+            <div style=${{fontSize:'.58rem',fontWeight:800,padding:'2px 8px',borderRadius:'4px',background:col.badge.bg,color:col.badge.color,textTransform:'uppercase',letterSpacing:'.4px',flexShrink:0}}>${c.compat==='strong'?'Alta especificidad':'Orientativo'}</div>
+          </div>
+          <div style=${{padding:'.75rem 1rem'}}>
+            <div style=${{display:'flex',flexWrap:'wrap',gap:'.3rem',marginBottom:'.7rem'}}>
+              ${c.symptoms.map((s,j)=>html`<span key=${j} style=${{fontSize:'.72rem',fontWeight:600,padding:'2px 8px',borderRadius:'4px',background:col.tag.bg,color:col.tag.color,border:`1px solid ${col.tag.border}`}}>${s}</span>`)}
+            </div>
+            <div style=${{fontSize:'.78rem',color:col.key,lineHeight:1.55,fontStyle:'italic',borderTop:'1px solid rgba(255,255,255,.07)',paddingTop:'.55rem'}}>${c.key}</div>
+          </div>
+        </div>`;
+      })}
+    </div>
+  </div>`;
+}
+
+// ── DX FEEDBACK ───────────────────────────────────────────────────────────────
+function DiagnosticFeedback({stepIdx}){
+  const dx=STEP_DX[stepIdx];if(!dx)return null;
+  const quote=PATIENT.quotes[dx.quoteIdx];
+  return html`<div class="dx-fb">
+    <div class="dx-fb-head">
+      <div><div class="dx-fb-eyebrow">Diagnóstico en construcción</div><div class="dx-fb-title">¿Qué nos dice este dato de Roberto?</div></div>
+      <div class=${`dx-compat ${dx.compat}`}>${dx.compatLabel}</div>
+    </div>
+    <div class="dx-fb-body">
+      ${quote&&html`<div class="dx-quote-box"><div class="dx-quote-who">Roberto dice</div><div class="dx-quote-text">${quote}</div></div>`}
+      <p class="dx-interp">${dx.interpretation}</p>
+      <div class="dx-tags-row">
+        ${dx.fitsFor?.length>0&&html`<div><div class="dx-tags-label fits">Apunta hacia</div><div class="dx-tags">${dx.fitsFor.map((t,i)=>html`<span key=${i} class="dx-tag fits">${t}</span>`)}</div></div>`}
+        ${dx.rulesOut?.length>0&&html`<div><div class="dx-tags-label rules">Hace menos probable</div><div class="dx-tags">${dx.rulesOut.map((t,i)=>html`<span key=${i} class="dx-tag rules">${t}</span>`)}</div></div>`}
+      </div>
+    </div>
+  </div>`;}
+
+// ── EVIDENCE METER ────────────────────────────────────────────────────────────
+function EvidenceMeter({revealedSteps}){
+  const nSteps=STEPS.filter(s=>!s.isSummaryStep&&!s.isQuizStep).length;
+  const dots=Array.from({length:nSteps},(_,i)=>revealedSteps[i]?(STEP_DX[i]?STEP_DX[i].compat:'neutral'):'empty');
+  const completados=dots.filter(d=>d!=='empty').length;
+  if(!completados)return null;
+  const sospecha=dots.filter(d=>d==='strong').length;
+  return html`<div>
+    <div class="ev-meter">
+      <div class="ev-meter-label">Bloques completados</div>
+      <div class="ev-dots">${dots.map((d,i)=>html`<div key=${i} class=${`ev-dot ${d!=='empty'?d:''}`}></div>`)}</div>
+      <div class="ev-score" style=${{marginRight:'.2rem'}}>${completados}/${nSteps}</div>
+      ${sospecha>0&&html`<div style=${{fontSize:'.56rem',fontWeight:800,color:'var(--uva-red)',background:'rgba(198,0,70,.08)',border:'1px solid rgba(198,0,70,.2)',borderRadius:'4px',padding:'1px 7px',whiteSpace:'nowrap'}}>⚠ ${sospecha} señal${sospecha>1?'es':''} clave</div>`}
+    </div>
+    <div style=${{display:'flex',gap:'.75rem',marginTop:'.3rem',flexWrap:'wrap'}}>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'rgba(0,0,0,.12)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Pendiente</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-blue-2)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Dato orientativo</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-red)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Evidencia fuerte</span></div>
+    </div>
+  </div>`;}
+
+// ── ATRIB BOX ─────────────────────────────────────────────────────────────────
+function AtribBox(){
+  const items=[
+    ['Tabaquismo activo — índice paquetes-año','El tabaquismo es la causa más frecuente de tos crónica en fumadores activos y el principal factor de riesgo de EPOC y carcinoma. Calcular: (cigarrillos/día ÷ 20) × años fumando = paquetes-año. >20 paq-año = riesgo significativo. >40 paq-año en >40 años = Rx tórax obligatoria aunque el motivo de consulta parezca banal.'],
+    ['Fármacos IECAs (enalapril, ramipril, lisinopril, perindopril...)','El 10-20% de los pacientes tratados con IECAs desarrollan tos seca crónica. Es la causa más infradiagnosticada de tos. El mecanismo es la acumulación de bradicinina. Aparece semanas o meses después de iniciar el fármaco. Siempre preguntar la medicación completa, especialmente antihipertensivos.'],
+    ['Atopia: asma, rinitis alérgica, eccema','El antecedente personal o familiar de atopia (asma, rinitis alérgica, eccema atópico) aumenta significativamente la probabilidad de asma variante tusígena como causa de tos crónica. Preguntar: «¿Tiene o ha tenido asma? ¿Tiene alergias? ¿Le pica la nariz en primavera?»'],
+    ['Exposición ocupacional o ambiental','Ciertos entornos laborales producen tos crónica: trabajadores de panadería (harina), pintores (isocianatos), agricultores (polvo orgánico), trabajadores de madera. La tos ocupacional empeora en el trabajo y mejora en fines de semana y vacaciones.'],
+    ['Antecedente de asma o EPOC diagnosticado','Un asma o EPOC previamente diagnosticado es el punto de partida. Preguntar si está usando inhaladores, cuándo fue el último control y si la tos es nueva o ha cambiado respecto a la basal. Una tos nueva en un asmático conocido puede ser una exacerbación o una causa sobreañadida.'],
+    ['Inmunosupresión o infección por VIH','En el paciente inmunodeprimido, la tos crónica abre un diferencial más amplio: tuberculosis, neumonía por Pneumocystis jirovecii (PJP), infecciones fúngicas (histoplasmosis, criptococosis). Siempre preguntar el estado serológico VIH en tos crónica sin causa clara en adulto joven.'],
+  ];
+  return html`<div class="attr-box">
+    <h3>Antecedentes clave en la tos crónica</h3>
+    <div class="attr-list">
+      ${items.map(([title,txt],i)=>html`<div key=${i} class="attr-item"><div class="attr-dot"></div><p><strong>${title}:</strong> ${txt}</p></div>`)}
+    </div>
+    <div class="attr-tip">Las tres preguntas que nunca pueden faltar en tos crónica: 1) ¿Fuma? 2) ¿Toma IECAs? 3) ¿Tiene atopia/asma? Si las tres son negativas → RGE y goteo posnasal son las causas más probables.</div>
+  </div>`;}
+
+// ── QUIZ CARD ─────────────────────────────────────────────────────────────────
+function QuizCard({card,id,knowledge,onKnowledge}){
+  const[flipped,setFlipped]=useState(false);const k=knowledge[id];
+  const rows=[['Claves diagnósticas',card.claves],['Exploración / Prueba clave',card.prueba],['Mecanismo fisiopatológico',card.pat],['Orientación diagnóstica',card.orienta]];
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} style=${{minHeight:'290px'}} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`} style=${{background:'#F8F9FA',border:'1.5px solid var(--line)',justifyContent:'flex-start',alignItems:'stretch',padding:0,textAlign:'left',minHeight:'290px'}}>
+          <div style=${{background:'var(--uva-blue)',padding:'.6rem 1rem',borderRadius:'8px 8px 0 0'}}>
+            <div style=${{fontSize:'1rem',fontWeight:700,color:'#fff'}}>${card.dx}</div>
+          </div>
+          <div style=${{flex:1,padding:'.7rem 1rem',display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+            <div style=${{fontSize:'.81rem',color:'var(--ink-2)',lineHeight:1.55,fontStyle:'italic'}}>${card.caso}</div>
+            <div style=${{fontSize:'.68rem',color:'var(--uva-blue)',fontWeight:700,textAlign:'center',marginTop:'.5rem'}}>¿Cuál es el diagnóstico más probable?</div>
+          </div>
+        </div>
+        <div class="fc-back" style=${{padding:'.6rem .85rem',background:'#F8F9FA',minHeight:'290px'}}>
+          <div style=${{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'.5rem'}}>
+            <div style=${{fontSize:'.76rem',fontWeight:800,color:'var(--uva-blue)'}}>${card.dx}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'var(--uva-blue)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{display:'grid',gap:'.3rem'}}>
+            ${rows.map(([l,v])=>html`<div key=${l} style=${{background:'#fff',borderRadius:'6px',border:'1px solid var(--line-light)',padding:'.32rem .6rem'}}>
+              <div style=${{fontSize:'.58rem',fontWeight:700,color:'var(--uva-red)',textTransform:'uppercase',letterSpacing:'.4px',marginBottom:'.08rem'}}>${l}</div>
+              <div style=${{fontSize:'.72rem',color:'var(--ink-2)',lineHeight:1.38}}>${v}</div>
+            </div>`)}
+          </div>
+          ${!k&&html`<div class="knowledge-btns" style=${{marginTop:'.4rem'}}>
+            <button class="btn-knew" onClick=${e=>{e.stopPropagation();onKnowledge(id,'knew');}}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${e=>{e.stopPropagation();onKnowledge(id,'unknown');}}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── STEP CONTENT ──────────────────────────────────────────────────────────────
+function boldTip(p){return p.replace(/^([^\n:]{2,}?):/gm,'<strong style="color:var(--uva-blue);font-size:.88rem">$1:</strong>');}
+function StepContent({step,stepIdx,revealed,knowledge,onReveal,onKnowledge,onNext}){
+  if(step.isSummaryStep){
+    const kw=Object.values(knowledge).filter(v=>v==='knew').length;
+    const an=Object.values(knowledge).length;
+    const uk=Object.values(knowledge).filter(v=>v==='unknown').length;
+    return html`<div>
+      <div class="dx-reveal">
+        <div class="dx-reveal-top"><div class="dx-eyebrow">Diagnóstico del caso de Roberto</div><div class="dx-name">${PATIENT.diagnosis}</div></div>
+        <div class="dx-evidence">
+          <h4>Claves de la anamnesis que lo orientaban</h4>
+          ${PATIENT.diagnosisKey.map((c,i)=>html`<div key=${i} class="dx-clue"><div class="dx-clue-dot"></div><p>${c}</p></div>`)}
+        </div>
+      </div>
+      ${an>0&&html`<div class="score-panel">
+        <div class="score-stat yellow"><div class="num">${an}</div><div class="lbl">Evaluadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat green"><div class="num">${kw}</div><div class="lbl">Dominadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat red"><div class="num">${uk}</div><div class="lbl">Para repasar</div></div>
+      </div>`}
+      <div class="final-card">
+        <div style=${{fontSize:'1.4rem',marginBottom:'.4rem'}}>✓</div>
+        <h2 style=${{fontSize:'1rem',marginBottom:'.3rem'}}>Anamnesis completada</h2>
+        <p style=${{fontSize:'.84rem',color:'var(--ink-2)',lineHeight:'1.6'}}>La anamnesis de la tos permite orientar el diagnóstico en la mayoría de casos. La duración y el tipo de tos son los dos primeros filtros; los antecedentes y los modificadores completan el cuadro.</p>
+      </div>
+      <div class="summary-card">
+        <div class="sc-head">Las 6 preguntas clave de la anamnesis de la tos</div>
+        <div class="sc-body">${ALL_QS.map(q=>html`<div key=${q.n} class="q-row"><div class="q-num">${q.n}</div><div><div class="q-title">${q.title}</div><div class="q-ex">${q.eq}</div></div></div>`)}</div>
+      </div>
+      <button class="btn-next" onClick=${onNext}>¿Cuánto has aprendido? →</button>
+    </div>`;}
+
+  if(step.isQuizStep){return html`<div>
+    <div class="quiz-intro"><h2>Comprueba cuánto has aprendido</h2><p>Cada tarjeta muestra un caso clínico. Antes de girarla, identifica el diagnóstico más probable a partir de la anamnesis.</p></div>
+    <div class="fc-grid">${QUIZ_CARDS.map((q,i)=>html`<${QuizCard} key=${i} card=${q} id=${`qc${i}`} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}
+    </div>
+  </div>`;}
+
+  const tipParts=Array.isArray(step.tip)?step.tip:(step.tip||'').split('\n\n');
+  let contentBlock=null;
+  if(step.isAtrib){contentBlock=html`<${AtribBox}/>`;}
+  else if(step.items){
+    contentBlock=html`<div>
+      <div class="sec-label">¿Qué nos dice cada hallazgo? — Evalúa lo que sabes</div>
+      <p class="fc-hint">Toca cada tarjeta para ver la orientación diagnóstica, luego indica si ya lo sabías</p>
+      <div class="fc-grid">${step.items.map((it,i)=>html`<${FlashCard} key=${i} id=${`s${stepIdx}_c${i}`} label=${it.label} badge=${it.badge} body=${it.body} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}</div>
+      ${step.hasCombos&&html`<${ComboGrid}/>`}
+    </div>`;}
+
+  return html`<div>
+    <div class="think-box"><div class="lbl">Piensa antes de continuar</div><p>${step.think}</p></div>
+    <p class="pause-p">${step.pause}</p>
+    <button class="btn-reveal" disabled=${revealed} onClick=${onReveal}>Ver ejemplo y claves diagnósticas</button>
+    ${revealed&&html`<div class="reveal on">
+      <div class="sec-label">Ejemplo de pregunta al paciente</div>
+      <div class="example-q"><div class="lbl">Cómo preguntarlo</div><p>${step.eq}</p></div>
+      ${step.tipT&&html`<div class="tip-box"><div class="lbl">${step.tipT}</div>${tipParts.map((p,i)=>html`<p key=${i} dangerouslySetInnerHTML=${{__html:boldTip(p)}}/>`)} </div>`}
+      <${DiagnosticFeedback} stepIdx=${stepIdx}/>
+      ${contentBlock}
+      <button class="btn-next" onClick=${onNext}>${step.isFinal?'Ver ficha resumen →':'Siguiente bloque →'}</button>
+    </div>`}
+  </div>`;}
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+function App(){
+  const[cur,setCur]=useState(0);
+  const[revealed,setRevealed]=useState({});
+  const[knowledge,setKnowledge]=useState({});
+  const onKnowledge=useCallback((id,val)=>setKnowledge(p=>({...p,[id]:val})),[]);
+  const goTo=i=>{setCur(i);window.scrollTo({top:0});};
+  const doReveal=()=>setRevealed(p=>({...p,[cur]:true}));
+  const doNext=()=>{if(cur<STEPS.length-1){setCur(c=>c+1);window.scrollTo({top:0});}};
+  const step=STEPS[cur];
+  const isL=!step.isSummaryStep&&!step.isQuizStep;
+  const qIdx=isL?Math.min(cur,PATIENT.quotes.length-1):-1;
+  const pct=(cur/(STEPS.length-1))*100;
+
+  return html`<div>
+    <div class="topbar"><a href="index.html" class="back-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>← Volver al índice</a></div>
+<div class="header">
+      <div class="header-brand"><span class="header-badge">EduMed · UVa</span><span class="header-sub">Educación Médica</span></div>
+      <div class="header-divider"></div>
+      <div class="header-text"><h1>Anamnesis de la Tos</h1><p>Facultad de Medicina · Universidad de Valladolid</p></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" style=${{width:`${pct}%`}}></div></div>
+    <div class="step-nav">
+      ${STEPS.map((s,i)=>{
+        const st=starsFor(i,knowledge);
+        let cls='step-pill';
+        if(s.isSummaryStep)cls+=' summary';
+        else if(s.isQuizStep)cls+=' quiz';
+        else if(i<cur&&revealed[i])cls+=' done';
+        if(i===cur)cls+=' active';
+        return html`<div key=${i} class=${cls} onClick=${()=>goTo(i)}>
+          ${s.nav}${st!==null&&html`<${StarDisplay} count=${st} small/>`}
+        </div>`;
+      })}
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">Paso ${cur+1} de ${STEPS.length}</div>
+          <div class="card-title">${step.title}</div>
+          ${isL&&html`<${EvidenceMeter} revealedSteps=${revealed}/>`}
+          ${isL&&html`<span class="card-head-deco" aria-hidden="true">${String(cur+1).padStart(2,'0')}</span>`}
+        </div>
+        <div class="card-body">
+          ${isL&&qIdx>=0&&html`<div class="patient-card">
+            <div class="patient-stripe"></div>
+            <div class="patient-inner">
+              <div class="patient-meta">
+                <div class="patient-name-tag">${PATIENT.name}</div>
+                <div class="patient-age">${PATIENT.age} años · Varón</div>
+                <div class="patient-case">CONS-2026 · 09:30 h</div>
+              </div>
+              <div class="patient-quote-area">
+                <div class="patient-quote-label">Dice el paciente</div>
+                <div class="patient-quote">${PATIENT.quotes[qIdx]}</div>
+              </div>
+            </div>
+          </div>`}
+          <${StepContent} step=${step} stepIdx=${cur} revealed=${!!revealed[cur]} knowledge=${knowledge} onReveal=${doReveal} onKnowledge=${onKnowledge} onNext=${doNext}/>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div><strong>Material docente</strong> para mejorar la anamnesis clínica</div>
+      <div>Propedéutica Clínica · Grado en Medicina · Universidad de Valladolid · Elaborado en mayo de 2026</div>
+    </footer>
+  </div>`;}
+
+render(h(App,null),document.getElementById('root'));
+</script>
+</body></html>

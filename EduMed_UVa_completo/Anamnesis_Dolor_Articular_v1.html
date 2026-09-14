@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anamnesis del Dolor Articular · UVa</title>
+<style>
+:root {
+  --yellow:#F5C518; --yellow-mid:#FEF0A0; --yellow-pale:#FFFDE7; --yellow-deep:#D4A000;
+  --uva-blue:#003973; --uva-blue-2:#00509e; --uva-red:#c60046;
+  --ink:#0F1117; --ink-2:#343A47; --ink-3:#5E6575; --ink-4:#9AA0AD;
+  --line:#DDD9CF; --line-light:#E8E4DB;
+  --surface:#FEFCF8; --bg:#EAE6DC;
+  --green:#059669; --green-pale:#D1FAE5; --green-border:#6EE7B7;
+  --red-pale:#FEE2E2; --red-border:#FCA5A5;
+  --radius:14px; --radius-sm:8px;
+  --shadow-card:0 1px 3px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.08);
+  --shadow-lift:0 4px 8px rgba(0,0,0,.07),0 16px 36px rgba(0,0,0,.11);
+  --shadow-fc:0 2px 6px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),inset 0 -1px 0 rgba(0,0,0,.04);
+  --font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-serif:Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.65;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.022;pointer-events:none;z-index:9999;}
+.header{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 60%,#004d8f 100%);padding:1rem 1.6rem;display:flex;align-items:center;gap:1.1rem;border-bottom:3px solid var(--yellow);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(245,197,24,.12) 0%,transparent 70%);pointer-events:none;}
+.header-brand{display:flex;flex-direction:column;flex-shrink:0;}
+.header-badge{background:var(--uva-red);color:#fff;font-weight:800;font-size:.82rem;padding:3px 10px;border-radius:5px;letter-spacing:.6px;display:inline-block;}
+.header-sub{font-size:.6rem;color:rgba(160,180,204,.8);margin-top:4px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+.header-divider{width:1px;height:38px;background:rgba(255,255,255,.15);flex-shrink:0;}
+.header-text h1{font-family:var(--font-serif);font-size:1.05rem;font-weight:700;color:#fff;line-height:1.25;}
+.header-text p{font-size:.68rem;color:rgba(160,180,204,.85);margin-top:.2rem;}
+.progress-wrap{background:var(--line);height:6px;}
+.progress-fill{height:6px;background:linear-gradient(90deg,var(--uva-red),#e8005a);transition:width .55s cubic-bezier(.4,0,.2,1);}
+.step-nav{display:flex;flex-wrap:wrap;background:var(--surface);border-bottom:1px solid var(--line);padding:.55rem .75rem;gap:.35rem;align-items:center;}
+.step-pill{padding:.32rem .8rem;font-size:.7rem;border-radius:20px;font-weight:700;border:1.5px solid var(--line);cursor:pointer;transition:all .2s;white-space:nowrap;background:var(--surface);color:var(--ink-4);display:flex;align-items:center;gap:.3rem;}
+.step-pill:hover{background:var(--yellow-pale);border-color:var(--yellow-deep);color:var(--ink);transform:translateY(-1px);}
+.step-pill.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow-deep);font-weight:800;box-shadow:0 2px 10px rgba(245,197,24,.35);}
+.step-pill.done{background:var(--uva-blue);color:#fff;border-color:var(--uva-blue);}
+.step-pill.done:hover{background:var(--uva-blue-2);transform:translateY(-1px);}
+.step-pill.summary{background:var(--ink-2);color:#fff;border-color:var(--ink-2);}
+.step-pill.quiz{background:var(--uva-red);color:#fff;border-color:var(--uva-red);}
+.main{max-width:760px;margin:0 auto;padding:1.6rem 1.2rem 2.5rem;}
+.patient-card{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 55%,#004d8f 100%);border-radius:var(--radius);display:flex;overflow:hidden;margin-bottom:1.1rem;box-shadow:0 3px 12px rgba(0,57,115,.25);}
+.patient-stripe{background:var(--yellow);width:5px;flex-shrink:0;}
+.patient-inner{display:flex;gap:1rem;padding:.8rem 1rem;flex:1;position:relative;overflow:hidden;}
+.patient-inner::after{content:'URG';position:absolute;right:.6rem;top:50%;transform:translateY(-50%);font-size:3rem;font-weight:800;color:rgba(255,255,255,.04);pointer-events:none;line-height:1;}
+.patient-meta{flex-shrink:0;border-right:1px solid rgba(255,255,255,.12);padding-right:.9rem;display:flex;flex-direction:column;justify-content:center;gap:.25rem;}
+.patient-name-tag{font-size:.78rem;font-weight:800;color:var(--yellow);}
+.patient-age{font-size:.65rem;color:rgba(160,180,210,.8);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.patient-case{font-size:.58rem;color:rgba(160,180,210,.5);font-weight:600;}
+.patient-quote-area{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.patient-quote-label{font-size:.58rem;font-weight:700;color:rgba(245,197,24,.7);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.2rem;}
+.patient-quote{font-size:.88rem;color:rgba(230,238,250,.92);line-height:1.55;font-style:italic;}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line-light);box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:1.5rem;}
+.card-head{background:var(--yellow);padding:1.1rem 1.6rem;border-bottom:2px solid var(--yellow-deep);position:relative;overflow:hidden;}
+.card-head-deco{position:absolute;right:-.02em;bottom:-.18em;font-family:var(--font-serif);font-size:6.5rem;font-weight:700;line-height:1;color:rgba(0,0,0,.07);pointer-events:none;user-select:none;}
+.card-num{font-size:.6rem;color:rgba(61,68,81,.65);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.2rem;font-weight:700;}
+.card-title{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--ink);line-height:1.2;}
+.card-body{padding:1.4rem 1.6rem;}
+.think-box{background:var(--yellow-pale);border:1px solid rgba(212,160,0,.25);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.9rem 1.1rem;margin-bottom:.9rem;}
+.think-box .lbl{font-size:.6rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.think-box p{font-size:.88rem;color:var(--ink-2);line-height:1.6;}
+.pause-p{font-size:.8rem;color:var(--ink-4);font-style:italic;margin-bottom:1rem;}
+.btn-reveal{background:var(--yellow);color:var(--ink);border:none;padding:.7rem 1.5rem;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;cursor:pointer;font-weight:800;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-reveal:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.btn-reveal:disabled{background:var(--line-light);color:var(--ink-4);cursor:default;box-shadow:none;transform:none;}
+.btn-next{margin-top:1.1rem;background:var(--yellow);color:var(--ink);border:none;padding:.8rem 1.8rem;border-radius:var(--radius-sm);font-size:.9rem;font-family:inherit;cursor:pointer;font-weight:800;width:100%;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-next:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.reveal{display:none;margin-top:1.3rem;border-top:1px solid var(--line-light);padding-top:1.3rem;}
+.reveal.on{display:block;animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.sec-label{font-size:.58rem;font-weight:800;color:var(--ink-4);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.65rem;}
+.example-q{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.85rem 1.1rem;margin-bottom:1rem;}
+.example-q .lbl{font-size:.58rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.example-q p{font-size:.9rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.tip-box{background:rgba(0,57,115,.03);border:1px solid rgba(0,57,115,.1);border-radius:var(--radius-sm);padding:.85rem 1.1rem;margin-bottom:1rem;}
+.tip-box .lbl{font-size:.58rem;color:var(--uva-blue);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.tip-box p{font-size:.84rem;color:var(--ink-2);margin-bottom:.35rem;line-height:1.65;}
+.tip-box p strong{color:var(--uva-blue);font-size:.9rem;}
+.tip-box p:last-child{margin-bottom:0;}
+.fc-hint{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-bottom:.8rem;}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem;margin-bottom:1.3rem;grid-auto-rows:1fr;}
+.fc{perspective:1200px;height:190px;cursor:pointer;}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1),box-shadow .25s;border-radius:12px;box-shadow:var(--shadow-fc);}
+.fc:hover .fc-inner{box-shadow:var(--shadow-lift);transform:translateY(-3px);}
+.fc.flipped .fc-inner{transform:rotateY(180deg);}
+.fc.flipped:hover .fc-inner{transform:rotateY(180deg) translateY(-3px);}
+.fc-front,.fc-back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:1.1rem;text-align:center;}
+.fc-front{background:#FEFCF8;border:1px solid var(--line);transition:background .3s,border-color .3s;}
+.fc-front.knew-state{background:linear-gradient(148deg,#F0FDF4,#DCFCE7);border-color:var(--green-border);}
+.fc-front.unknown-state{background:linear-gradient(148deg,#FFF1F2,#FFE4E6);border-color:var(--red-border);}
+.fc-front .fc-label{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:.4rem;}
+.fc-front .fc-badge{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;background:var(--uva-red);color:#fff;text-transform:uppercase;letter-spacing:.5px;}
+.fc-front .fc-tap{font-size:.62rem;color:var(--ink-4);margin-top:.65rem;}
+.fc-front .fc-state-badge{font-size:.7rem;font-weight:700;margin-top:.55rem;padding:3px 9px;border-radius:5px;}
+.fc-front .fc-state-badge.knew{background:var(--green-pale);color:var(--green);border:1px solid var(--green-border);}
+.fc-front .fc-state-badge.unknown{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.fc-back{background:var(--surface);border:1.5px solid var(--uva-blue);transform:rotateY(180deg);justify-content:flex-start;align-items:flex-start;text-align:left;overflow-y:auto;}
+.fc-back-header{background:var(--uva-blue);width:calc(100% + 2.2rem);margin:-1.1rem -1.1rem .75rem;padding:.5rem 1.1rem;border-radius:11px 11px 0 0;display:flex;align-items:center;justify-content:space-between;}
+.fc-back .fc-back-label{font-size:.75rem;font-weight:700;color:#fff;}
+.fc-back p{font-size:.83rem;color:var(--ink-2);line-height:1.6;flex:1;}
+.knowledge-btns{display:flex;gap:.5rem;margin-top:.85rem;width:100%;}
+.btn-knew{background:var(--green-pale);color:#065F46;border:1.5px solid var(--green-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-knew:hover{background:#A7F3D0;}
+.btn-unknown{background:var(--red-pale);color:#991B1B;border:1.5px solid var(--red-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-unknown:hover{background:#FECACA;}
+.attr-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;}
+.attr-box h3{font-size:.72rem;font-weight:800;color:var(--uva-blue);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.8px;}
+.attr-list{display:grid;gap:.55rem;}
+.attr-item{display:flex;gap:.65rem;align-items:flex-start;}
+.attr-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.attr-item p{font-size:.86rem;color:var(--ink-2);line-height:1.6;}
+.attr-tip{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.75rem 1.1rem;margin-top:.9rem;font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.final-card{background:var(--yellow-pale);border:1.5px solid rgba(212,160,0,.3);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:1rem;}
+.summary-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;margin-bottom:1rem;box-shadow:var(--shadow-card);}
+.summary-card .sc-head{background:var(--yellow);color:var(--ink);padding:.8rem 1.4rem;font-weight:800;font-size:.92rem;border-bottom:2px solid var(--yellow-deep);}
+.summary-card .sc-body{padding:1rem 1.4rem;}
+.q-row{display:flex;gap:.8rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--line-light);}
+.q-row:last-child{border-bottom:none;}
+.q-num{background:var(--yellow);color:var(--ink);font-size:.62rem;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.q-title{font-size:.86rem;font-weight:700;color:var(--ink);}
+.q-ex{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-top:.05rem;}
+.score-panel{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.score-stat{text-align:center;flex:1;min-width:80px;}
+.score-stat .num{font-family:var(--font-serif);font-size:2rem;font-weight:700;line-height:1;}
+.score-stat .lbl{font-size:.6rem;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:.6px;margin-top:.15rem;}
+.score-stat.green .num{color:#6EE7B7;}.score-stat.red .num{color:#FCA5A5;}.score-stat.yellow .num{color:var(--yellow);}
+.score-divider{width:1px;height:44px;background:rgba(255,255,255,.12);}
+.dx-reveal{border-radius:var(--radius);overflow:hidden;margin-bottom:1.1rem;box-shadow:var(--shadow-card);}
+.dx-reveal-top{background:linear-gradient(135deg,var(--uva-red) 0%,#e8005a 100%);padding:1.4rem 1.6rem;text-align:center;}
+.dx-reveal-top .dx-eyebrow{font-size:.62rem;color:rgba(254,205,211,.85);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin-bottom:.4rem;}
+.dx-reveal-top .dx-name{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:#fff;}
+.dx-evidence{background:var(--surface);border:1.5px solid rgba(198,0,70,.15);border-top:none;padding:1.1rem 1.3rem;}
+.dx-evidence h4{font-size:.62rem;font-weight:800;color:var(--uva-blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.7rem;}
+.dx-clue{display:flex;gap:.65rem;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid var(--line-light);}
+.dx-clue:last-child{border-bottom:none;}
+.dx-clue-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.dx-clue p{font-size:.85rem;color:var(--ink-2);line-height:1.6;}
+.dx-fb{margin-top:1.3rem;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid rgba(0,57,115,.25);animation:fadeUp .35s ease both;}
+.dx-fb-head{background:linear-gradient(90deg,#002d5c,var(--uva-blue));padding:.6rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;}
+.dx-fb-eyebrow{font-size:.58rem;font-weight:800;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:1px;}
+.dx-fb-title{font-size:.78rem;font-weight:700;color:#fff;}
+.dx-compat{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;}
+.dx-compat.neutral{background:rgba(255,255,255,.12);color:rgba(200,216,232,.8);}
+.dx-compat.positive{background:rgba(245,197,24,.18);color:var(--yellow);}
+.dx-compat.strong{background:rgba(198,0,70,.25);color:#fca5a5;}
+.dx-fb-body{background:#eef4ff;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.75rem;border-top:none;}
+.dx-quote-box{background:var(--yellow-pale);border-left:3px solid var(--yellow-deep);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6rem .9rem;}
+.dx-quote-who{font-size:.57rem;font-weight:800;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.2rem;}
+.dx-quote-text{font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.55;}
+.dx-interp{font-size:.84rem;color:var(--ink);line-height:1.65;}
+.dx-tags-row{display:flex;flex-direction:column;gap:.4rem;}
+.dx-tags-label{font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.1rem;}
+.dx-tags-label.fits{color:var(--green);}.dx-tags-label.rules{color:#991b1b;}
+.dx-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.dx-tag{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:4px;}
+.dx-tag.fits{background:var(--green-pale);color:#065F46;border:1px solid var(--green-border);}
+.dx-tag.rules{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.ev-meter{display:flex;align-items:center;gap:.55rem;margin-top:.5rem;}
+.ev-meter-label{font-size:.6rem;font-weight:700;color:rgba(0,0,0,.35);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+.ev-dots{display:flex;gap:3px;}
+.ev-dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.1);}
+.ev-dot.neutral{background:#D1D5DB;}.ev-dot.positive{background:var(--uva-blue-2);}.ev-dot.strong{background:var(--uva-red);}
+.ev-score{font-size:.62rem;font-weight:800;color:var(--ink-3);}
+.quiz-intro{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);color:#fff;border-radius:var(--radius);padding:1.2rem 1.5rem;margin-bottom:1.2rem;}
+.quiz-intro h2{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;margin-bottom:.35rem;}
+.quiz-intro p{font-size:.84rem;color:rgba(160,180,210,.85);line-height:1.65;}
+/* ── TAB ARCHIVADOR ── */
+.archiv-wrap{margin-bottom:1rem;}
+.archiv-tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:2px solid var(--uva-blue);margin-bottom:0;}
+.archiv-tab{padding:.5rem 1.1rem;font-size:.74rem;font-weight:700;border:none;background:var(--bg);color:var(--ink-4);cursor:pointer;font-family:inherit;border-radius:8px 8px 0 0;border:1.5px solid transparent;border-bottom:none;margin-bottom:-2px;transition:all .18s;position:relative;}
+.archiv-tab:hover{background:var(--yellow-pale);color:var(--ink);}
+.archiv-tab.active{background:var(--surface);color:var(--uva-blue);border-color:var(--uva-blue);border-bottom-color:var(--surface);font-weight:800;z-index:1;}
+.archiv-tab.red{}.archiv-tab.red.active{color:var(--uva-red);border-color:var(--uva-red);border-bottom-color:var(--surface);}
+.archiv-panel{background:var(--surface);border:1.5px solid var(--uva-blue);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:1.1rem 1.3rem;animation:fadeUp .22s ease both;}
+.archiv-panel.red-border{border-color:var(--uva-red);}
+.archiv-badge{display:inline-block;font-size:.6rem;font-weight:800;padding:2px 9px;border-radius:4px;background:var(--uva-red);color:#fff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.55rem;}
+.archiv-panel h4{font-size:.74rem;font-weight:800;color:var(--uva-blue);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.55rem;}
+.archiv-panel p{font-size:.86rem;color:var(--ink-2);line-height:1.65;margin-bottom:.45rem;}
+.archiv-panel p:last-child{margin-bottom:0;}
+.archiv-sub{margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--line-light);font-size:.8rem;color:var(--uva-blue);font-weight:600;line-height:1.5;}
+/* ── IFD TABLE ── */
+.ifd-wrap{margin-top:1.4rem;border:1.5px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;}
+.ifd-head{background:var(--uva-blue);color:#fff;display:grid;grid-template-columns:1fr 2fr;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;}
+.ifd-head div{padding:.5rem .9rem;}
+.ifd-row{display:grid;grid-template-columns:1fr 2fr;border-top:1px solid var(--line-light);align-items:center;}
+.ifd-row:nth-child(even){background:rgba(0,0,0,.015);}
+.ifd-cell{padding:.5rem .9rem;font-size:.82rem;line-height:1.45;}
+.ifd-cell.label{font-weight:700;display:flex;align-items:center;gap:.5rem;}
+.ifd-cell.label .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.ifd-cell.label .dot.yes{background:var(--green);}
+.ifd-cell.label .dot.no{background:var(--uva-red);}
+.ifd-cell.dx{color:var(--ink-2);}
+
+footer{background:var(--surface);color:var(--ink-3);border-top:2px solid var(--yellow);text-align:center;padding:1.1rem 1.5rem;font-size:.7rem;line-height:1.9;}
+footer strong{color:var(--ink-2);}
+@media(max-width:520px){.fc-grid{grid-template-columns:1fr;}.header{padding:.75rem 1rem;gap:.75rem;}.card-title{font-size:1.25rem;}.card-body,.card-head{padding:.9rem 1.2rem;}}
+
+.tab-nav{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.9rem;}
+.tab-btn{padding:.38rem .85rem;font-size:.75rem;border-radius:20px;font-weight:700;border:1.5px solid var(--line);cursor:pointer;background:var(--surface);color:var(--ink-4);font-family:inherit;transition:all .2s;}
+.tab-btn:hover{background:var(--yellow-pale);border-color:var(--yellow-deep);color:var(--ink);}
+.tab-btn.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow-deep);box-shadow:0 2px 8px rgba(212,160,0,.3);}
+.tab-btn.alert{background:var(--uva-red);color:#fff;border-color:var(--uva-red);}
+.tab-panel{background:var(--surface);border:1.5px solid var(--line-light);border-radius:var(--
+
+
+.topbar{background:var(--blue-deep,#002244);padding:.3rem 1.6rem;display:flex;align-items:center;}
+.back-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:700;color:rgba(180,210,250,.7);text-decoration:none;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+.back-btn svg{opacity:.7;}
+.back-btn:hover svg{opacity:1;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="importmap">
+{"imports":{"preact":"https://unpkg.com/preact@10.25.4/dist/preact.module.js","preact/hooks":"https://unpkg.com/preact@10.25.4/hooks/dist/hooks.module.js","htm":"https://unpkg.com/htm@3.1.1/dist/htm.module.js"}}
+</script>
+<script type="module">
+import{h,render}from'preact';
+import{useState,useCallback}from'preact/hooks';
+import htm from'htm';
+const html=htm.bind(h);
+
+// ── PACIENTE ──────────────────────────────────────────────────────────────────
+const PATIENT = {
+  name:'Elena P.', age:42,
+  diagnosis:'Artritis reumatoide de inicio — poliartritis simétrica de pequeñas articulaciones',
+  diagnosisKey:[
+    'Dolor inflamatorio: empeora en reposo, mejora con movimiento, rigidez matutina >1 hora (paso 1)',
+    'Poliartritis simétrica de pequeñas articulaciones: MCF y muñecas bilaterales (paso 2)',
+    'Evolución subaguda de 3 meses, progresiva y aditiva (paso 3)',
+    'Signos inflamatorios locales: calor, hinchazón, derrame articular (paso 4)',
+    'Rigidez matutina intensa >60 minutos — criterio de inflamación sinovial activa (paso 5)',
+    'Mujer en edad fértil, sin psoriasis, sin diarrea, sin infección previa (paso 6)',
+  ],
+  quotes:[
+    '«Me duelen las manos, sobre todo los nudillos y las muñecas. Las dos manos por igual.»',
+    '«Son las manos, los nudillos y las muñecas. Afecta a las dos manos igual, de forma simétrica.»',
+    '«Llevo así unos tres meses. Al principio menos, pero ha ido empeorando poco a poco.»',
+    '«Sí, se hinchan. Y las noto calientes. A veces veo que están hinchadas y rojas.»',
+    '«Por las mañanas es horrible. Me levanto con las manos agarrotadas y necesito más de una hora para poder cerrar el puño.»',
+    '«No tengo psoriasis. No he tenido diarrea. No tuve ninguna infección antes de esto. Nadie en mi familia tiene artritis.»',
+  ],
+};
+
+// ── RESUMEN ───────────────────────────────────────────────────────────────────
+const ALL_QS = [
+  {n:1,title:'¿Cómo? — Inflamatorio vs mecánico: el primer filtro',eq:'«¿El dolor mejora cuando se mueve o empeora? ¿Está peor en reposo o con la actividad?»'},
+  {n:2,title:'¿Dónde? — Localización: mono, oligo o poliartritis',eq:'«¿Qué articulaciones le duelen? ¿Cuántas? ¿Le afecta a las dos manos igual o solo a una?»'},
+  {n:3,title:'¿Cuándo? — Inicio, evolución y patrón temporal',eq:'«¿Cuándo empezó? ¿Fue de repente o poco a poco? ¿Ha ido a más?»'},
+  {n:4,title:'Asociado — Signos inflamatorios y síntomas sistémicos',eq:'«¿Están hinchadas o rojas? ¿Tiene fiebre, cansancio, pérdida de peso? ¿Manchas en la piel?»'},
+  {n:5,title:'¿Cuánto? — Intensidad y rigidez matutina',eq:'«Del 0 al 10, ¿cuánto le duele? ¿Cuánto tiempo tarda en "entrar en calor" por las mañanas?»'},
+  {n:6,title:'Antecedentes — Contexto clínico y exposiciones',eq:'«¿Tiene psoriasis, diarrea crónica, uveítis? ¿Ha tenido alguna infección reciente? ¿Familiares con artritis?»'},
+];
+
+// ── FEEDBACK DIAGNÓSTICO ──────────────────────────────────────────────────────
+const STEP_DX = [
+  {quoteIdx:0,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'La descripción del dolor ya orienta al mecanismo. El dolor inflamatorio empeora en reposo y mejora con el movimiento (el movimiento calienta y lubrica la articulación inflamada). El dolor mecánico ocurre al contrario: mejora con el reposo y empeora con la actividad (carga y desgaste del cartílago). Esta distinción es el primer y más importante filtro diagnóstico en reumatología.',
+   fitsFor:['Artritis reumatoide','Artritis reactiva','Artritis psoriásica','Lupus articular'],rulesOut:['Artrosis (mecánica)','Fibromialgia (no articular)']},
+  {quoteIdx:1,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'Poliartritis simétrica de pequeñas articulaciones (MCF, IFP, muñecas) es el patrón más característico de la artritis reumatoide. La simetría bilateral es un criterio diagnóstico de la AR. El número de articulaciones (>4 = poliartritis) y la distribución (pequeñas, manos, pies) orientan específicamente a sinovitis pura — AR, lupus, sarcoidosis — más que a espondiloartropatía (que suele ser asimétrica y de grandes articulaciones).',
+   fitsFor:['Artritis reumatoide','Lupus articular'],rulesOut:['Artrosis (no simétrica en fases iniciales)','Gota (monoartritis o oligoartritis, grandes articulaciones)','Espondiloartropatía (asimétrica, grandes art.)']},
+  {quoteIdx:2,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'Tres meses de evolución con patrón progresivo y aditivo es subagudo, lo que reduce la probabilidad de artritis reactiva (que suele resolverse en 6-12 semanas) y orienta hacia una artritis crónica inflamatoria. El patrón aditivo (se suman articulaciones con el tiempo) es el clásico de la AR. El patrón migratorio (cambia de articulación) orienta a artritis reactiva o fiebre reumática.',
+   fitsFor:['Artritis reumatoide (patrón aditivo)'],rulesOut:['Artritis reactiva (patrón migratorio, resolución espontánea)','Gota (episódica, episodios agudos)']},
+  {quoteIdx:3,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La presencia de signos inflamatorios locales — calor, hinchazón, eritema — confirma la existencia de artritis verdadera (inflamación intraarticular) vs artralgia (dolor sin signos inflamatorios). La artritis verdadera con derrame sinovial palpable es un criterio diagnóstico de AR según los criterios ACR/EULAR 2010.',
+   fitsFor:['Artritis inflamatoria activa','AR con sinovitis'],rulesOut:['Artralgia sin artritis (fibromialgia, artrosis leve)']},
+  {quoteIdx:4,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La rigidez matutina >60 minutos es uno de los criterios diagnósticos clásicos de la artritis reumatoide (criterios ACR 1987). Refleja la acumulación nocturna de mediadores inflamatorios en la sinovial: durante el reposo nocturno el exudado sinovial aumenta → rigidez al levantarse → necesita tiempo de movimiento para «abrir». En la artrosis la rigidez matutina es breve (<30 minutos).',
+   fitsFor:['Artritis reumatoide','Otras artritis inflamatorias'],rulesOut:['Artrosis (rigidez <30 min)','Fibromialgia (rigidez sin artritis real)']},
+  {quoteIdx:5,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'La ausencia de psoriasis (descarta artritis psoriásica), de diarrea crónica (descarta artropatía enteropática), de infección reciente (descarta artritis reactiva) y de antecedentes familiares reduce el diferencial. Una mujer de 42 años con poliartritis simétrica sin estas condiciones tiene una probabilidad muy alta de AR como diagnóstico.',
+   fitsFor:['Artritis reumatoide idiopática'],rulesOut:['Artritis psoriásica (sin psoriasis)','Artritis reactiva (sin infección previa)','Artropatía enteropática (sin diarrea)']},
+];
+
+// ── COMBOS ────────────────────────────────────────────────────────────────────
+const COMBOS = [
+  {dx:'Artrosis — dolor mecánico',compat:'strong',
+   symptoms:['Empeora con actividad','Mejora con reposo','Rigidez matutina <30 min','Articulaciones de carga','>50 años o sobrepeso'],
+   key:'La causa más frecuente de dolor articular. Mecánico: carga y desgaste del cartílago. Sin signos inflamatorios intensos. Rx: pinzamiento, osteofitos, esclerosis subcondral.'},
+  {dx:'Artritis reumatoide',compat:'strong',
+   symptoms:['Poliartritis simétrica pequeñas articulaciones','Rigidez matutina >1 hora','Signos inflamatorios locales','Mujer 30-50 años','Factor reumatoide / Anti-CCP+'],
+   key:'La artritis inflamatoria más frecuente. Sinovitis crónica progresiva. Criterios ACR/EULAR 2010. FR y anti-CCP confirman. Erosiones radiológicas tardías.'},
+  {dx:'Gota — artritis por cristales',compat:'strong',
+   symptoms:['Monoartritis aguda','Primera MTF (podagra)','Varón >40 años','Hiperuricemia','Inicio nocturno muy intenso'],
+   key:'El ataque agudo de gota es la monoartritis inflamatoria más frecuente en varones. Inicio nocturno muy intenso, eritema, calor. Uricemia elevada. Artrocentesis: cristales de urato.'},
+  {dx:'Artritis reactiva',compat:'positive',
+   symptoms:['Oligoartritis asimétrica','Articulaciones grandes (rodillas, tobillos)','Infección previa (digestiva o genitourinaria)','Joven','Patrón migratorio'],
+   key:'Artritis estéril tras infección. Tríada clásica: artritis + uretritis + conjuntivitis (síndrome de Reiter). Suele resolverse en 3-6 meses. HLA-B27 frecuente.'},
+  {dx:'Artritis psoriásica',compat:'positive',
+   symptoms:['Psoriasis cutánea (o familiar)','Dactilitis — dedo en salchicha','Afectación asimétrica','Uñas con pitting','Entesitis (talón)'],
+   key:'Artritis inflamatoria en paciente con psoriasis. La psoriasis puede preceder a la artritis años. Dactilitis y entesitis son hallazgos clave. FR negativo.'},
+  {dx:'Artritis séptica',compat:'strong',
+   symptoms:['Monoartritis muy aguda','Fiebre alta','Calor y eritema intenso','Puerta de entrada infecciosa','Articulación grande (rodilla)'],
+   key:'EMERGENCIA. Monoartritis febril = artritis séptica hasta que se demuestre lo contrario. Artrocentesis urgente: líquido turbio, >50.000 leucocitos. Antibiótico IV inmediato.'},
+];
+
+// ── PASOS ─────────────────────────────────────────────────────────────────────
+const STEPS = [
+  {
+    nav:'¿Cómo?', title:'¿Cómo es el dolor? — Inflamatorio vs mecánico',
+    think:'El primer objetivo es determinar si el dolor articular es inflamatorio o mecánico. Esta distinción divide el diferencial reumatológico en dos grupos casi no solapables. ¿Cuáles son los criterios que separan ambos tipos?',
+    pause:'Antes de ver las opciones: ¿qué le preguntarías a un paciente para saber si su dolor articular es inflamatorio o mecánico? Lista los criterios que recuerdas.',
+    eq:'«¿El dolor mejora cuando se mueve, o empeora? ¿Está peor después de estar quieto un rato, o después de caminar mucho? ¿Cuánto tiempo tarda en quitarse el agarrotamiento por las mañanas?»',
+    tipT:'Inflamatorio vs mecánico: la distinción más importante de la reumatología',
+    tip:'Esta clasificación no es una simplificación — es la que estructura todo el razonamiento reumatológico. Casi todas las decisiones diagnósticas y terapéuticas posteriores dependen de este primer filtro.',
+    isTabStep:true,
+    tabTitle:'Tipo de dolor articular — selecciona para ver cada patrón',
+    tabs:[
+      {label:'Inflamatorio',badge:'ARTRITIS',title:'Dolor articular inflamatorio',
+       body:['Empeora en reposo y mejora con el movimiento. El paciente describe mejoría al «entrar en calor». Puede estar presente también en reposo o de noche.','Rigidez matutina prolongada: el paciente necesita >30 minutos (frecuentemente >1 hora) para poder moverse con normalidad al levantarse. A mayor inflamación sinovial, mayor duración de la rigidez.','Signos inflamatorios locales: calor, hinchazón (derrame sinovial o hipertrofia sinovial), eritema en casos agudos. La articulación puede estar globalmente dolorosa en cualquier dirección de movimiento.','Síntomas sistémicos posibles: fatiga, fiebre, pérdida de peso, adenopatías — indicadores de enfermedad sistémica subyacente.'],
+       sub:'→ Orienta a: artritis reumatoide, artritis psoriásica, artritis reactiva, lupus articular, gota, artritis séptica, espondiloartropatías.'},
+      {label:'Mecánico',badge:'ARTROSIS / SOBRECARGA',title:'Dolor articular mecánico',
+       body:['Empeora con la actividad física y la carga articular. Aparece a lo largo del día y es máximo al final de la tarde o tras un esfuerzo prolongado. Mejora claramente con el reposo.','Rigidez matutina breve: el paciente describe un leve «agarrotamiento de arranque» que desaparece en menos de 30 minutos con los primeros movimientos del día. No dura horas.','Sin signos inflamatorios sistémicos: no hay fiebre, no hay pérdida de peso, los reactantes de fase aguda suelen ser normales. La articulación puede tener crepitación o deformidad crónica pero no calor ni hinchazón activa significativa.'],
+       sub:'→ Orienta a: artrosis, tendinitis, bursitis, condromalacia rotuliana, patología periarticular por sobrecarga.'},
+      {label:'Periarticular',badge:'TENDÓN / BURSA / ENTESIS',title:'Dolor periarticular (no es artritis)',
+       body:['El dolor no es intraarticular sino en las estructuras que rodean la articulación: tendones, bursas, inserciones tendinosas (entesis), ligamentos.','Clave diagnóstica: el dolor es directivo — aparece solo cuando se mueve la articulación en la dirección que estira la estructura inflamada. La artritis verdadera duele en cualquier dirección de movimiento.','La entesitis (dolor en las inserciones tendinosas) es característica de las espondiloartropatías: talón de Aquiles, tuberosidad plantar, crestas ilíacas, apófisis espinosas.'],
+       sub:'→ Orienta a: tendinitis, bursitis, entesitis (espondiloartropatía), fascitis plantar, síndrome del manguito rotador.'},
+      {label:'Artralgia pura',badge:'SIN ARTRITIS',title:'Artralgia — dolor sin inflamación',
+       body:['El paciente refiere dolor articular pero sin ningún signo objetivo de inflamación (sin calor, sin hinchazón, sin eritema) y con analítica normal.','Diferencial amplio: fibromialgia (dolor difuso con puntos gatillo sin artritis real), artralgias virales (gripe, parvovirus B19, hepatitis C), hipotiroidismo, fármacos (estatinas, quinolonas, inhibidores de aromatasa), síndrome de hiperlaxitud.','La fibromialgia produce dolor difuso musculoesquelético con fatiga intensa, trastornos del sueño y puntos de presión dolorosos. No hay artritis verdadera. Es frecuente en mujeres jóvenes.'],
+       sub:'→ Orienta a: fibromialgia, artralgias virales, hipotiroidismo, fármacos, hiperlaxitud, síndrome de fatiga crónica.'},
+    ],
+  },
+  {
+    nav:'¿Dónde?', title:'¿Dónde le duele? — Distribución articular',
+    think:'La distribución articular es el segundo filtro más poderoso en reumatología. El número de articulaciones afectadas, su simetría, si son grandes o pequeñas, y si hay afectación axial orientan el diagnóstico antes de cualquier prueba.',
+    pause:'¿Cuántas articulaciones separan monoartritis de oligoartritis? ¿Qué diagnóstico sospechas ante una oligoartritis asimétrica de rodillas con dolor lumbar de ritmo inflamatorio?',
+    eq:'«¿Puede señalarme qué articulaciones le duelen? ¿Solo una, o varias? ¿Es la misma de las dos manos/pies, o más de un lado? ¿Le duele la espalda, la cadera, las nalgas?»',
+    tipT:'Mono — oligo — poli — axial: cuatro grupos diagnósticos distintos',
+    tip:'El número de articulaciones + su distribución + si hay afectación axial = el mapa diagnóstico de la artritis.',
+    isTabStep:true,
+    tabTitle:'Distribución articular — selecciona para ver cada patrón',
+    tabs:[
+      {label:'Monoartritis',badge:'1 ARTICULACIÓN',title:'Monoartritis — una sola articulación inflamada',
+       body:['La monoartritis aguda es una urgencia diagnóstica hasta descartar artritis séptica y gota. La artrocentesis (punción articular) es la prueba diagnóstica clave en cualquier monoartritis no explicada.','Causas frecuentes: gota (primera MTF — podagra — clásica en varón), pseudogota (cristales de pirofosfato, rodilla frecuente en anciano), artritis séptica (fiebre + articulación muy inflamada = emergencia), hemartrosis (trauma, anticoagulantes, hemofilia).','La artritis séptica destruye el cartílago en días. Ante monoartritis con fiebre: artrocentesis urgente antes del antibiótico.'],
+       sub:'→ Artrocentesis siempre. Diagnósticos a descartar: séptica, gota, pseudogota, hemartrosis.'},
+      {label:'Oligoartritis',badge:'2-4 ARTICULACIONES',title:'Oligoartritis — 2 a 4 articulaciones',
+       body:['La oligoartritis obliga a distinguir si hay afectación axial (columna, sacroilíacas) o no. Esta distinción es el segundo filtro más importante de la reumatología articular.','CON afectación axial (dolor lumbar de ritmo inflamatorio, dolor en nalgas, sacroilíacas): espondiloartropatía — espondilitis anquilosante, artritis psoriásica, artritis reactiva, artropatía enteropática asociada a EII.','SIN afectación axial: artritis reactiva periférica, sarcoidosis (artritis de tobillos + eritema nodoso), enfermedad de Lyme, artritis gonocócica, oligoartritis de inicio de AR o de lupus.'],
+       sub:'→ Preguntar SIEMPRE por dolor lumbar nocturno / de ritmo inflamatorio. Si lo hay = espondiloartropatía hasta que se demuestre lo contrario.'},
+      {label:'Poliartritis simétrica',badge:'>4 ARTICULACIONES SIMÉTRICAS',title:'Poliartritis simétrica',
+       body:['Más de 4 articulaciones afectadas de forma simétrica bilateral. La distribución en pequeñas articulaciones (MCF, IFP, muñecas) vs grandes (rodillas, caderas) orienta el diagnóstico.','Pequeñas articulaciones simétricas (manos, muñecas): artritis reumatoide, lupus articular, artritis viral (parvovirus B19, hepatitis C), sarcoidosis.','Importante en manos: las IFD (nudillos distales) se respetan en AR y lupus, pero están afectadas en artrosis (nódulos de Heberden) y artritis psoriásica.'],
+       sub:'→ AR y lupus: MCF + IFP + muñecas simétricas, IFD respetadas. Artrosis y psoriásica: IFD afectadas.'},
+      {label:'Poliartritis asimétrica',badge:'>4 ARTICULACIONES ASIMÉTRICAS',title:'Poliartritis asimétrica',
+       body:['Poliartritis de distribución asimétrica, frecuentemente afectando articulaciones grandes de forma desigual entre los dos lados.','Causas principales: artritis psoriásica (puede ser poliarticular asimétrica, con IFD y dactilitis), espondiloartropatías en fase periférica, artritis de Still del adulto (fiebre + artritis + erupción salmón), artritis reactiva poliarticular.','La dactilitis (todo un dedo inflamado, «dedo en salchicha») es una clave diagnóstica muy específica de artritis psoriásica.'],
+       sub:'→ Dactilitis = artritis psoriásica hasta que se demuestre. Fiebre + erupción salmón + artritis = Still del adulto.'},
+      {label:'Afectación axial',badge:'COLUMNA / SACROILÍACAS',title:'Afectación axial — espondiloartropatías',
+       body:['El dolor axial inflamatorio tiene características muy distintas al dolor mecánico lumbar: empeora en reposo y de noche (puede despertar al paciente), mejora con el movimiento y el ejercicio, rigidez matutina >30 minutos, inicio antes de los 40 años, mejora con AINEs.','Espondiloartropatías: espondilitis anquilosante (HLA-B27 positivo en >90%), artritis psoriásica axial, artritis reactiva crónica, artropatía de EII axial.','El dolor en «nalgas alternantes» (un lado y luego el otro) es muy sugestivo de sacroileítis. Confirmación con RM sacroilíacas.'],
+       sub:'→ Dolor lumbar nocturno + mejora con ejercicio + <40 años + rigidez matutina = espondiloartropatía. RM sacroilíacas.'},
+    ],
+    showIFD:true,
+  },
+  {
+    nav:'¿Cuándo?', title:'¿Cuándo empezó? — Inicio, duración y patrón',
+    think:'La cronología del dolor articular orienta tanto al diagnóstico como a la urgencia. ¿Qué diferencia hay entre una artritis que empieza en horas y una que lleva meses evolucionando?',
+    pause:'¿Qué diagnóstico sospechas ante un inicio nocturno muy brusco e intenso en el primer dedo del pie? ¿Qué sugiere un inicio subagudo progresivo de meses en las manos?',
+    eq:'«¿Cuándo empezó exactamente? ¿Fue de repente, en horas, o fue aumentando poco a poco durante semanas? ¿Ha tenido episodios similares antes?»',
+    tipT:'El inicio temporal es casi diagnóstico en reumatología',
+    tip:'Inicio en horas — nocturno muy intenso: gota (el ataque gotoso clásico despierta al paciente de noche). Inicio en días: artritis séptica, artritis reactiva. Inicio en semanas a meses (subagudo, progresivo): artritis reumatoide, artritis psoriásica. Inicio crónico lento (años): artrosis, espondilitis anquilosante, artritis reumatoide seronegativa.\n\nPatrón episódico con recuperación completa entre brotes: gota, artritis reactiva. Patrón aditivo (se suman articulaciones): artritis reumatoide.',
+    items:[
+      {label:'Inicio nocturno brusco — muy intenso en horas',badge:'GOTA — MUY SUGESTIVO',body:'El ataque gotoso clásico comienza de madrugada con un dolor que despierta al paciente: la primera MTF (dedo gordo del pie — podagra) está roja, caliente, hinchada y el paciente no puede ni rozarla con la sábana. El inicio nocturno se debe a la bajada de temperatura corporal durante el sueño, que favorece la precipitación de cristales de urato.'},
+      {label:'Inicio en días — con fiebre',badge:'SÉPTICA / REACTIVA',body:'Una artritis que aparece en pocos días con fiebre es artritis séptica hasta que se demuestre lo contrario (emergencia: artrocentesis urgente). La artritis reactiva aparece 1-4 semanas después de una infección digestiva o genitourinaria. La artritis viral (parvovirus, rubeola, hepatitis) también tiene inicio subagudo rápido.'},
+      {label:'Inicio subagudo — semanas a meses',badge:'ARTRITIS REUMATOIDE / PSORIÁSICA',body:'La AR y la artritis psoriásica tienen un inicio típicamente subagudo y progresivo. El paciente nota que «poco a poco» le van doliendo más articulaciones. El patrón aditivo (se suman articulaciones con el tiempo) es característico. El médico suele verle cuando ya lleva semanas o meses de síntomas.'},
+      {label:'Episódico — brotes con remisión completa',badge:'GOTA / REACTIVA / AR INICIAL',body:'Los episodios de artritis con recuperación completa entre brotes orientan a gota (los primeros ataques remiten solos), artritis reactiva (suele resolverse en semanas-meses) o AR inicial (algunos pacientes tienen un inicio episódico antes de establecerse la enfermedad crónica).'},
+      {label:'Crónico — lleva años, siempre presente',badge:'ARTROSIS / AR ESTABLECIDA',body:'Un dolor articular de años de evolución, siempre presente aunque variable en intensidad, orienta a artrosis (en articulaciones de carga, dedos, columna) o a AR establecida. En artrosis el deterioro es lento y paralelo al envejecimiento. La AR establecida sin tratamiento puede producir deformidades progresivas.'},
+      {label:'Episodios de horas-días que desaparecen del todo',badge:'REUMATISMO PALINDRÓMICO',body:'<strong>Reumatismo palindrómico:</strong> brotes de artritis inflamatoria que duran horas o 1-3 días y remiten completamente sin dejar secuelas. Entre episodios el paciente está perfectamente y la analítica es normal.<br><br>La articulación afectada cambia en cada brote (de ahí «palindrómico» — va y vuelve). El diagnóstico es clínico y de exclusión. <strong>Importancia pronóstica:</strong> el 30-40% de los casos evoluciona a artritis reumatoide establecida en los años siguientes — algunos lo consideran una forma de inicio de AR. Seguimiento obligatorio.'},
+    ],
+  },
+  {
+    nav:'Asociado', title:'¿Qué lo acompaña? — Signos inflamatorios y síntomas sistémicos',
+    think:'Los síntomas acompañantes localizan la causa de la artritis en un sistema concreto. Algunas enfermedades tienen manifestaciones extraarticulares casi diagnósticas. ¿Cuáles conoces?',
+    pause:'¿Qué enfermedad sistémica produce artritis + erupción malar + fotosensibilidad? ¿Qué espondiloartropatía produce artritis + psoriasis + uñas con pitting?',
+    eq:'«¿Tiene las articulaciones hinchadas o rojas? ¿Ha tenido fiebre? ¿Ha perdido peso sin querer? ¿Tiene manchas en la piel, escamas, llagas en la boca, ojo rojo, diarrea?»',
+    tipT:'Las manifestaciones extraarticulares casi hacen el diagnóstico',
+    tip:'Artritis + erupción malar en mariposa + fotosensibilidad → Lupus. Artritis + psoriasis cutánea + uñas con pitting + dactilitis → Artritis psoriásica. Artritis + uretritis + conjuntivitis → Artritis reactiva (síndrome de Reiter). Artritis + uveítis + dolor lumbar inflamatorio → Espondiloartropatía. Artritis + nódulos subcutáneos + fiebre → Artritis reumatoide. Monoartritis + fiebre alta → Artritis séptica.',
+    items:[
+      {label:'Fiebre alta + articulación muy inflamada',badge:'SÉPTICA — EMERGENCIA',body:'La combinación de fiebre alta y monoartritis muy inflamada es artritis séptica hasta que se demuestre lo contrario. Artrocentesis urgente: el líquido sinovial con >50.000 leucocitos y PMN >90% confirma infección. Sin tratamiento antibiótico precoz el cartílago se destruye en días.'},
+      {label:'Psoriasis cutánea + uñas con pitting + dactilitis',badge:'ARTRITIS PSORIÁSICA',body:'La psoriasis (placas eritematodescamativas en codos, rodillas, cuero cabelludo) puede preceder a la artritis años. El pitting ungueal (fositas en las uñas), la onicolisis y la dactilitis (dedo en salchicha — inflamación de todo el dedo, no solo de la articulación) son signos específicos de artritis psoriásica.'},
+      {label:'Erupción malar + fotosensibilidad + alopecia',badge:'LUPUS ERITEMATOSO SISTÉMICO',body:'El exantema malar en «alas de mariposa» (eritema en mejillas y nariz que respeta el surco nasogeniano), la fotosensibilidad y la alopecia son los signos cutáneos más característicos del lupus. La artritis del lupus es no erosiva, migratoria y puede parecerse a la AR, pero los ANA y el anti-dsDNA la distinguen.'},
+      {label:'Uretritis + conjuntivitis + artritis',badge:'ARTRITIS REACTIVA (REITER)',body:'La tríada de Reiter: artritis + uretritis (disuria, secreción uretral) + conjuntivitis, tras una infección digestiva (Salmonella, Campylobacter, Shigella) o genitourinaria (Chlamydia). No siempre están los tres componentes. HLA-B27 positivo aumenta la probabilidad y el riesgo de cronicidad.'},
+      {label:'Nódulos subcutáneos + signos sistémicos',badge:'ARTRITIS REUMATOIDE',body:'Los nódulos reumatoides (en codos, tendón de Aquiles) son prácticamente exclusivos de la AR seropositiva. Junto a la fatiga intensa, la pérdida de peso y la anemia de proceso crónico, indican enfermedad sistémica activa. El síndrome de Sjögren secundario (sequedad ocular y bucal) ocurre hasta en el 30% de los pacientes con AR.'},
+      {label:'Dolor lumbar inflamatorio + rigidez matutina dorsal',badge:'ESPONDILOARTROPATÍA',body:'El dolor lumbar inflamatorio — peor por la mañana, que despierta al paciente, mejora con el movimiento y empeora con el reposo — asociado a artritis periférica orienta a espondiloartropatías: espondilitis anquilosante, artritis psoriásica axial. La afectación de sacroilíacas se confirma con RM.'},
+    ],
+  },
+  {
+    nav:'¿Cuánto?', title:'¿Cuánto limita? — Intensidad, rigidez y repercusión',
+    think:'La rigidez matutina es el marcador clínico de actividad inflamatoria sinovial más accesible. ¿Por qué aparece por las mañanas? ¿Cómo se cuantifica? ¿Qué duración tiene valor diagnóstico?',
+    pause:'¿Por qué la rigidez matutina de la artritis inflamatoria dura más que la de la artrosis? ¿Qué significado tiene una rigidez matutina de 3 horas?',
+    eq:'«Del 0 al 10, ¿cuánto le duele en el peor momento? ¿Le limita para trabajar, para vestirse, para abrir botes o escribir? ¿Cuánto tarda en quitarse el agarrotamiento de por la mañana?»',
+    tipT:'La duración de la rigidez matutina refleja la actividad inflamatoria',
+    tip:'La rigidez matutina en las artritis inflamatorias dura en proporción a la actividad inflamatoria. En AR activa puede durar horas. En artrosis suele ser <30 minutos (la «rigidez de arranque» que desaparece en pocos movimientos).\n\nLa limitación funcional es el parámetro más relevante para el paciente: no poder cerrar el puño, abrir botes, escribir, subir escaleras — estos datos concretos objetivan el impacto real de la enfermedad.',
+    items:[
+      {label:'Rigidez matutina >60 minutos',badge:'ARTRITIS INFLAMATORIA ACTIVA',body:'La rigidez que dura más de 60 minutos al levantarse es un criterio clásico de artritis inflamatoria activa (criterios ACR 1987 para AR). Refleja la acumulación nocturna de mediadores inflamatorios en el líquido sinovial. Una rigidez de 3 horas indica enfermedad muy activa.'},
+      {label:'Rigidez matutina <30 minutos',badge:'ARTROSIS / MECÁNICO',body:'La rigidez breve de arranque (unos minutos al levantarse o tras estar sentado) es la rigidez del cartílago dañado. No es inflamación sinovial real. Desaparece con los primeros movimientos. En artrosis avanzada puede ser algo más prolongada, pero raramente supera los 30 minutos.'},
+      {label:'No puede cerrar el puño al levantarse',badge:'AR — LIMITACIÓN FUNCIONAL',body:'La incapacidad de cerrar el puño por la mañana es una forma práctica de cuantificar la rigidez en manos: «¿Puede tocar con los dedos la palma al levantarse?» No poder cerrar el puño refleja derrame sinovial activo en las articulaciones MCF e IFP. Con el movimiento y el calor, la sinovial se «abre» y mejora.'},
+      {label:'Dolor intenso 8-10/10 — no puede moverse',badge:'GOTA AGUDA / SÉPTICA',body:'Un dolor de intensidad muy alta (8-10/10) en una monoartritis de inicio brusco orienta a gota aguda o artritis séptica. El ataque gotoso típico se describe como «el peor dolor de mi vida» — el paciente no puede ni rozar la articulación. Esta intensidad extrema en un solo debut orienta casi exclusivamente a estas dos entidades.'},
+      {label:'Dolor leve-moderado con limitación funcional',badge:'AR / ARTROSIS ESTABLECIDA',body:'Un dolor de intensidad moderada pero que impide las actividades de la vida diaria (escribir, abrir botes, abrocharse botones) es el patrón de la AR establecida. El dolor no siempre es el síntoma principal — la pérdida de función puede serlo. Preguntar: «¿Qué cosas no puede hacer ahora que antes sí podía?»'},
+    ],
+  },
+  {
+    nav:'Antecedentes', title:'Antecedentes — Contexto clínico y exposiciones',
+    think:'Los antecedentes del paciente con dolor articular son los que permiten completar el diagnóstico diferencial y detectar causas secundarias. ¿Qué antecedentes buscarías sistemáticamente en un paciente con artritis?',
+    pause:'¿Por qué es importante preguntar por infecciones recientes en un paciente con artritis? ¿Qué enfermedades sistémicas producen artritis secundaria?',
+    eq:'«¿Tiene psoriasis o la ha tenido? ¿Ha tenido diarrea, infección digestiva o urinaria reciente? ¿Toma algún medicamento? ¿Alguien en su familia tiene artritis reumatoide o espondilitis?»',
+    tipT:'Las cinco preguntas clave en el contexto de la artritis',
+    tip:'1) ¿Psoriasis? → artritis psoriásica. 2) ¿Infección previa? → artritis reactiva. 3) ¿Diarrea crónica o EII? → artropatía enteropática. 4) ¿Antecedentes familiares de AR o espondilitis? → componente genético importante. 5) ¿Medicamentos? — hidralazina, procainamida, isoniazida → lupus inducido por fármacos; quinolonas, estatinas → artralgia/miopatía.',
+    isAtrib:true,
+  },
+  {nav:'Resumen',title:'Resumen: Anamnesis del Dolor Articular',isSummaryStep:true,isFinal:true},
+  {nav:'Pruébate',title:'Comprueba cuánto has aprendido',isQuizStep:true},
+];
+
+// ── QUIZ CARDS ────────────────────────────────────────────────────────────────
+const QUIZ_CARDS = [
+  {dx:'Artrosis — dolor mecánico',
+   caso:'Varón de 68 años, obeso. Dolor en rodillas desde hace años, peor al subir escaleras y al final del día. Por las mañanas se le pasa en 10-15 minutos. Sin hinchazón significativa. Sin fiebre.',
+   claves:'Mecánico · Empeora con actividad · Mejora con reposo · Rigidez matutina <30 min · Sin signos inflamatorios sistémicos · Factores de riesgo: edad, obesidad, articulaciones de carga',
+   prueba:'Rx rodillas: pinzamiento articular, osteofitos, esclerosis subcondral. Analítica normal (VSG/PCR normales o mínimamente elevados).',
+   pat:'Degeneración progresiva del cartílago articular → pérdida de la almohadilla protectora → contacto hueso-hueso → dolor mecánico al cargar.',
+   orienta:'Dolor mecánico + articulaciones de carga + edad + obesidad = artrosis. La Rx confirma. Sin tratamiento curativo — objetivo: control sintomático y funcional'},
+  {dx:'Artritis reumatoide',
+   caso:'Mujer de 45 años. Desde hace 4 meses: dolor en nudillos y muñecas de ambas manos, simétricas. Rigidez matutina de más de 1 hora. Las articulaciones están hinchadas y calientes.',
+   claves:'Inflamatorio · Poliartritis simétrica de pequeñas articulaciones · Rigidez matutina >1 hora · Signos inflamatorios locales · Mujer en edad media',
+   prueba:'Factor reumatoide y anti-CCP (anticuerpos anti-péptidos citrulinados). VSG y PCR elevadas. Rx manos: erosiones marginales en fases tardías. Ecografía articular: sinovitis.',
+   pat:'Activación autoinmune → inflamación crónica de la membrana sinovial → pannus sinovial → destrucción progresiva del cartílago y el hueso subcondral → deformidades.',
+   orienta:'Poliartritis simétrica pequeñas articulaciones + rigidez matutina >1h + FR/anti-CCP = AR probable. Criterios ACR/EULAR 2010 para diagnóstico formal'},
+  {dx:'Gota — artritis por cristales de urato',
+   caso:'Varón de 52 años con hiperuricemia conocida. Se despierta a las 3 AM con dolor insoportable en el primer dedo del pie derecho. Está rojo, caliente e hinchado. No puede ni tocarlo.',
+   claves:'Monoartritis aguda · Primera MTF (podagra) · Inicio nocturno muy intenso · Eritema y calor local intenso · Varón · Hiperuricemia · Antecedentes de episodios similares',
+   prueba:'Ácido úrico sérico (puede ser normal en el ataque agudo). Artrocentesis: cristales de urato monosódico en forma de aguja con birrefringencia negativa. Rx: tofos en casos crónicos.',
+   pat:'Hiperuricemia crónica → depósito de cristales de urato en la articulación → fagocitosis por neutrófilos → liberación de IL-1β y otras citocinas → inflamación aguda intensa.',
+   orienta:'Monoartritis aguda nocturna muy intensa en primera MTF + hiperuricemia + varón = gota hasta que se demuestre lo contrario. El diagnóstico definitivo es por artrocentesis'},
+  {dx:'Artritis séptica',
+   caso:'Mujer de 35 años. Rodilla derecha muy hinchada, caliente y dolorosa desde hace 2 días. Temperatura 38.8°C. No puede apoyar el pie. Tiene una herida en la pierna desde hace una semana.',
+   claves:'Monoartritis aguda · Fiebre alta · Articulación grande (rodilla) · Calor y eritema intensos · Puerta de entrada infecciosa · No puede cargar peso',
+   prueba:'Artrocentesis URGENTE: líquido turbio o purulento, >50.000 leucocitos con >90% PMN, tinción Gram y cultivo. Hemocultivos. PCR y VSG muy elevadas.',
+   pat:'Bacterias (S. aureus más frecuente) alcanzan la articulación por vía hematógena o directa → inflamación purulenta → destrucción del cartílago en días sin antibiótico.',
+   orienta:'Monoartritis febril = artritis séptica hasta que se demuestre lo contrario. EMERGENCIA: artrocentesis urgente. La demora en el diagnóstico puede causar destrucción articular irreversible'},
+  {dx:'Artritis psoriásica',
+   caso:'Hombre de 38 años con psoriasis en placas desde los 25 años. Desde hace 6 meses: dolor en rodilla derecha y tobillo izquierdo (asimétrico), dedo índice derecho muy hinchado (todo el dedo). Las uñas tienen puntitos.',
+   claves:'Psoriasis cutánea previa · Oligoartritis asimétrica · Dactilitis (dedo en salchicha) · Uñas con pitting · FR negativo · Puede haber dolor lumbar inflamatorio',
+   prueba:'Clínico + Rx articular. FR y anti-CCP negativos (distinción con AR). HLA-B27 en el 40-50% de formas axiales. Ecografía: entesopatía, dactilitis.',
+   pat:'Activación inmune mediada por IL-17 e IL-23 en pacientes con predisposición genética (PSORS1) → sinovitis + entesitis + dactilitis. La psoriasis cutánea y la artritis comparten el mismo sustrato inflamatorio.',
+   orienta:'Psoriasis + oligoartritis asimétrica + dactilitis + FR negativo = artritis psoriásica. La dactilitis es el signo más específico. Puede preceder o seguir a la psoriasis cutánea'},
+  {dx:'Reumatismo palindrómico',
+   caso:'Mujer de 38 años. Desde hace un año, episodios de hinchazón y dolor muy intenso en distintas articulaciones — una vez la rodilla derecha, otra vez el dedo índice izquierdo, otra la muñeca. Cada episodio dura horas o 1-2 días y desaparece completamente. Entre episodios está perfectamente y la analítica es normal.',
+   claves:'Artritis episódica migrante · Duración horas a 2-3 días · Recuperación completa entre episodios · Articulaciones distintas cada vez · Sin secuelas · Analítica normal en el intervalo libre',
+   prueba:'En el brote: calor, eritema y derrame en la articulación afectada. Artrocentesis en el brote: líquido inflamatorio. Entre brotes: exploración y analítica normales. FR y anti-CCP en el 30-40% de casos.',
+   pat:'Inflamación sinovial episódica de causa desconocida. El 30-40% evoluciona a artritis reumatoide establecida — algunos autores lo consideran una forma de inicio de AR. La resolución completa entre episodios lo distingue de la AR crónica.',
+   orienta:'La clave es la resolución completa entre episodios y la migración articular. Diagnóstico de exclusión. Seguimiento obligatorio: el 30-40% desarrolla AR en los años siguientes'},
+];
+
+// ── TAB PANEL COMPONENT ───────────────────────────────────────────────────────
+function TabPanel({tabs, title}){
+  const[active,setActive]=useState(0);
+  const tab=tabs[active];
+  const isRed = tab.alert;
+  return html`<div class="archiv-wrap">
+    <div class="sec-label">${title}</div>
+    <div class="archiv-tabs">
+      ${tabs.map((tb,i)=>html`<button key=${i} class=${`archiv-tab ${i===active?'active':''} ${tb.alert?'red':''}`} onClick=${()=>setActive(i)}>${tb.label}</button>`)}
+    </div>
+    <div class=${`archiv-panel ${isRed?'red-border':''}`}>
+      <div class="archiv-badge">${tab.badge}</div>
+      <h4>${tab.title}</h4>
+      ${tab.body.map((p,i)=>html`<p key=${i} dangerouslySetInnerHTML=${{__html:p}}></p>`)}
+      ${tab.sub&&html`<div class="archiv-sub" dangerouslySetInnerHTML=${{__html:tab.sub}}></div>`}
+    </div>
+  </div>`;
+}
+
+// ── IFD PANEL ──────────────────────────────────────────────────────────────────
+function IFDPanel(){
+  const rows=[
+    {yes:true, label:'IFD afectadas',       dx:'Artrosis (nódulos de Heberden) · Artritis psoriásica · Artritis de Still'},
+    {yes:false,label:'IFD respetadas',      dx:'Artritis reumatoide · Lupus · Esclerodermia · RS3PE · Artritis reactiva'},
+    {yes:true, label:'MCF + IFP simétricas',dx:'Artritis reumatoide · Lupus articular · Sarcoidosis · Artritis viral'},
+    {yes:true, label:'IFP (sin MCF ni IFD)',dx:'Artritis psoriásica · Artritis reactiva · Still'},
+    {yes:true, label:'Muñecas bilaterales', dx:'Artritis reumatoide · Lupus · Artritis gonocócica'},
+    {yes:true, label:'1ª MTF (pie)',         dx:'Gota (podagra) · Artritis psoriásica'},
+  ];
+  return html`<div class="ifd-wrap" style=${{marginTop:'1.4rem'}}>
+    <div style=${{fontSize:'.58rem',fontWeight:800,color:'var(--ink-4)',textTransform:'uppercase',letterSpacing:'1px',padding:'.5rem .9rem',background:'var(--yellow)',borderBottom:'1.5px solid var(--yellow-deep)'}}>
+      Distribución en manos y pies — firma diagnóstica articular
+    </div>
+    <div class="ifd-head"><div>Articulación</div><div>Diagnósticos orientativos</div></div>
+    ${rows.map((r,i)=>html`<div key=${i} class="ifd-row">
+      <div class="ifd-cell label">
+        <div class=${`dot ${r.yes?'yes':'no'}`}></div>
+        <span style=${{color:r.yes?'var(--green)':'var(--uva-red)'}}>${r.label}</span>
+      </div>
+      <div class="ifd-cell dx">${r.dx}</div>
+    </div>`)}
+  </div>`;
+}
+
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function starsFor(si,kn){const s=STEPS[si];if(!s?.items)return null;const tot=s.items.length;const ans=s.items.filter((_,i)=>kn[`s${si}_c${i}`]).length;if(!ans)return null;const k=s.items.filter((_,i)=>kn[`s${si}_c${i}`]==='knew').length;return Math.round(k/tot*3);}
+function StarDisplay({count,small}){if(count===null)return null;return html`<span style=${{fontSize:small?'.65rem':'.85rem',letterSpacing:'-1px'}}>${[0,1,2].map(i=>html`<span key=${i} style=${{color:i<count?'#F5C518':'#D1D5DB'}}>★</span>`)}</span>`;}
+
+// ── FLASHCARD ─────────────────────────────────────────────────────────────────
+function FlashCard({id,label,badge,body,knowledge,onKnowledge}){
+  const[flipped,setFlipped]=useState(false);
+  const k=knowledge[id];
+  const knew=useCallback(e=>{e.stopPropagation();onKnowledge(id,'knew');},[id,onKnowledge]);
+  const unknown=useCallback(e=>{e.stopPropagation();onKnowledge(id,'unknown');},[id,onKnowledge]);
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`}>
+          <div class="fc-label">${label}</div>
+          <div class="fc-badge">${badge}</div>
+          ${!k&&!flipped&&html`<div class="fc-tap">tocar para ver</div>`}
+          ${k==='knew'&&html`<div class="fc-state-badge knew">✓ Dominada</div>`}
+          ${k==='unknown'&&html`<div class="fc-state-badge unknown">↩ Para repasar</div>`}
+        </div>
+        <div class="fc-back">
+          <div class="fc-back-header">
+            <div class="fc-back-label">${label}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'rgba(255,255,255,.18)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{fontSize:'.6rem',fontWeight:800,padding:'3px 9px',borderRadius:'4px',background:'var(--uva-red)',color:'#fff',textTransform:'uppercase',letterSpacing:'.5px',display:'inline-block',marginBottom:'.65rem'}}>${badge}</div>
+          <p dangerouslySetInnerHTML=${{__html:body}}></p>
+          ${!k&&html`<div class="knowledge-btns">
+            <button class="btn-knew" onClick=${knew}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${unknown}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── COMBO GRID ────────────────────────────────────────────────────────────────
+function ComboGrid(){
+  const C={
+    strong:{bg:'linear-gradient(135deg,#002d5c,var(--uva-blue))',tag:{bg:'rgba(255,255,255,.1)',color:'rgba(224,234,244,.9)',border:'rgba(255,255,255,.15)'},key:'rgba(200,216,232,.8)',badge:{bg:'rgba(198,0,70,.3)',color:'#fca5a5'}},
+    positive:{bg:'linear-gradient(135deg,#1a3a5c,#2a5080)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,220,240,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(180,200,224,.75)',badge:{bg:'rgba(245,197,24,.2)',color:'var(--yellow)'}},
+    neutral:{bg:'linear-gradient(135deg,#374151,#4b5563)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,210,220,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(200,210,220,.75)',badge:{bg:'rgba(255,255,255,.12)',color:'rgba(220,228,236,.8)'}},
+  };
+  return html`<div style=${{marginTop:'1.4rem'}}>
+    <div class="sec-label">Combinaciones clave → diagnóstico orientativo</div>
+    <p class="fc-hint">El número de articulaciones afectadas + su distribución + los acompañantes = diagnóstico en la mayoría de casos</p>
+    <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'.85rem'}}>
+      ${COMBOS.map((c,i)=>{
+        const col=C[c.compat]||C.neutral;
+        return html`<div key=${i} style=${{background:col.bg,borderRadius:'var(--radius-sm)',overflow:'hidden',boxShadow:'var(--shadow-card)'}}>
+          <div style=${{padding:'.65rem 1rem',borderBottom:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'.5rem'}}>
+            <div style=${{fontSize:'.88rem',fontWeight:700,color:'#fff',fontFamily:'var(--font-serif)'}}>${c.dx}</div>
+            <div style=${{fontSize:'.58rem',fontWeight:800,padding:'2px 8px',borderRadius:'4px',background:col.badge.bg,color:col.badge.color,textTransform:'uppercase',letterSpacing:'.4px',flexShrink:0}}>${c.compat==='strong'?'Alta especificidad':'Orientativo'}</div>
+          </div>
+          <div style=${{padding:'.75rem 1rem'}}>
+            <div style=${{display:'flex',flexWrap:'wrap',gap:'.3rem',marginBottom:'.7rem'}}>
+              ${c.symptoms.map((s,j)=>html`<span key=${j} style=${{fontSize:'.72rem',fontWeight:600,padding:'2px 8px',borderRadius:'4px',background:col.tag.bg,color:col.tag.color,border:`1px solid ${col.tag.border}`}}>${s}</span>`)}
+            </div>
+            <div style=${{fontSize:'.78rem',color:col.key,lineHeight:1.55,fontStyle:'italic',borderTop:'1px solid rgba(255,255,255,.07)',paddingTop:'.55rem'}}>${c.key}</div>
+          </div>
+        </div>`;
+      })}
+    </div>
+  </div>`;
+}
+
+// ── DX FEEDBACK ───────────────────────────────────────────────────────────────
+function DiagnosticFeedback({stepIdx}){
+  const dx=STEP_DX[stepIdx];if(!dx)return null;
+  const quote=PATIENT.quotes[dx.quoteIdx];
+  return html`<div class="dx-fb">
+    <div class="dx-fb-head">
+      <div><div class="dx-fb-eyebrow">Diagnóstico en construcción</div><div class="dx-fb-title">¿Qué nos dice este dato de Elena?</div></div>
+      <div class=${`dx-compat ${dx.compat}`}>${dx.compatLabel}</div>
+    </div>
+    <div class="dx-fb-body">
+      ${quote&&html`<div class="dx-quote-box"><div class="dx-quote-who">Elena dice</div><div class="dx-quote-text">${quote}</div></div>`}
+      <p class="dx-interp">${dx.interpretation}</p>
+      <div class="dx-tags-row">
+        ${dx.fitsFor?.length>0&&html`<div><div class="dx-tags-label fits">Apunta hacia</div><div class="dx-tags">${dx.fitsFor.map((t,i)=>html`<span key=${i} class="dx-tag fits">${t}</span>`)}</div></div>`}
+        ${dx.rulesOut?.length>0&&html`<div><div class="dx-tags-label rules">Hace menos probable</div><div class="dx-tags">${dx.rulesOut.map((t,i)=>html`<span key=${i} class="dx-tag rules">${t}</span>`)}</div></div>`}
+      </div>
+    </div>
+  </div>`;}
+
+// ── EVIDENCE METER ────────────────────────────────────────────────────────────
+function EvidenceMeter({revealedSteps}){
+  const nSteps=STEPS.filter(s=>!s.isSummaryStep&&!s.isQuizStep).length;
+  const dots=Array.from({length:nSteps},(_,i)=>revealedSteps[i]?(STEP_DX[i]?STEP_DX[i].compat:'neutral'):'empty');
+  const completados=dots.filter(d=>d!=='empty').length;
+  if(!completados)return null;
+  const sospecha=dots.filter(d=>d==='strong').length;
+  return html`<div>
+    <div class="ev-meter">
+      <div class="ev-meter-label">Bloques completados</div>
+      <div class="ev-dots">${dots.map((d,i)=>html`<div key=${i} class=${`ev-dot ${d!=='empty'?d:''}`}></div>`)}</div>
+      <div class="ev-score" style=${{marginRight:'.2rem'}}>${completados}/${nSteps}</div>
+      ${sospecha>0&&html`<div style=${{fontSize:'.56rem',fontWeight:800,color:'var(--uva-red)',background:'rgba(198,0,70,.08)',border:'1px solid rgba(198,0,70,.2)',borderRadius:'4px',padding:'1px 7px',whiteSpace:'nowrap'}}>⚠ ${sospecha} señal${sospecha>1?'es':''} clave</div>`}
+    </div>
+    <div style=${{display:'flex',gap:'.75rem',marginTop:'.3rem',flexWrap:'wrap'}}>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'rgba(0,0,0,.12)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Pendiente</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-blue-2)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Dato orientativo</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-red)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Evidencia fuerte</span></div>
+    </div>
+  </div>`;}
+
+// ── ATRIB BOX ─────────────────────────────────────────────────────────────────
+function AtribBox(){
+  const items=[
+    ['Psoriasis cutánea (personal o familiar)','La psoriasis es el antecedente más importante para diagnosticar artritis psoriásica. Puede preceder a la artritis años o incluso décadas. Preguntar siempre por placas en cuero cabelludo, codos, rodillas y zona lumbosacra — el paciente puede no haberlo relacionado. Un familiar con psoriasis también aumenta la probabilidad.'],
+    ['Infección previa (digestiva o genitourinaria)','La artritis reactiva aparece 1-4 semanas después de una infección por Salmonella, Shigella, Campylobacter, Yersinia (digestiva) o Chlamydia trachomatis (genitourinaria). Preguntar siempre: «¿Tuvo diarrea, fiebre o molestias al orinar en las últimas semanas antes de que le empezaran las articulaciones?»'],
+    ['Diarrea crónica o enfermedad inflamatoria intestinal','La artropatía enteropática asociada a enfermedad de Crohn o colitis ulcerosa es una espondiloartropatía. La artritis puede correlacionar con la actividad de la EII (artritis periférica) o seguir un curso independiente (artritis axial). Preguntar por diarrea crónica, sangre en heces, dolor abdominal recurrente.'],
+    ['Antecedentes familiares de artritis o espondilitis','La AR tiene un componente genético significativo (HLA-DR4, PTPN22). La espondilitis anquilosante y las espondiloartropatías están fuertemente asociadas al HLA-B27. Un familiar de primer grado con AR duplica el riesgo. La espondilitis familiar es frecuente.'],
+    ['Medicamentos que producen artritis o artralgia','Fármacos que producen lupus inducido (artritis + ANA +): hidralazina, procainamida, isoniazida, minociclina. Fármacos que producen artralgia/miopatía: estatinas, quinolonas, inhibidores de aromatasa. Fármacos que producen hiperuricemia y gota: diuréticos tiazídicos, ciclosporina, aspirina a bajas dosis.'],
+    ['Uveítis, uretritis o lesiones mucosas','La uveítis anterior (ojo rojo doloroso con fotofobia) se asocia fuertemente a espondiloartropatías (especialmente HLA-B27 positivo). La uretritis estéril + conjuntivitis + artritis = síndrome de Reiter (artritis reactiva). Las úlceras orales recurrentes orientan a lupus o enfermedad de Behçet.'],
+  ];
+  return html`<div class="attr-box">
+    <h3>Antecedentes clave en el dolor articular</h3>
+    <div class="attr-list">
+      ${items.map(([title,txt],i)=>html`<div key=${i} class="attr-item"><div class="attr-dot"></div><p><strong>${title}:</strong> ${txt}</p></div>`)}
+    </div>
+    <div class="attr-tip">Las cinco preguntas que nunca pueden faltar: ¿psoriasis? ¿infección reciente? ¿diarrea crónica / EII? ¿antecedentes familiares? ¿medicamentos? — orientan el diagnóstico diferencial de la artritis inflamatoria.</div>
+  </div>`;}
+
+// ── QUIZ CARD ─────────────────────────────────────────────────────────────────
+function QuizCard({card,id,knowledge,onKnowledge}){
+  const[flipped,setFlipped]=useState(false);const k=knowledge[id];
+  const rows=[['Claves diagnósticas',card.claves],['Exploración / Prueba clave',card.prueba],['Mecanismo fisiopatológico',card.pat],['Orientación diagnóstica',card.orienta]];
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} style=${{minHeight:'290px'}} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`} style=${{background:'#F8F9FA',border:'1.5px solid var(--line)',justifyContent:'flex-start',alignItems:'stretch',padding:0,textAlign:'left',minHeight:'290px'}}>
+          <div style=${{background:'var(--uva-blue)',padding:'.6rem 1rem',borderRadius:'8px 8px 0 0'}}>
+            <div style=${{fontSize:'1rem',fontWeight:700,color:'#fff'}}>${card.dx}</div>
+          </div>
+          <div style=${{flex:1,padding:'.7rem 1rem',display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+            <div style=${{fontSize:'.81rem',color:'var(--ink-2)',lineHeight:1.55,fontStyle:'italic'}}>${card.caso}</div>
+            <div style=${{fontSize:'.68rem',color:'var(--uva-blue)',fontWeight:700,textAlign:'center',marginTop:'.5rem'}}>¿Cuál es el diagnóstico más probable?</div>
+          </div>
+        </div>
+        <div class="fc-back" style=${{padding:'.6rem .85rem',background:'#F8F9FA',minHeight:'290px'}}>
+          <div style=${{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'.5rem'}}>
+            <div style=${{fontSize:'.76rem',fontWeight:800,color:'var(--uva-blue)'}}>${card.dx}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'var(--uva-blue)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{display:'grid',gap:'.3rem'}}>
+            ${rows.map(([l,v])=>html`<div key=${l} style=${{background:'#fff',borderRadius:'6px',border:'1px solid var(--line-light)',padding:'.32rem .6rem'}}>
+              <div style=${{fontSize:'.58rem',fontWeight:700,color:'var(--uva-red)',textTransform:'uppercase',letterSpacing:'.4px',marginBottom:'.08rem'}}>${l}</div>
+              <div style=${{fontSize:'.72rem',color:'var(--ink-2)',lineHeight:1.38}}>${v}</div>
+            </div>`)}
+          </div>
+          ${!k&&html`<div class="knowledge-btns" style=${{marginTop:'.4rem'}}>
+            <button class="btn-knew" onClick=${e=>{e.stopPropagation();onKnowledge(id,'knew');}}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${e=>{e.stopPropagation();onKnowledge(id,'unknown');}}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── STEP CONTENT ──────────────────────────────────────────────────────────────
+function boldTip(p){return p.replace(/^([^\n:]{2,}?):/gm,'<strong style="color:var(--uva-blue);font-size:.88rem">$1:</strong>');}
+function StepContent({step,stepIdx,revealed,knowledge,onReveal,onKnowledge,onNext}){
+  if(step.isSummaryStep){
+    const kw=Object.values(knowledge).filter(v=>v==='knew').length;
+    const an=Object.values(knowledge).length;
+    const uk=Object.values(knowledge).filter(v=>v==='unknown').length;
+    return html`<div>
+      <div class="dx-reveal">
+        <div class="dx-reveal-top"><div class="dx-eyebrow">Diagnóstico del caso de Elena</div><div class="dx-name">${PATIENT.diagnosis}</div></div>
+        <div class="dx-evidence">
+          <h4>Claves de la anamnesis que lo orientaban</h4>
+          ${PATIENT.diagnosisKey.map((c,i)=>html`<div key=${i} class="dx-clue"><div class="dx-clue-dot"></div><p>${c}</p></div>`)}
+        </div>
+      </div>
+      ${an>0&&html`<div class="score-panel">
+        <div class="score-stat yellow"><div class="num">${an}</div><div class="lbl">Evaluadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat green"><div class="num">${kw}</div><div class="lbl">Dominadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat red"><div class="num">${uk}</div><div class="lbl">Para repasar</div></div>
+      </div>`}
+      <div class="final-card">
+        <div style=${{fontSize:'1.4rem',marginBottom:'.4rem'}}>✓</div>
+        <h2 style=${{fontSize:'1rem',marginBottom:'.3rem'}}>Anamnesis completada</h2>
+        <p style=${{fontSize:'.84rem',color:'var(--ink-2)',lineHeight:'1.6'}}>La anamnesis del dolor articular permite orientar el diagnóstico en la mayoría de casos. El primer filtro (inflamatorio vs mecánico) y la distribución articular son los dos datos más poderosos.</p>
+      </div>
+      <div class="summary-card">
+        <div class="sc-head">Las 6 preguntas clave de la anamnesis del dolor articular</div>
+        <div class="sc-body">${ALL_QS.map(q=>html`<div key=${q.n} class="q-row"><div class="q-num">${q.n}</div><div><div class="q-title">${q.title}</div><div class="q-ex">${q.eq}</div></div></div>`)}</div>
+      </div>
+      <button class="btn-next" onClick=${onNext}>¿Cuánto has aprendido? →</button>
+    </div>`;}
+
+  if(step.isQuizStep){return html`<div>
+    <div class="quiz-intro"><h2>Comprueba cuánto has aprendido</h2><p>Cada tarjeta muestra un caso clínico. Antes de girarla, identifica el diagnóstico más probable a partir de la anamnesis.</p></div>
+    <div class="fc-grid">${QUIZ_CARDS.map((q,i)=>html`<${QuizCard} key=${i} card=${q} id=${`qc${i}`} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}
+    </div>
+  </div>`;}
+
+  const tipParts=Array.isArray(step.tip)?step.tip:(step.tip||'').split('\n\n');
+  let contentBlock=null;
+  if(step.isTabStep){contentBlock=html`<div><${TabPanel} tabs=${step.tabs} title=${step.tabTitle}/>${step.showIFD&&html`<${IFDPanel}/>`}</div>`;}
+  else if(step.isAtrib){contentBlock=html`<${AtribBox}/>`;}  else if(step.items){
+    contentBlock=html`<div>
+      <div class="sec-label">¿Qué nos dice cada hallazgo? — Evalúa lo que sabes</div>
+      <p class="fc-hint">Toca cada tarjeta para ver la orientación diagnóstica, luego indica si ya lo sabías</p>
+      <div class="fc-grid">${step.items.map((it,i)=>html`<${FlashCard} key=${i} id=${`s${stepIdx}_c${i}`} label=${it.label} badge=${it.badge} body=${it.body} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}</div>
+      ${step.hasCombos&&html`<${ComboGrid}/>`}
+    </div>`;}
+
+  return html`<div>
+    <div class="think-box"><div class="lbl">Piensa antes de continuar</div><p>${step.think}</p></div>
+    <p class="pause-p">${step.pause}</p>
+    <button class="btn-reveal" disabled=${revealed} onClick=${onReveal}>Ver ejemplo y claves diagnósticas</button>
+    ${revealed&&html`<div class="reveal on">
+      <div class="sec-label">Ejemplo de pregunta al paciente</div>
+      <div class="example-q"><div class="lbl">Cómo preguntarlo</div><p>${step.eq}</p></div>
+      ${step.tipT&&html`<div class="tip-box"><div class="lbl">${step.tipT}</div>${tipParts.map((p,i)=>html`<p key=${i} dangerouslySetInnerHTML=${{__html:boldTip(p)}}/>`)} </div>`}
+      <${DiagnosticFeedback} stepIdx=${stepIdx}/>
+      ${contentBlock}
+      <button class="btn-next" onClick=${onNext}>${step.isFinal?'Ver ficha resumen →':'Siguiente bloque →'}</button>
+    </div>`}
+  </div>`;}
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+function App(){
+  const[cur,setCur]=useState(0);
+  const[revealed,setRevealed]=useState({});
+  const[knowledge,setKnowledge]=useState({});
+  const onKnowledge=useCallback((id,val)=>setKnowledge(p=>({...p,[id]:val})),[]);
+  const goTo=i=>{setCur(i);window.scrollTo({top:0});};
+  const doReveal=()=>setRevealed(p=>({...p,[cur]:true}));
+  const doNext=()=>{if(cur<STEPS.length-1){setCur(c=>c+1);window.scrollTo({top:0});}};
+  const step=STEPS[cur];
+  const isL=!step.isSummaryStep&&!step.isQuizStep;
+  const qIdx=isL?Math.min(cur,PATIENT.quotes.length-1):-1;
+  const pct=(cur/(STEPS.length-1))*100;
+
+  return html`<div>
+    <div class="topbar"><a href="index.html" class="back-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>← Volver al índice</a></div>
+<div class="header">
+      <div class="header-brand"><span class="header-badge">EduMed · UVa</span><span class="header-sub">Educación Médica</span></div>
+      <div class="header-divider"></div>
+      <div class="header-text"><h1>Anamnesis del Dolor Articular</h1><p>Facultad de Medicina · Universidad de Valladolid</p></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" style=${{width:`${pct}%`}}></div></div>
+    <div class="step-nav">
+      ${STEPS.map((s,i)=>{
+        const st=starsFor(i,knowledge);
+        let cls='step-pill';
+        if(s.isSummaryStep)cls+=' summary';
+        else if(s.isQuizStep)cls+=' quiz';
+        else if(i<cur&&revealed[i])cls+=' done';
+        if(i===cur)cls+=' active';
+        return html`<div key=${i} class=${cls} onClick=${()=>goTo(i)}>
+          ${s.nav}${st!==null&&html`<${StarDisplay} count=${st} small/>`}
+        </div>`;
+      })}
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">Paso ${cur+1} de ${STEPS.length}</div>
+          <div class="card-title">${step.title}</div>
+          ${isL&&html`<${EvidenceMeter} revealedSteps=${revealed}/>`}
+          ${isL&&html`<span class="card-head-deco" aria-hidden="true">${String(cur+1).padStart(2,'0')}</span>`}
+        </div>
+        <div class="card-body">
+          ${isL&&qIdx>=0&&html`<div class="patient-card">
+            <div class="patient-stripe"></div>
+            <div class="patient-inner">
+              <div class="patient-meta">
+                <div class="patient-name-tag">${PATIENT.name}</div>
+                <div class="patient-age">${PATIENT.age} años · Mujer</div>
+                <div class="patient-case">CONS-2026 · 10:00 h</div>
+              </div>
+              <div class="patient-quote-area">
+                <div class="patient-quote-label">Dice la paciente</div>
+                <div class="patient-quote">${PATIENT.quotes[qIdx]}</div>
+              </div>
+            </div>
+          </div>`}
+          <${StepContent} step=${step} stepIdx=${cur} revealed=${!!revealed[cur]} knowledge=${knowledge} onReveal=${doReveal} onKnowledge=${onKnowledge} onNext=${doNext}/>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div><strong>Material docente</strong> para mejorar la anamnesis clínica</div>
+      <div>Propedéutica Clínica · Grado en Medicina · Universidad de Valladolid · Elaborado en mayo de 2026</div>
+    </footer>
+  </div>`;}
+
+render(h(App,null),document.getElementById('root'));
+</script>
+</body></html>

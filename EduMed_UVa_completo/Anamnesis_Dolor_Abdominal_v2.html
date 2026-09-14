@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anamnesis del Dolor Abdominal · UVa</title>
+<style>
+:root {
+  --yellow:#F5C518; --yellow-mid:#FEF0A0; --yellow-pale:#FFFDE7; --yellow-deep:#D4A000;
+  --uva-blue:#003973; --uva-blue-2:#00509e; --uva-red:#c60046;
+  --ink:#0F1117; --ink-2:#343A47; --ink-3:#5E6575; --ink-4:#9AA0AD;
+  --line:#DDD9CF; --line-light:#E8E4DB;
+  --surface:#FEFCF8; --bg:#EAE6DC;
+  --white:#FFFFFF;
+  --green:#059669; --green-pale:#D1FAE5; --green-border:#6EE7B7;
+  --red-pale:#FEE2E2; --red-border:#FCA5A5;
+  --radius:14px; --radius-sm:8px;
+  --shadow-card:0 1px 3px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.08);
+  --shadow-lift:0 4px 8px rgba(0,0,0,.07),0 16px 36px rgba(0,0,0,.11);
+  --shadow-fc:0 2px 6px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),inset 0 -1px 0 rgba(0,0,0,.04);
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.65;text-wrap:pretty;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.022;pointer-events:none;z-index:9999;}
+.header{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 60%,#004d8f 100%);padding:1rem 1.6rem;display:flex;align-items:center;gap:1.1rem;border-bottom:3px solid var(--yellow);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(245,197,24,.12) 0%,transparent 70%);pointer-events:none;}
+.header-brand{display:flex;flex-direction:column;flex-shrink:0;}
+.header-badge{background:var(--uva-red);color:#fff;font-weight:800;font-size:.82rem;padding:3px 10px;border-radius:5px;letter-spacing:.6px;display:inline-block;box-shadow:0 2px 6px rgba(198,0,70,.35);}
+.header-sub{font-size:.6rem;color:rgba(160,180,204,.8);margin-top:4px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+.header-divider{width:1px;height:38px;background:rgba(255,255,255,.15);flex-shrink:0;}
+.header-text h1{font-family:var(--font-serif);font-size:1.05rem;font-weight:700;color:#fff;line-height:1.25;letter-spacing:-.01em;}
+.header-text p{font-size:.68rem;color:rgba(160,180,204,.85);margin-top:.2rem;letter-spacing:.3px;}
+.progress-wrap{background:var(--line);height:6px;}
+.progress-fill{height:6px;background:linear-gradient(90deg,var(--uva-red),#e8005a);transition:width .55s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px rgba(198,0,70,.3);}
+.step-nav{display:flex;flex-wrap:wrap;background:var(--surface);border-bottom:1px solid var(--line);padding:.55rem .75rem;gap:.35rem;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.step-pill{padding:.32rem .8rem;font-size:.7rem;border-radius:20px;font-weight:700;border:1.5px solid var(--line);cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);white-space:nowrap;background:var(--surface);color:var(--ink-4);display:flex;align-items:center;gap:.3rem;letter-spacing:.01em;}
+.step-pill:hover{background:var(--yellow-pale);border-color:var(--yellow-deep);color:var(--ink);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.step-pill.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow-deep);font-weight:800;box-shadow:0 2px 10px rgba(245,197,24,.35);}
+.step-pill.done{background:var(--uva-blue);color:#fff;border-color:var(--uva-blue);}
+.step-pill.done:hover{background:var(--uva-blue-2);transform:translateY(-1px);}
+.step-pill.summary{background:var(--ink-2);color:#fff;border-color:var(--ink-2);}
+.step-pill.quiz{background:var(--uva-red);color:#fff;border-color:var(--uva-red);}
+.main{max-width:760px;margin:0 auto;padding:1.6rem 1.2rem 2.5rem;}
+.patient-card{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 55%,#004d8f 100%);border-radius:var(--radius);padding:0;margin-bottom:1.1rem;display:flex;overflow:hidden;box-shadow:0 3px 12px rgba(0,57,115,.25);border:1px solid rgba(255,255,255,.08);}
+.patient-stripe{background:var(--yellow);width:5px;flex-shrink:0;}
+.patient-inner{display:flex;gap:1rem;align-items:stretch;padding:.8rem 1rem;flex:1;position:relative;overflow:hidden;}
+.patient-inner::after{content:'URG';position:absolute;right:.6rem;top:50%;transform:translateY(-50%);font-size:3rem;font-weight:800;color:rgba(255,255,255,.04);pointer-events:none;user-select:none;line-height:1;}
+.patient-meta{flex-shrink:0;border-right:1px solid rgba(255,255,255,.12);padding-right:.9rem;display:flex;flex-direction:column;justify-content:center;gap:.25rem;}
+.patient-name-tag{font-size:.78rem;font-weight:800;color:var(--yellow);}
+.patient-age{font-size:.65rem;color:rgba(160,180,210,.8);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.patient-case{font-size:.58rem;color:rgba(160,180,210,.5);font-weight:600;letter-spacing:.5px;}
+.patient-quote-area{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.patient-quote-label{font-size:.58rem;font-weight:700;color:rgba(245,197,24,.7);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.2rem;}
+.patient-quote{font-size:.88rem;color:rgba(230,238,250,.92);line-height:1.55;font-style:italic;}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line-light);box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:1.5rem;}
+.card-head{background:var(--yellow);padding:1.1rem 1.6rem;border-bottom:2px solid var(--yellow-deep);position:relative;overflow:hidden;}
+.card-head-deco{position:absolute;right:-.02em;bottom:-.18em;font-family:var(--font-serif);font-size:6.5rem;font-weight:700;line-height:1;color:rgba(0,0,0,.07);pointer-events:none;user-select:none;}
+.card-num{font-size:.6rem;color:rgba(61,68,81,.65);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.2rem;font-weight:700;}
+.card-title{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.2;}
+.card-body{padding:1.4rem 1.6rem;}
+.think-box{background:var(--yellow-pale);border:1px solid rgba(212,160,0,.25);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.9rem 1.1rem;margin-bottom:.9rem;}
+.think-box .lbl{font-size:.6rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.think-box p{font-size:.88rem;color:var(--ink-2);line-height:1.6;}
+.pause-p{font-size:.8rem;color:var(--ink-4);font-style:italic;margin-bottom:1rem;padding-left:.25rem;}
+.btn-reveal{background:var(--yellow);color:var(--ink);border:none;padding:.7rem 1.5rem;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;cursor:pointer;font-weight:800;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-reveal:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.btn-reveal:disabled{background:var(--line-light);color:var(--ink-4);cursor:default;box-shadow:none;transform:none;}
+.btn-next{margin-top:1.1rem;background:var(--yellow);color:var(--ink);border:none;padding:.8rem 1.8rem;border-radius:var(--radius-sm);font-size:.9rem;font-family:inherit;cursor:pointer;font-weight:800;width:100%;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-next:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.reveal{display:none;margin-top:1.3rem;border-top:1px solid var(--line-light);padding-top:1.3rem;}
+.reveal.on{display:block;animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.sec-label{font-size:.58rem;font-weight:800;color:var(--ink-4);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.65rem;}
+.example-q{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.85rem 1.1rem;margin-bottom:1rem;}
+.example-q .lbl{font-size:.58rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.example-q p{font-size:.9rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.tip-box{background:rgba(0,57,115,.03);border:1px solid rgba(0,57,115,.1);border-radius:var(--radius-sm);padding:.85rem 1.1rem;margin-bottom:1rem;}
+.tip-box .lbl{font-size:.58rem;color:var(--uva-blue);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.tip-box p{font-size:.84rem;color:var(--ink-2);margin-bottom:.35rem;line-height:1.65;}
+.tip-box p strong{color:var(--uva-blue);font-size:.9rem;}
+.tip-box p:last-child{margin-bottom:0;}
+.fc-hint{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-bottom:.8rem;}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem;margin-bottom:1.3rem;grid-auto-rows:1fr;}
+.fc{perspective:1200px;height:190px;cursor:pointer;}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1),box-shadow .25s;border-radius:12px;box-shadow:var(--shadow-fc);}
+.fc:hover .fc-inner{box-shadow:var(--shadow-lift);transform:translateY(-3px);}
+.fc.flipped .fc-inner{transform:rotateY(180deg);}
+.fc.flipped:hover .fc-inner{transform:rotateY(180deg) translateY(-3px);}
+.fc-front,.fc-back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:1.1rem;text-align:center;}
+.fc-front{background:#FEFCF8;border:1px solid var(--line);transition:background .3s,border-color .3s;}
+.fc-front.knew-state{background:linear-gradient(148deg,#F0FDF4,#DCFCE7);border-color:var(--green-border);}
+.fc-front.unknown-state{background:linear-gradient(148deg,#FFF1F2,#FFE4E6);border-color:var(--red-border);}
+.fc-front .fc-label{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:.4rem;}
+.fc-front .fc-badge{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;background:var(--uva-red);color:#fff;text-transform:uppercase;letter-spacing:.5px;}
+.fc-front .fc-tap{font-size:.62rem;color:var(--ink-4);margin-top:.65rem;}
+.fc-front .fc-state-badge{font-size:.7rem;font-weight:700;margin-top:.55rem;padding:3px 9px;border-radius:5px;}
+.fc-front .fc-state-badge.knew{background:var(--green-pale);color:var(--green);border:1px solid var(--green-border);}
+.fc-front .fc-state-badge.unknown{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.fc-back{background:var(--surface);border:1.5px solid var(--uva-blue);transform:rotateY(180deg);justify-content:flex-start;align-items:flex-start;text-align:left;overflow-y:auto;}
+.fc-back-header{background:var(--uva-blue);width:calc(100% + 2.2rem);margin:-1.1rem -1.1rem .75rem;padding:.5rem 1.1rem;border-radius:11px 11px 0 0;}
+.fc-back .fc-back-label{font-size:.75rem;font-weight:700;color:#fff;}
+.fc-back p{font-size:.83rem;color:var(--ink-2);line-height:1.6;flex:1;}
+.knowledge-btns{display:flex;gap:.5rem;margin-top:.85rem;width:100%;}
+.btn-knew{background:var(--green-pale);color:#065F46;border:1.5px solid var(--green-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;transition:all .18s;}
+.btn-knew:hover{background:#A7F3D0;}
+.btn-unknown{background:var(--red-pale);color:#991B1B;border:1.5px solid var(--red-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;transition:all .18s;}
+.btn-unknown:hover{background:#FECACA;}
+.irr-hint{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-bottom:.8rem;}
+.irr-list{display:grid;gap:.5rem;margin-bottom:1.3rem;}
+.irr-item{border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;}
+.irr-trigger{width:100%;background:var(--yellow);border:none;padding:.65rem 1.1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;transition:background .15s;}
+.irr-trigger:hover{background:var(--yellow-deep);}
+.irr-trigger .irr-name{font-size:.92rem;font-weight:700;color:var(--ink);text-align:left;}
+.irr-trigger .irr-badge{font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:4px;background:var(--ink);color:var(--yellow);text-transform:uppercase;flex-shrink:0;margin-left:.5rem;}
+.irr-trigger .irr-arrow{color:var(--ink-2);font-size:.8rem;flex-shrink:0;margin-left:.5rem;transition:transform .3s;}
+.irr-item.open .irr-arrow{transform:rotate(180deg);}
+.irr-body{display:none;background:var(--bg);padding:.9rem 1.1rem;}
+.irr-item.open .irr-body{display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap;}
+.irr-text{flex:1;min-width:160px;font-size:.84rem;color:var(--ink-2);line-height:1.65;}
+.attr-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;}
+.attr-box h3{font-size:.72rem;font-weight:800;color:var(--uva-blue);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.8px;}
+.attr-list{display:grid;gap:.55rem;}
+.attr-item{display:flex;gap:.65rem;align-items:flex-start;}
+.attr-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.attr-item p{font-size:.86rem;color:var(--ink-2);line-height:1.6;}
+.attr-tip{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.75rem 1.1rem;margin-top:.9rem;font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.final-card{background:var(--yellow-pale);border:1.5px solid rgba(212,160,0,.3);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:1rem;}
+.summary-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;margin-bottom:1rem;box-shadow:var(--shadow-card);}
+.summary-card .sc-head{background:var(--yellow);color:var(--ink);padding:.8rem 1.4rem;font-weight:800;font-size:.92rem;border-bottom:2px solid var(--yellow-deep);}
+.summary-card .sc-body{padding:1rem 1.4rem;}
+.q-row{display:flex;gap:.8rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--line-light);}
+.q-row:last-child{border-bottom:none;}
+.q-num{background:var(--yellow);color:var(--ink);font-size:.62rem;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.q-title{font-size:.86rem;font-weight:700;color:var(--ink);}
+.q-ex{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-top:.05rem;}
+.score-panel{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.score-stat{text-align:center;flex:1;min-width:80px;}
+.score-stat .num{font-family:var(--font-serif);font-size:2rem;font-weight:700;line-height:1;}
+.score-stat .lbl{font-size:.6rem;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:.6px;margin-top:.15rem;}
+.score-stat.green .num{color:#6EE7B7;}
+.score-stat.red .num{color:#FCA5A5;}
+.score-stat.yellow .num{color:var(--yellow);}
+.score-divider{width:1px;height:44px;background:rgba(255,255,255,.12);}
+.dx-reveal{border-radius:var(--radius);overflow:hidden;margin-bottom:1.1rem;box-shadow:var(--shadow-card);}
+.dx-reveal-top{background:linear-gradient(135deg,var(--uva-red) 0%,#e8005a 100%);padding:1.4rem 1.6rem;text-align:center;}
+.dx-reveal-top .dx-eyebrow{font-size:.62rem;color:rgba(254,205,211,.85);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin-bottom:.4rem;}
+.dx-reveal-top .dx-name{font-family:var(--font-serif);font-size:1.65rem;font-weight:700;color:#fff;}
+.dx-evidence{background:var(--surface);border:1.5px solid rgba(198,0,70,.15);border-top:none;padding:1.1rem 1.3rem;}
+.dx-evidence h4{font-size:.62rem;font-weight:800;color:var(--uva-blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.7rem;}
+.dx-clue{display:flex;gap:.65rem;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid var(--line-light);}
+.dx-clue:last-child{border-bottom:none;}
+.dx-clue-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.dx-clue p{font-size:.85rem;color:var(--ink-2);line-height:1.6;}
+.dx-fb{margin-top:1.3rem;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid rgba(0,57,115,.25);animation:fadeUp .35s ease both;}
+.dx-fb-head{background:linear-gradient(90deg,#002d5c,var(--uva-blue));padding:.6rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;}
+.dx-fb-eyebrow{font-size:.58rem;font-weight:800;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:1px;}
+.dx-fb-title{font-size:.78rem;font-weight:700;color:#fff;}
+.dx-compat{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;}
+.dx-compat.neutral{background:rgba(255,255,255,.12);color:rgba(200,216,232,.8);}
+.dx-compat.positive{background:rgba(245,197,24,.18);color:var(--yellow);}
+.dx-compat.strong{background:rgba(198,0,70,.25);color:#fca5a5;}
+.dx-fb-body{background:#eef4ff;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.75rem;border-top:none;}
+.dx-quote-box{background:var(--yellow-pale);border-left:3px solid var(--yellow-deep);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6rem .9rem;}
+.dx-quote-who{font-size:.57rem;font-weight:800;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.2rem;}
+.dx-quote-text{font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.55;}
+.dx-interp{font-size:.84rem;color:var(--ink);line-height:1.65;}
+.dx-tags-row{display:flex;flex-direction:column;gap:.4rem;}
+.dx-tags-label{font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.1rem;}
+.dx-tags-label.fits{color:var(--green);}
+.dx-tags-label.rules{color:#991b1b;}
+.dx-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.dx-tag{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:4px;}
+.dx-tag.fits{background:var(--green-pale);color:#065F46;border:1px solid var(--green-border);}
+.dx-tag.rules{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.ev-meter{display:flex;align-items:center;gap:.55rem;margin-top:.5rem;}
+.ev-meter-label{font-size:.6rem;font-weight:700;color:rgba(0,0,0,.35);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+.ev-dots{display:flex;gap:3px;}
+.ev-dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.1);}
+.ev-dot.neutral{background:#D1D5DB;}
+.ev-dot.positive{background:var(--uva-blue-2);}
+.ev-dot.strong{background:var(--uva-red);}
+.ev-score{font-size:.62rem;font-weight:800;color:var(--ink-3);}
+.quiz-intro{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);color:#fff;border-radius:var(--radius);padding:1.2rem 1.5rem;margin-bottom:1.2rem;}
+.quiz-intro h2{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;margin-bottom:.35rem;}
+.quiz-intro p{font-size:.84rem;color:rgba(160,180,210,.85);line-height:1.65;}
+footer{background:var(--surface);color:var(--ink-3);border-top:2px solid var(--yellow);text-align:center;padding:1.1rem 1.5rem;font-size:.7rem;line-height:1.9;}
+footer strong{color:var(--ink-2);}
+@media(max-width:520px){
+  .fc-grid{grid-template-columns:1fr;}
+  .header{padding:.75rem 1rem;gap:.75rem;}
+  .card-title{font-size:1.25rem;}
+  .card-body{padding:1.1rem 1.2rem;}
+  .card-head{padding:.9rem 1.2rem;}
+}
+
+
+.topbar{background:var(--blue-deep,#002244);padding:.3rem 1.6rem;display:flex;align-items:center;}
+.back-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:700;color:rgba(180,210,250,.7);text-decoration:none;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+.back-btn svg{opacity:.7;}
+.back-btn:hover svg{opacity:1;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "preact": "https://unpkg.com/preact@10.25.4/dist/preact.module.js",
+    "preact/hooks": "https://unpkg.com/preact@10.25.4/hooks/dist/hooks.module.js",
+    "htm": "https://unpkg.com/htm@3.1.1/dist/htm.module.js"
+  }
+}
+</script>
+
+<script>
+// ── DATA (extracted from original bundle) ─────────────────────────────────────
+// anam-data.js — Datos estáticos · Anamnesis del Dolor Abdominal
+
+// ─── TOOLTIPS ────────────────────────────────────────────────────────────────
+const _DEFS = {
+  'Vómitos biliosos':'Vómitos amarillo-verdosos con bilis. Indican reflujo del contenido intestinal por encima del ámpula de Vater.',
+  'Vómitos fecaloideos':'Vómitos con olor y aspecto fecal. Indican paso de contenido intestinal bajo al estómago. Signo de alarma mayor.',
+  'Hematemesis':'Vómito de sangre roja fresca. Indica hemorragia digestiva alta activa.',
+  '«posos de café»':'Vómito marrón-negruzco por oxidación de la hemoglobina con el ácido gástrico. Indica sangrado digestivo alto.',
+  'Disuria':'Dolor o escozor al orinar.',
+  'Hematuria':'Presencia de sangre en la orina, visible o detectable solo en análisis.',
+  'Polaquiuria':'Necesidad frecuente de orinar en pequeñas cantidades.',
+  'Tríada de Charcot':'Ictericia + fiebre + dolor en hipocondrio derecho. Tríada clásica de colangitis aguda.',
+  'Melenas':'Heces negras, brillantes y de olor fétido como alquitrán. Indican hemorragia digestiva alta.',
+  'Rectorragia':'Emisión de sangre roja fresca por el recto. Indica hemorragia digestiva baja.',
+  'Astenia':'Cansancio persistente que no mejora con el reposo y limita la actividad habitual.',
+  'Signo de Blumberg':'Dolor brusco al retirar la mano tras la palpación. Indica irritación peritoneal.',
+  'Signo de Murphy':'Dolor brusco al palpar el hipocondrio derecho durante la inspiración. Indica colecistitis.',
+};
+window.tt = w => `<em>${w}</em> <span style="font-size:.76rem;color:#607D8B;">(${_DEFS[w]||''})</span>`;
+
+// ─── PACIENTE NARRATIVO ───────────────────────────────────────────────────────
+window.PATIENT = {
+  name: 'Luis M.',
+  age: 45,
+  intro: 'Varón de 45 años. Acude a Urgencias a las 14:30 h con dolor abdominal de 6 horas de evolución.',
+  diagnosis: 'Apendicitis aguda',
+  diagnosisKey: [
+    'Inicio en mesogastrio con migración a FID (paso 5)',
+    'Dolor sordo continuo que se intensifica (paso 3)',
+    'Empeora con el movimiento (paso 6)',
+    'Fiebre + náuseas + anorexia (pasos 7 y 9)',
+    'Sin antecedentes ni fármacos relevantes (pasos 10 y 11)',
+  ],
+  quotes: [
+    '«Me duele la barriga, doctor. Me ha empezado esta mañana y no para.»',
+    '«Empezó sobre las 8, de repente, sin avisar. Llevo 6 horas así.»',
+    '«Al principio era como un retortijón, pero ahora ya es constante, no cede.»',
+    '«Ahora mismo lo pongo en un 7. Antes, cuando empezó, como un 4.»',
+    '«Primero lo notaba aquí» —señala el ombligo— «pero ahora lo tengo más abajo, a la derecha.»',
+    '«Vine andando muy despacio, el movimiento lo empeora. El reposo tampoco me lo quita.»',
+    '«Tengo náuseas desde esta mañana. No he podido comer nada. Creo que algo de fiebre.»',
+    '«Mi hermano tuvo la apendicitis hace dos años y empezó igual. Me está preocupando.»',
+    '«Esta mañana me medí 37.8. Me noto sin energía, sin ganas de nada.»',
+    '«No he tenido operaciones. No tomo ningún medicamento habitualmente.»',
+    '«Solo un ibuprofeno esta mañana para el dolor, que no me ha servido de nada.»',
+  ],
+};
+
+// ─── PASOS (11 bloques clínicos + resumen + pruébate) ────────────────────────
+window.STEPS = [
+  {
+    nav:'¿Qué?', title:'¿Qué le pasa? — Y: ¿es urgente?',
+    think:'El paciente entra con dolor abdominal. Antes de cualquier pregunta, piensa: ¿hay algo que me obligue a actuar en los próximos minutos? ¿Qué diagnósticos no puedo perderme?',
+    pause:'Lista mentalmente los 6 diagnósticos de dolor abdominal que pueden matar al paciente si no los detectas en la primera evaluación.',
+    eq:'«¿Qué le trae por aquí hoy? Cuénteme qué le pasa.»',
+    tipT:'Primero: ¿es un abdomen urgente? — La jerarquía que salva vidas',
+    tip:'Antes de la anamnesis detallada, una mirada rápida descarta el abdomen catastrófico: ¿está en shock (pálido, taquicárdico, hipotenso)? ¿Abdomen en tabla? ¿Mujer en edad fértil con dolor pélvico?\n\nLa anamnesis completa es para el paciente estable. El inestable necesita estabilización primero.',
+    items:[
+      {label:'Descartar primero: shock / abdomen en tabla',badge:'EMERGENCIA VITAL',body:'<strong>Abdomen quirúrgico urgente:</strong> perforación de víscera hueca, isquemia mesentérica, aneurisma aórtico roto, peritonitis difusa.<br><br>Signos de alarma inmediata: hipotensión, taquicardia, palidez, sudoración fría, rigidez abdominal involuntaria. Si están presentes → estabilizar antes de completar la anamnesis.'},
+      {label:'Mujer en edad fértil: β-hCG SIEMPRE',badge:'NUNCA OLVIDAR',body:'Test de embarazo en toda mujer en edad fértil con dolor abdominal o pélvico, aunque niegue actividad sexual o lleve anticonceptivos.<br><br><strong>Embarazo ectópico:</strong> amenorrea + dolor pélvico + sangrado vaginal = emergencia quirúrgica. Puede presentarse sin sangrado visible. Mortalidad alta si se demora el diagnóstico.'},
+      {label:'Descartar: isquemia mesentérica / aneurisma',badge:'NO PERDERSE',body:'<strong>Isquemia mesentérica:</strong> dolor desproporcionado a la exploración (el abdomen es blando pero el paciente grita de dolor). Antecedente de FA o arteriosclerosis.<br><br><strong>Aneurisma aórtico roto:</strong> dolor abdominal + lumbar en varón >60 años con HTA. Masa pulsátil. Emergencia absoluta.'},
+      {label:'Descartar: sepsis de origen abdominal',badge:'URGENTE',body:'Fiebre alta + dolor abdominal + taquicardia + hipotensión = sepsis abdominal hasta que se demuestre lo contrario. Colangitis, peritonitis, pielonefritis complicada, absceso intraabdominal.<br><br>No demorar antibióticos si hay inestabilidad hemodinámica.'},
+      {label:'Si estable: anamnesis completa sistematizada',badge:'PROCEDER',body:'Una vez descartado el abdomen catastrófico, proceder con la anamnesis: ¿Cómo? ¿Dónde? ¿Cuándo? ¿Cuánto? ¿Qué lo modifica? ¿Síntomas asociados?<br><br>Dejar que el paciente hable los primeros 30-60 segundos sin interrumpir. Raramente hablan más de 90 segundos si no se les corta.'},
+    ],
+  },
+  {
+    nav:'¿Cuándo?', title:'Cronología: ¿cuándo empezó?',
+    think:'¿Cuándo comenzó el dolor, con qué frecuencia aparece, cuánto dura y si el inicio fue brusco o gradual?',
+    pause:'Formula en voz alta o en papel tus preguntas antes de continuar.',
+    eq:'«¿Cuándo empezó? ¿Fue de golpe o poco a poco? ¿Cuánto lleva con esto? ¿Le ha pasado antes?»',
+    tipT:'Lo que revela la cronología',
+    tip:'La forma en que aparece el dolor y su evolución temporal orientan fuertemente hacia el mecanismo subyacente.',
+    items:[
+      {label:'Inicio súbito — segundos/minutos',badge:'URGENCIA',body:'Catástrofe abdominal: perforación de víscera hueca, isquemia mesentérica, aneurisma aórtico roto.'},
+      {label:'Inicio gradual — horas',badge:'inflamatorio',body:'Procesos inflamatorios: apendicitis, pancreatitis, colecistitis aguda.'},
+      {label:'Episódico recurrente',badge:'crónico',body:'Patología crónica: úlcera péptica, SII, litiasis biliar o renal.'},
+      {label:'Continuo y progresivo',badge:'vigilar',body:'Procesos inflamatorios sostenidos. Si empeora, preocupación por complicación.'},
+    ],
+  },
+  {
+    nav:'¿Cómo?', title:'¿Cómo es el dolor?',
+    think:'Quieres conocer la cualidad del dolor: cólico, urente, opresivo, punzante... ¿Cómo lo preguntarías sin condicionar al paciente?',
+    pause:'No sugieras tipos de dolor hasta que el paciente haya descrito el suyo con libertad.',
+    eq:'«¿Cómo describiría usted ese dolor? ¿Cómo lo nota?»',
+    tipT:'Primero escucha — luego, si es necesario, orienta',
+    tip:'Solo si no sabe describirlo, ofrece opciones neutrales: «¿Como pinchazos, como presión, como quemazón, como retortijones?»',
+    items:[
+      {label:'Cólico — va y viene en oleadas',badge:'víscera hueca',body:'Distensión de víscera hueca. Cólico biliar, renal, obstrucción intestinal.'},
+      {label:'Urente / quemante',badge:'mucosa',body:'Úlcera péptica, gastritis, reflujo gastroesofágico.'},
+      {label:'Opresivo — como peso constante',badge:'¿coronario?',body:'Pancreatitis, distensión gástrica. Atención: puede ser de origen coronario (equivalente anginoso).'},
+      {label:'Punzante / lancinante',badge:'URGENCIA',body:'Perforación de víscera, disección aórtica. Alerta máxima.'},
+      {label:'Sordo / continuo',badge:'inflamatorio',body:'Procesos inflamatorios (apendicitis incipiente, hepatomegalia) o dolor parietal/muscular.'},
+    ],
+  },
+  {
+    nav:'¿Cuánto?', title:'Intensidad del dolor',
+    think:'¿Cómo evaluarías la intensidad del dolor de forma objetivable y reproducible con una sola pregunta?',
+    pause:'Piensa en la herramienta estandarizada antes de continuar.',
+    eq:'«Del 0 al 10, siendo 0 sin dolor y 10 el peor dolor imaginable, ¿cuánto le duele ahora? ¿Y en el peor momento?»',
+    tipT:'Interpretar la escala — y sus límites',
+    tip:'La escala NRS 0-10 es estandarizada. La intensidad percibida es subjetiva y no siempre correlaciona con la gravedad del proceso.',
+    items:[
+      {label:'Leve — 1 a 3',badge:'funcional',body:'El paciente puede realizar actividad normal. No descarta patología seria si hay otros signos de alarma.'},
+      {label:'Moderado — 4 a 6',badge:'frecuente',body:'Interfiere con la actividad habitual. Frecuente en úlcera péptica, gastritis, colecistitis subaguda.'},
+      {label:'Severo — 7 a 10',badge:'grave',body:'Cólico renal, pancreatitis aguda, perforación, isquemia mesentérica. Reevaluación urgente.'},
+      {label:'Intensidad baja en anciano/inmunodeprimido',badge:'trampa',body:'Pueden referir dolor moderado con patología muy grave. No confiar solo en la intensidad.'},
+    ],
+  },
+  {
+    nav:'¿Dónde?', title:'Localización e irradiación',
+    think:'¿Cómo preguntarías dónde le duele exactamente y si se irradia a algún otro sitio?',
+    pause:'Pulsa cada zona para ver qué sugiere y el mapa anatómico correspondiente.',
+    eq:'«¿Podría señalarme con el dedo dónde le duele? ¿Nota que ese dolor se corre hacia algún otro sitio?»',
+    tipT:'La localización en la práctica clínica',
+    tip:'Pedir al paciente que señale con un dedo es más preciso que preguntar en abstracto. La irradiación sigue dermatomas y vías nerviosas viscerales.',
+    irradiation:true,
+    irrItems:[
+      {name:'Epigastrio',badge:'zona',svg:'epigastrio',text:'<strong>Epigastrio:</strong> úlcera péptica, gastritis, pancreatitis. Descartar siempre síndrome coronario agudo.'},
+      {name:'Hipocondrio derecho',badge:'zona',svg:'hd',text:'<strong>Hipocondrio derecho:</strong> cólico biliar, colecistitis, hepatomegalia, absceso subfrénico.'},
+      {name:'Fosa ilíaca derecha',badge:'zona',svg:'fid',text:'<strong>Fosa ilíaca derecha:</strong> apendicitis (migra desde mesogastrio), enfermedad de Crohn, patología ovárica derecha.'},
+      {name:'Fosa ilíaca izquierda',badge:'zona',svg:'fii',text:'<strong>Fosa ilíaca izquierda:</strong> diverticulitis sigmoidea, colitis, patología ovárica izquierda.'},
+      {name:'Irradia a escápula derecha',badge:'irradiación',svg:'biliar',text:'<strong>Irradiación a escápula derecha:</strong> muy sugestiva de patología biliar. El nervio frénico comparte metámera con el dermatoma escapular.'},
+      {name:'Irradia en cinturón a la espalda',badge:'irradiación',svg:'pancreas',text:'<strong>Irradiación «en cinturón» a la espalda:</strong> pancreatitis aguda. También en aneurisma aórtico.'},
+      {name:'Irradia a genitales / muslo interno',badge:'irradiación',svg:'renal',text:'<strong>Irradiación a genitales o muslo interno:</strong> cólico renal o ureteral.'},
+      {name:'Difuso / generalizado',badge:'zona',svg:'difuso',text:'<strong>Dolor difuso:</strong> peritonitis, gastroenteritis aguda, isquemia mesentérica avanzada.'},
+      {name:'Migración mesogastrio → FID',badge:'clave apendicitis',svg:'apendix',text:'<strong>Migración del dolor:</strong> inicio periumbilical que migra a FID en horas. Patrón clásico de apendicitis aguda.'},
+    ],
+  },
+  {
+    nav:'¿Modificadores?', title:'Factores modificadores',
+    think:'¿Cómo preguntarías por los factores que agravan y los que alivian el dolor?',
+    pause:'Muchos estudiantes olvidan esta pregunta. Piénsala antes de continuar.',
+    eq:'«¿Hay algo que lo mejore? ¿Y que lo empeore? ¿Nota cambios con las comidas, el movimiento, el reposo?»',
+    tipT:'Por qué son tan orientadores los modificadores',
+    tip:'Los factores modificadores son a menudo los más diagnósticos de toda la anamnesis.',
+    items:[
+      {label:'Mejora con antiácidos o comida',badge:'alivio',body:'Úlcera duodenal, gastritis.'},
+      {label:'Mejora con defecación o gases',badge:'alivio',body:'Síndrome de intestino irritable, estreñimiento, apendicitis incipiente.'},
+      {label:'Mejora con reposo / posición en gatillo',badge:'alivio',body:'Pancreatitis: posición sentado hacia delante. Peritonitis: el paciente queda completamente inmóvil.'},
+      {label:'Empeora con comidas grasas',badge:'agravante',body:'Cólico biliar, colecistitis (la colecistoquinina contrae la vesícula).'},
+      {label:'Empeora con cualquier ingesta',badge:'agravante',body:'Pancreatitis, isquemia mesentérica crónica («angina intestinal»).'},
+      {label:'Empeora con el movimiento o sacudidas',badge:'agravante',body:`Irritación peritoneal. Correlaciona con ${tt('Signo de Blumberg')} en la exploración.`},
+      {label:'Empeora con presión directa',badge:'agravante',body:`Colecistitis (${tt('Signo de Murphy')}), apendicitis (punto de McBurney).`},
+    ],
+  },
+  {
+    nav:'Asociado', title:'Síntomas asociados',
+    think:'El dolor casi nunca viene solo. ¿Por qué síntomas acompañantes preguntarías? Piensa en sistemas: digestivo, urinario, ginecológico y general.',
+    pause:'Intenta listar al menos 8 síntomas acompañantes antes de ver el contenido.',
+    eq:'«¿Náuseas o vómitos? ¿Cuándo aparecieron respecto al dolor? ¿Fiebre? ¿Ha notado ictericia? ¿Cambios en el ritmo intestinal? ¿Problemas para orinar? ¿Ha visto sangre? ¿Pérdida de apetito?»',
+    tipT:'Explorar por sistemas — y preguntar el CUÁNDO',
+    tip:'No basta con preguntar si hay vómitos: el momento en que aparecen respecto al dolor y si alivian o no son tan diagnósticos como la presencia en sí. En mujeres en edad fértil, la esfera ginecológica es siempre obligatoria.',
+    hasCombos: true,
+    items:[
+      {
+        label:'Náuseas y vómitos — relación con el dolor',
+        badge:'timing clave',
+        body:'El <em>momento</em> en que aparecen los vómitos es diagnóstico. <strong>Vómitos después del inicio del dolor</strong>: proceso inflamatorio (apendicitis, colecistitis, pancreatitis). <strong>Vómitos que no alivian</strong>: irritación peritoneal activa. <strong>Vómitos que alivian transitoriamente</strong>: obstrucción alta o úlcera. <strong>Vómitos antes del dolor</strong>: raro, pensar en gastroenteritis o intoxicación.',
+      },
+      {
+        label:'Fiebre — grado y patrón',
+        badge:'infección / sepsis',
+        body:'<strong>Subfebril 37.5–38°C</strong>: inflamación localizada (apendicitis no complicada, colecistitis). <strong>&gt;38.5°C</strong>: absceso, perforación, peritonitis. <strong>Fiebre con escalofríos</strong>: bacteriemia/sepsis — colangitis, pielonefritis, peritonitis. <em>Clave</em>: en ancianos e inmunodeprimidos la fiebre puede faltar aunque el proceso sea grave.',
+      },
+      {
+        label:'Anorexia',
+        badge:'inflamatorio',
+        body:'Acompaña a casi todos los procesos inflamatorios agudos. <strong>En apendicitis suele preceder al dolor</strong> — dato muy orientador cuando está presente. Su ausencia en un cuadro grave hace pensar en proceso no inflamatorio (cólico puro, funcional). Anorexia de semanas de evolución es <em>red flag</em> oncológico.',
+      },
+      {
+        label:'Ictericia',
+        badge:'hepatobiliar',
+        body:'Coloración amarillenta de piel y escleróticas por hiperbilirrubinemia. <strong>Con dolor en hipocondrio derecho</strong>: coledocolitiasis o hepatitis aguda. <strong>Con fiebre + dolor HD</strong>: tríada de Charcot → colangitis aguda (urgencia). <strong>Ictericia sin dolor</strong>: neoplasia pancreática o de vía biliar (muy preocupante).',
+      },
+      {
+        label:'Vómitos biliosos',
+        badge:'obstrucción alta',
+        body:`${tt('Vómitos biliosos')}: reflujo de contenido intestinal proximal (por encima del ámpula de Vater). Indican obstrucción o disfunción alta. Presentes en <strong>obstrucción intestinal alta, pancreatitis, colecistitis, íleo paralítico</strong>. Su ausencia no descarta obstrucción baja.`,
+      },
+      {
+        label:'Vómitos fecaloideos',
+        badge:'ALARMA',
+        body:`${tt('Vómitos fecaloideos')}: contenido del intestino delgado distal o colon regurgita hasta el estómago. Signo de alarma mayor que indica <strong>obstrucción intestinal baja avanzada</strong> o fístula gastrocólica. Requiere valoración quirúrgica urgente.`,
+      },
+      {
+        label:'Hematemesis / «posos de café»',
+        badge:'URGENCIA',
+        body:`${tt('Hematemesis')} (sangre roja fresca): hemorragia digestiva alta activa, a menudo con inestabilidad hemodinámica. ${tt('«posos de café»')} (marrón-negruzco): sangrado más lento, hemoglobina oxidada por el ácido gástrico. <strong>Causas principales</strong>: úlcera gastroduodenal, varices esofágicas, síndrome de Mallory-Weiss. Urgencia con reanimación.`,
+      },
+      {
+        label:'Diarrea — tipo y características',
+        badge:'infeccioso / inflamatorio',
+        body:'<strong>Acuosa profusa</strong>: gastroenteritis infecciosa, C. difficile. <strong>Con sangre o moco</strong>: colitis inflamatoria (EII), colitis infecciosa (Campylobacter, Salmonella), isquemia cólica. <strong>Alternancia diarrea/estreñimiento</strong>: SII, neoplasia colorrectal. La diarrea simultánea al dolor orienta a origen infeccioso o inflamatorio cólico.',
+      },
+      {
+        label:'Estreñimiento / ausencia de gases',
+        badge:'obstrucción',
+        body:'La ausencia de emisión de heces <strong>y</strong> gases (obstrucción completa) es signo mayor de obstrucción intestinal mecánica o íleo paralítico. <strong>Íleo paralítico</strong>: abdomen silencioso a la auscultación. <strong>Obstrucción mecánica</strong>: ruidos aumentados y metálicos. El estreñimiento sin ausencia de gases puede ser funcional o parcial.',
+      },
+      {
+        label:`${tt('Disuria')}, ${tt('Hematuria')}, ${tt('Polaquiuria')}`,
+        badge:'urinario',
+        body:'<strong>Disuria + polaquiuria sin fiebre</strong>: cistitis. <strong>Fiebre alta + dolor lumbar + disuria</strong>: pielonefritis. <strong>Hematuria + cólico lumbar-inguinal</strong>: litiasis ureteral (hematuria macroscópica muy sugestiva en el contexto adecuado). <em>Atención</em>: la litiasis ureteral derecha puede simular apendicitis; el uroanálisis es imprescindible.',
+      },
+      {
+        label:'Síntomas ginecológicos (mujer)',
+        badge:'ectópico / EIP',
+        body:'En <strong>toda mujer en edad fértil</strong> con dolor abdominal bajo, descartar siempre embarazo ectópico. <strong>Test de embarazo (β-hCG) SIEMPRE</strong> en mujer en edad fértil con dolor abdominal, aunque niegue actividad sexual. Amenorrea + dolor + sangrado vaginal = emergencia quirúrgica. <strong>EIP</strong>: dolor bilateral hipogastrio + secreción + fiebre. <strong>Rotura de quiste ovárico</strong>: dolor agudo unilateral periovulatorio. El test de gestación es obligatorio antes de cualquier decisión.',
+      },
+      {
+        label:`${tt('Tríada de Charcot')}`,
+        badge:'colangitis — URGENCIA',
+        body:'Ictericia + fiebre con escalofríos + dolor en hipocondrio derecho = colangitis aguda. Urgencia médico-quirúrgica. Si añade hipotensión + alteración de consciencia → <strong>Pentada de Reynolds</strong> (sepsis biliar grave). Requiere antibioterapia precoz y drenaje biliar urgente.',
+      },
+    ],
+  },
+  {
+    nav:'Antecedentes', title:'¿A qué lo atribuye el paciente?',
+    think:'El paciente tiene sus propias ideas sobre por qué le duele. Conocer su hipótesis es parte esencial de la anamnesis centrada en el paciente.',
+    pause:'Reflexiona: ¿por qué puede ser clínicamente relevante lo que cree el paciente?',
+    eq:'«¿A qué cree usted que puede deberse esto? ¿Lo relaciona con algo concreto?»',
+    tipT:'El modelo explicativo del paciente (Calgary-Cambridge)',
+    tip:'Permite identificar creencias, miedos y expectativas. Influye directamente en la adherencia terapéutica y en la relación clínica.',
+    isAtrib:true,
+  },
+  {
+    nav:'Generales', title:'Síntomas generales de alarma',
+    think:'¿Qué síntomas generales buscarías de forma específica en un paciente con dolor abdominal?',
+    pause:'Los «red flags» son fundamentales. Intenta recordarlos antes de continuar.',
+    eq:'«¿Ha tenido fiebre? ¿Ha perdido peso sin proponérselo? ¿Se cansa más? ¿Ha visto sangre en las heces?»',
+    tipT:'Señales de alarma en el abdomen',
+    tip:'Los síntomas generales de alarma orientan hacia patología orgánica grave y obligan a ampliar el estudio diagnóstico.',
+    items:[
+      {label:'Fiebre / escalofríos',badge:'infección/sepsis',body:'Apendicitis, colecistitis, diverticulitis, peritonitis, colangitis. Fiebre con escalofríos orienta a sepsis abdominal.'},
+      {label:'Pérdida de peso > 5% en 6 meses',badge:'red flag oncológico',body:'Obliga a descartar neoplasia gastrointestinal: colon, páncreas, estómago.'},
+      {label:'Anorexia persistente',badge:'alarma',body:'Neoplasia, EII activa, hepatopatía avanzada.'},
+      {label:'Melenas o rectorragia',badge:'URGENCIA',body:`${tt('Melenas')}: hemorragia digestiva alta. ${tt('Rectorragia')}: hemorragia digestiva baja (cáncer de colon, colitis).`},
+      {label:'Astenia marcada',badge:'alarma',body:`${tt('Astenia')} marcada: anemia por hemorragia oculta, infección sistémica, proceso oncológico.`},
+    ],
+  },
+  {
+    nav:'Antecedentes+', title:'Antecedentes específicos relevantes',
+    think:'¿Qué antecedentes personales preguntarías de forma dirigida? ¿Cuáles cambian radicalmente el diagnóstico?',
+    pause:'Piensa qué antecedentes modificarían tu diagnóstico diferencial antes de ver el contenido.',
+    eq:'«¿Ha tenido antes problemas digestivos? ¿Cirugías? ¿Cálculos, úlcera, EII?» / En mujeres: «¿Podría estar embarazada?»',
+    tipT:'Antecedentes que modifican el diagnóstico',
+    tip:'Ciertos antecedentes cambian radicalmente el diagnóstico diferencial y la urgencia de la actuación.',
+    items:[
+      {label:'Cirugía abdominal previa',badge:'adherencias',body:'Riesgo de adherencias peritoneales como causa de obstrucción intestinal.'},
+      {label:'Litiasis biliar o renal conocida',badge:'recidiva',body:'Un episodio similar previo orienta fuertemente hacia recidiva litiásica.'},
+      {label:'Enfermedad inflamatoria intestinal',badge:'brote',body:'Puede ser un brote o una complicación (estenosis, perforación).'},
+      {label:'Posible embarazo / FUR',badge:'EMERGENCIA',body:'Descartar SIEMPRE embarazo ectópico en mujer en edad fértil con dolor en FI. Emergencia quirúrgica.'},
+      {label:'Úlcera péptica previa',badge:'recidiva',body:'Predispone a recidiva y complicaciones: perforación, hemorragia.'},
+      {label:'Diabetes / inmunodepresión / anciano',badge:'atípico',body:'Clínica atenuada: menos dolor, menos fiebre. Alta sospecha aunque la presentación sea atípica.'},
+    ],
+  },
+  {
+    nav:'Fármacos', title:'Fármacos y sustancias',
+    think:'¿Por qué fármacos o sustancias preguntarías específicamente? ¿Cómo lo harías sin que el paciente se sienta juzgado?',
+    pause:'Es una causa frecuente y a menudo olvidada. Reflexiona antes de ver el contenido.',
+    eq:'«¿Toma algún medicamento habitualmente o recientemente? ¿Toma antiinflamatorios? ¿Consume alcohol?»',
+    tipT:'Fármacos y tóxicos como causa de dolor abdominal',
+    tip:'El consumo de fármacos es una causa frecuente y subvalorada. Muchos pacientes no relacionan su medicación con el síntoma.',
+    items:[
+      {label:'AINEs / aspirina',badge:'muy frecuente',body:'Gastropatía por inhibición de prostaglandinas protectoras. Causa muy frecuente de dolor epigástrico y úlcera.'},
+      {label:'Corticoides solos o con AINEs',badge:'doble riesgo',body:'Enmascaran signos de irritación peritoneal. Aumentan el riesgo de úlcera, especialmente con AINEs.'},
+      {label:'Alcohol',badge:'tóxico',body:'Pancreatitis aguda y crónica, gastritis alcohólica, hepatitis alcohólica. Pregunta directa y sin juicio.'},
+      {label:'Antibióticos de amplio espectro',badge:'C. difficile',body:'Colitis por Clostridioides difficile, especialmente en pacientes mayores u hospitalizados.'},
+      {label:'Opioides',badge:'íleo',body:'Estreñimiento severo, íleo paralítico.'},
+      {label:'Anticoagulantes',badge:'hematoma',body:'Hematoma espontáneo de la pared abdominal o retroperitoneal que puede simular abdomen agudo.'},
+    ],
+    isFinal:true,
+  },
+  { nav:'Resumen', title:'Ficha resumen', isSummaryStep:true },
+  { nav:'Pruébate', title:'¿Cuánto has aprendido?', isQuizStep:true },
+];
+
+// ─── RESUMEN DE PREGUNTAS ─────────────────────────────────────────────────────
+window.ALL_QS = [
+  {n:1,title:'¿Qué le pasa?',eq:'«¿Qué le trae por aquí? Cuénteme qué le pasa.»'},
+  {n:2,title:'Cronología',eq:'«¿Cuándo empezó? ¿De golpe o poco a poco? ¿Cuánto dura? ¿Antes?»'},
+  {n:3,title:'Tipo de dolor',eq:'«¿Cómo describiría ese dolor?» (abierta primero)'},
+  {n:4,title:'Intensidad',eq:'«Del 0 al 10, ¿cuánto le duele ahora? ¿Y en el peor momento?»'},
+  {n:5,title:'Localización / Irradiación',eq:'«¿Puede señalar con el dedo? ¿Se corre hacia algún sitio?»'},
+  {n:6,title:'Factores modificadores',eq:'«¿Algo lo mejora? ¿Algo lo empeora? ¿Comidas, movimiento, reposo?»'},
+  {n:7,title:'Síntomas asociados',eq:'«¿Náuseas, vómitos, fiebre, cambios intestinales, síntomas urinarios?»'},
+  {n:8,title:'Atribución del paciente',eq:'«¿A qué cree que puede deberse? ¿Lo relaciona con algo?»'},
+  {n:9,title:'Síntomas de alarma',eq:'«¿Fiebre, pérdida de peso, sangrado, cansancio inusual?»'},
+  {n:10,title:'Antecedentes específicos',eq:'«¿Cirugías, litiasis, EII, posible embarazo, úlcera?»'},
+  {n:11,title:'Fármacos y sustancias',eq:'«¿AINEs, corticoides, alcohol, antibióticos, anticoagulantes?»'},
+];
+
+// ─── TARJETAS DE DIAGNÓSTICO ──────────────────────────────────────────────────
+window.QUIZ_CARDS = [
+  {dx:'Apendicitis aguda',
+   loc:'Inicio en mesogastrio (periumbilical), migra a fosa ilíaca derecha en horas.',
+   tipo:'Sordo continuo que se intensifica progresivamente. Inicio gradual.',
+   mod:'Empeora con movimiento, sacudidas y presión en punto de McBurney. Sin factor que lo alivie.',
+   asoc:'Fiebre, náuseas, anorexia. Signo de Blumberg positivo.',
+   patofisio:'La distensión del apéndice (dolor visceral periumbilical) progresa a inflamación parietal cuando afecta al peritoneo parietal (dolor somático localizado en FID).'},
+  {dx:'Cólico biliar / Colecistitis',
+   loc:'Hipocondrio derecho. Irradia a escápula derecha (vía nervio frénico).',
+   tipo:'Cólico muy intenso (biliar) o dolor continuo (colecistitis). Puede ser opresivo.',
+   mod:'Empeora con comidas grasas. Colecistitis: empeora con presión (signo de Murphy).',
+   asoc:'Náuseas, vómitos. Fiebre si colecistitis aguda. Ictericia si litiasis coledociana.',
+   patofisio:'La colecistoquinina (liberada por la grasa) induce contracción vesicular. Si hay un cálculo enclavado en el cístico o coledocián, se genera la crisis.'},
+  {dx:'Cólico renal',
+   loc:'Fosa lumbar, irradia a fosa ilíaca, genitales y muslo interno (dermatoma T10-L1).',
+   tipo:'Cólico muy intenso en oleadas. El paciente no encuentra postura. Inquieto.',
+   mod:'Nada lo alivia durante la crisis aguda.',
+   asoc:'Hematuria (macro o micro), disuria, náuseas y vómitos intensos. Sin fiebre salvo infección.',
+   patofisio:'La piedra obstruye el uréter y genera hiperpresión por encima. El peristaltismo ureteral contra la obstrucción produce el dolor cólico de gran intensidad.'},
+  {dx:'Úlcera péptica / Gastritis',
+   loc:'Epigastrio. Sin irradiación típica salvo perforación (peritonismo difuso).',
+   tipo:'Urente o quemante. A veces opresivo.',
+   mod:'Alivia: antiácidos, comida (duodenal). Empeora: ayuno, AINEs, alcohol, ingesta (gástrica).',
+   asoc:'Pirosis, náuseas. Hematemesis o melenas si complicada.',
+   patofisio:'Desequilibrio entre factores agresivos (ácido, H. pylori, AINEs) y protectores (moco, prostaglandinas). El ácido irrita las terminaciones nociceptivas de la mucosa lesionada.'},
+  {dx:'Pancreatitis aguda',
+   loc:'Epigastrio/mesogastrio. Irradia en cinturón hacia la espalda (plexo celiaco).',
+   tipo:'Opresivo, muy intenso y continuo. Inicio relativamente brusco.',
+   mod:'Alivia: posición en gatillo (sentado hacia delante). Empeora: cualquier ingesta.',
+   asoc:'Náuseas, vómitos, fiebre. Antecedente de alcohol o litiasis biliar.',
+   patofisio:'La autodigestión enzimática del páncreas activa los nociceptores del plexo celiaco, situado en la raíz del mesenterio. La posición en gatillo reduce la presión sobre el plexo.'},
+  {dx:'Diverticulitis',
+   loc:'Fosa ilíaca izquierda. Sin irradiación típica.',
+   tipo:'Sordo continuo y progresivo.',
+   mod:'Empeora con presión directa sobre la zona. Sin factor que lo alivie claramente.',
+   asoc:'Fiebre, alteración del ritmo intestinal (estreñimiento o diarrea).',
+   patofisio:'Microperforación de un divertículo sigmoidea con inflamación pericólica. La localización en FII refleja la anatomía del sigma.'},
+  {dx:'Obstrucción intestinal',
+   loc:'Difuso / periumbilical.',
+   tipo:'Cólico en oleadas con intervalos libres (mecánica) o dolor sordo difuso (íleo paralítico).',
+   mod:'Empeora con la ingesta. Sin factor que lo alivie.',
+   asoc:'Ausencia de gases y heces, distensión abdominal, vómitos biliosos (alta) o fecaloideos (baja).',
+   patofisio:'El intestino genera peristaltismo intenso contra el obstáculo (mecánica) generando los cólicos. La distensión activa los mecanorreceptores de la pared intestinal.'},
+  {dx:'Embarazo ectópico',
+   loc:'Fosa ilíaca (según el lado). Irradia al hombro si hay hemoperitoneo (irritación diafragmática).',
+   tipo:'Agudo y punzante. Catastrófico si hay rotura (dolor peritoneal difuso).',
+   mod:'Empeora con el movimiento. Nada lo alivia.',
+   asoc:'Amenorrea, sangrado vaginal, hipotensión si rotura. EMERGENCIA QUIRÚRGICA.',
+   patofisio:'El embrión implantado en la trompa la distiende hasta la rotura. El hemoperitoneo irrita el peritoneo subdiafragmático (nervio frénico), lo que genera el dolor referido al hombro.'},
+  {dx:'Isquemia mesentérica',
+   loc:'Difuso, periumbilical. Desproporcionado a la exploración física (fase inicial).',
+   tipo:'Inicio brusco e intenso. «Dolor que no corresponde a la exploración» es clave.',
+   mod:'Empeora con la ingesta (crónica: «angina intestinal»).',
+   asoc:'Diarrea sanguinolenta tardía, shock. Antecedente: FA, arteriosclerosis.',
+   patofisio:'La oclusión arterial mesentérica (émbolo o trombo) genera isquemia intestinal. El intestino en fase inicial genera dolor visceral intenso antes del infarto transmural.'},
+  {dx:'Síndrome de intestino irritable',
+   loc:'Variable. Frecuente en FII o difuso.',
+   tipo:'Cólico intermitente y crónico. Sin progresión.',
+   mod:'Alivia: defecación, expulsión de gases. Empeora: estrés, ciertos alimentos.',
+   asoc:'Alternancia diarrea/estreñimiento, meteorismo. Sin signos de alarma ni alteraciones analíticas.',
+   patofisio:'Hipersensibilidad visceral (umbral nociceptivo reducido) y dismotilidad intestinal, sin lesión orgánica demostrable. El estrés activa el eje intestino-cerebro.'},
+];
+
+// ─── COMBINACIONES DIAGNÓSTICAS (paso ¿Asociado?) ────────────────────────────
+window.SYMPTOM_COMBOS = [
+  {
+    dx: 'Apendicitis aguda',
+    compat: 'strong',
+    symptoms: ['Anorexia que precede al dolor', 'Náuseas sin vómitos profusos', 'Fiebre subfebril', 'Sin diarrea'],
+    key: 'La anorexia que precede al dolor es muy sugestiva. La ausencia de diarrea diferencia de gastroenteritis.',
+  },
+  {
+    dx: 'Pancreatitis aguda',
+    compat: 'strong',
+    symptoms: ['Vómitos intensos que no alivian', 'Anorexia absoluta', 'Fiebre variable', 'Antec. alcohol o litiasis'],
+    key: 'Los vómitos son frecuentes y persistentes. La ingesta empeora el cuadro. Amilasa/lipasa serán clave.',
+  },
+  {
+    dx: 'Colangitis aguda',
+    compat: 'strong',
+    symptoms: ['Fiebre alta + escalofríos', 'Ictericia', 'Dolor en HD', 'Vómitos'],
+    key: 'Tríada de Charcot completa → urgencia. Con hipotensión o confusión añadida → Pentada de Reynolds (sepsis biliar).',
+  },
+  {
+    dx: 'Obstrucción intestinal',
+    compat: 'strong',
+    symptoms: ['Vómitos biliosos o fecaloideos', 'Ausencia de gases y heces', 'Distensión', 'Sin fiebre inicial'],
+    key: 'La tríada vómitos + ausencia de tránsito + distensión es diagnóstica. Fiebre tardía indica estrangulación.',
+  },
+  {
+    dx: 'Gastroenteritis aguda',
+    compat: 'positive',
+    symptoms: ['Diarrea acuosa', 'Vómitos antes o con el dolor', 'Fiebre moderada', 'Contexto epidémico'],
+    key: 'Inicio con vómitos + diarrea simultáneos, sin signos peritoneales. Preguntar por contactos con el mismo cuadro.',
+  },
+  {
+    dx: 'Embarazo ectópico',
+    compat: 'strong',
+    symptoms: ['Amenorrea', 'Sangrado vaginal', 'Sin fiebre inicial', 'Hipotensión si hay rotura'],
+    key: 'EMERGENCIA QUIRÚRGICA. Test de gestación positivo + dolor en FI obliga a descartar ectópico de inmediato.',
+  },
+];
+
+// ─── RETROALIMENTACIÓN DIAGNÓSTICA POR PASO ───────────────────────────────────
+// Conecta la respuesta de Luis con el razonamiento diagnóstico en tiempo real.
+// quoteIdx → índice en PATIENT.quotes | compat: 'neutral'|'positive'|'strong'
+// evidence: puntos acumulables (0-3) que contribuyen al diagnóstico de apendicitis
+window.STEP_DX = [
+  // 0 — ¿Qué?
+  {
+    quoteIdx: 0,
+    compat: 'neutral',
+    compatLabel: 'Dato inicial',
+    interpretation: 'Luis describe un dolor abdominal agudo continuo desde la mañana. La persistencia sin ceder orienta a proceso orgánico, no funcional ni autolimitado. En este punto el cuadro es inespecífico: la anamnesis completa lo resolverá.',
+    fitsFor: ['Proceso abdominal agudo'],
+    rulesOut: [],
+    evidence: 0,
+  },
+  // 1 — ¿Cuándo?
+  {
+    quoteIdx: 1,
+    compat: 'positive',
+    compatLabel: 'Evidencia positiva',
+    interpretation: 'Inicio agudo hace 6 horas, continuo y progresivo. Este patrón temporal es clásico de procesos inflamatorios: apendicitis, colecistitis, pancreatitis. Descarta catástrofe vascular (que sería instantánea) y patología crónica funcional.',
+    fitsFor: ['Apendicitis', 'Colecistitis aguda', 'Pancreatitis'],
+    rulesOut: ['Isquemia mesentérica aguda', 'Patología crónica funcional'],
+    evidence: 1,
+  },
+  // 2 — ¿Cómo?
+  {
+    quoteIdx: 2,
+    compat: 'positive',
+    compatLabel: 'Evidencia positiva',
+    interpretation: 'El dolor evoluciona de cólico (retortijón) a continuo. Este cambio de cualidad refleja la progresión de dolor visceral difuso (distensión de la víscera) a dolor somático parietal (inflamación que alcanza el peritoneo). Muy sugestivo de progresión inflamatoria.',
+    fitsFor: ['Apendicitis', 'Colecistitis progresiva'],
+    rulesOut: ['Cólico renal puro', 'Cólico biliar sin complicación'],
+    evidence: 2,
+  },
+  // 3 — ¿Cuánto?
+  {
+    quoteIdx: 3,
+    compat: 'positive',
+    compatLabel: 'Evidencia positiva',
+    interpretation: 'Progresión de intensidad 4 → 7 en pocas horas. El empeoramiento activo es una señal de alarma que apoya un proceso inflamatorio en curso. El dolor funcional raramente progresa de esta forma.',
+    fitsFor: ['Proceso inflamatorio progresivo'],
+    rulesOut: ['Dolor funcional estable o episódico'],
+    evidence: 1,
+  },
+  // 4 — ¿Dónde? (el paso diagnóstico clave)
+  {
+    quoteIdx: 4,
+    compat: 'strong',
+    compatLabel: 'Evidencia muy fuerte',
+    interpretation: 'Migración periumbilical → FID: patrón diagnóstico clásico de apendicitis. El dolor visceral inicial (distensión del apéndice, dolor referido al mesogastrio por fibras aferentes T10) migra al dolor somático en FID cuando la inflamación alcanza el peritoneo parietal adyacente.',
+    fitsFor: ['Apendicitis aguda (patrón diagnóstico)'],
+    rulesOut: ['Cólico biliar', 'Úlcera péptica', 'Cólico renal', 'SII'],
+    evidence: 3,
+  },
+  // 5 — ¿Modificadores?
+  {
+    quoteIdx: 5,
+    compat: 'strong',
+    compatLabel: 'Evidencia muy fuerte',
+    interpretation: 'Empeora con el movimiento y las sacudidas: irritación peritoneal activa. El peritoneo parietal, inervado somáticamente, genera dolor agudo, localizado y agravado por cualquier estímulo mecánico. Correlaciona con signo de Blumberg en la exploración.',
+    fitsFor: ['Irritación peritoneal', 'Apendicitis'],
+    rulesOut: ['Cólico renal (paciente inquieto)', 'SII (alivia con defecación)'],
+    evidence: 2,
+  },
+  // 6 — ¿Asociado?
+  {
+    quoteIdx: 6,
+    compat: 'positive',
+    compatLabel: 'Evidencia positiva',
+    interpretation: 'Náuseas + anorexia + fiebre: tríada de respuesta inflamatoria sistémica. En apendicitis, la anorexia casi siempre precede o acompaña al dolor. La ausencia de diarrea y síntomas urinarios ayuda a descartar gastroenteritis y patología renal.',
+    fitsFor: ['Apendicitis', 'Proceso inflamatorio con respuesta sistémica'],
+    rulesOut: ['Cólico puro sin síntomas sistémicos', 'Gastroenteritis aguda'],
+    evidence: 2,
+  },
+  // 7 — ¿Atribuye?
+  {
+    quoteIdx: 7,
+    compat: 'neutral',
+    compatLabel: 'Dato contextual',
+    interpretation: 'La hipótesis del paciente dirige la atención clínica. Los antecedentes familiares de apendicitis no son factor de riesgo hereditario directo, pero el reconocimiento de un patrón similar previo puede ser orientador. Escuchar esta hipótesis también facilita la alianza terapéutica.',
+    fitsFor: ['Orienta la búsqueda diagnóstica'],
+    rulesOut: [],
+    evidence: 0,
+  },
+  // 8 — ¿Generales?
+  {
+    quoteIdx: 8,
+    compat: 'positive',
+    compatLabel: 'Evidencia positiva',
+    interpretation: 'Fiebre de 37.8 °C (subfebril) con astenia. Confirma respuesta inflamatoria sistémica. La fiebre moderada es característica de apendicitis no complicada; temperaturas >38.5 °C alertarían de posible perforación o peritonitis.',
+    fitsFor: ['Inflamación aguda no complicada', 'Apendicitis'],
+    rulesOut: ['Proceso puramente funcional', 'Cólico simple sin componente inflamatorio'],
+    evidence: 2,
+  },
+  // 9 — ¿Antecedentes?
+  {
+    quoteIdx: 9,
+    compat: 'positive',
+    compatLabel: 'Evidencia por exclusión',
+    interpretation: 'Sin cirugías abdominales previas (descarta adherencias como causa de obstrucción), sin patología digestiva conocida. La ausencia de antecedentes relevantes simplifica el diferencial y hace plenamente plausible la apendicitis como diagnóstico primario.',
+    fitsFor: ['Apendicitis (sin confusores)'],
+    rulesOut: ['Obstrucción por bridas', 'Brote de EII conocida'],
+    evidence: 1,
+  },
+  // 10 — ¿Fármacos?
+  {
+    quoteIdx: 10,
+    compat: 'positive',
+    compatLabel: 'Evidencia positiva',
+    interpretation: 'Un único ibuprofeno sin efecto. La ineficacia de un AINE refuerza la sospecha de proceso inflamatorio de entidad mayor que una gastritis o contractura. Además, el ibuprofeno puede enmascarar ligeramente la fiebre sin suprimir el proceso subyacente.',
+    fitsFor: ['Proceso inflamatorio abdominal significativo'],
+    rulesOut: ['Gastropatía por AINEs como causa principal', 'Dolor de pared abdominal'],
+    evidence: 1,
+  },
+];
+
+// ─── SVG IRRADIACIÓN ──────────────────────────────────────────────────────────
+window.irrSVG = function(type){
+  const base=`<svg viewBox="0 0 160 200" width="100" height="125" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit;flex-shrink:0;"><defs><marker id="ah${type}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#D4A000"/></marker><marker id="ar${type}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#dc2626"/></marker></defs><path d="M38,8 Q28,4 24,16 L20,55 Q17,88 20,120 Q23,152 38,172 L122,172 Q137,152 140,120 Q143,88 140,55 L136,16 Q132,4 122,8 Z" fill="#FFF8E7" stroke="#D4A000" stroke-width="1.2"/><line x1="80" y1="8" x2="80" y2="172" stroke="#E5E7EB" stroke-width="0.7" stroke-dasharray="3,3"/><line x1="22" y1="95" x2="138" y2="95" stroke="#E5E7EB" stroke-width="0.7" stroke-dasharray="3,3"/>`;
+  const m={
+    biliar:base+`<path d="M30,38 Q55,30 80,33 Q93,35 96,44 Q98,53 90,58 Q75,63 57,62 Q36,61 30,52 Z" fill="#FEF0A0" stroke="#D4A000" stroke-width="1"/><text x="62" y="48" text-anchor="middle" font-size="7" fill="#78350f" font-weight="700">Hígado</text><ellipse cx="88" cy="65" rx="8" ry="5" fill="#FEF9C3" stroke="#D4A000" stroke-width="0.8"/><text x="88" y="78" text-anchor="middle" font-size="6" fill="#78350f">V.Biliar</text><path d="M82,63 Q60,30 20,10" fill="none" stroke="#D4A000" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#ahbiliar)"/><text x="2" y="8" font-size="6" fill="#D4A000" font-weight="700">Esc.D</text></svg>`,
+    pancreas:base+`<path d="M52,68 Q70,64 83,66 Q96,68 104,71 Q100,76 83,75 Q66,74 52,74 Z" fill="#fce7f3" stroke="#f9a8d4" stroke-width="0.8"/><text x="78" y="73" text-anchor="middle" font-size="6" fill="#831843" font-weight="700">Páncreas</text><path d="M104,71 Q135,65 152,63" fill="none" stroke="#831843" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#ahpancreas)"/><text x="118" y="59" font-size="6" fill="#831843" font-weight="700">Espalda</text></svg>`,
+    renal:base+`<path d="M28,80 Q22,86 22,98 Q22,109 28,114 Q36,118 42,114 Q48,109 48,98 Q48,86 42,80 Q36,76 28,80 Z" fill="#ffedd5" stroke="#fdba74" stroke-width="0.8"/><text x="35" y="99" text-anchor="middle" font-size="6" fill="#7c2d12">Riñón D</text><path d="M35,114 Q28,145 24,185" fill="none" stroke="#D4A000" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#ahrenal)"/><text x="4" y="192" font-size="6" fill="#7c2d12" font-weight="700">Ingle</text></svg>`,
+    apendix:base+`<path d="M38,150 Q32,158 36,168" fill="none" stroke="#fca5a5" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="36" cy="171" rx="6" ry="4" fill="#fee2e2" stroke="#dc2626" stroke-width="0.8"/><circle cx="80" cy="95" r="4" fill="#fca5a5" opacity="0.7"/><text x="70" y="88" text-anchor="middle" font-size="6" fill="#dc2626">Mesogastrio</text><path d="M62,95 Q50,130 42,163" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arapendix)"/><text x="2" y="135" font-size="6" fill="#dc2626">migración</text></svg>`,
+    difuso:base+`<rect x="25" y="35" width="110" height="120" rx="8" fill="#fee2e2" opacity="0.35"/><text x="80" y="92" text-anchor="middle" font-size="7.5" fill="#7f1d1d" font-weight="700">Difuso</text></svg>`,
+    epigastrio:base+`<rect x="50" y="28" width="60" height="50" rx="6" fill="#FEF0A0" opacity="0.7" stroke="#D4A000" stroke-width="0.8"/><text x="80" y="58" text-anchor="middle" font-size="7.5" fill="#78350f" font-weight="700">Epigastrio</text></svg>`,
+    fid:base+`<rect x="22" y="100" width="56" height="60" rx="6" fill="#fee2e2" opacity="0.6" stroke="#dc2626" stroke-width="0.8"/><text x="50" y="135" text-anchor="middle" font-size="7" fill="#7f1d1d" font-weight="700">FID</text></svg>`,
+    fii:base+`<rect x="82" y="100" width="56" height="60" rx="6" fill="#ede9fe" opacity="0.6" stroke="#a78bfa" stroke-width="0.8"/><text x="110" y="135" text-anchor="middle" font-size="7" fill="#3b0764" font-weight="700">FII</text></svg>`,
+    hd:base+`<rect x="22" y="28" width="56" height="65" rx="6" fill="#FEF0A0" opacity="0.65" stroke="#D4A000" stroke-width="0.8"/><text x="50" y="65" text-anchor="middle" font-size="7" fill="#78350f" font-weight="700">HD</text></svg>`,
+    hi:base+`<rect x="82" y="28" width="56" height="65" rx="6" fill="#dbeafe" opacity="0.65" stroke="#93c5fd" stroke-width="0.8"/><text x="110" y="65" text-anchor="middle" font-size="7" fill="#1e3a8a" font-weight="700">HI</text></svg>`,
+  };
+  return m[type]||'';
+};
+
+// ─── SVG ABDOMEN GRANDE ───────────────────────────────────────────────────────
+window.abdomSVG=`<svg viewBox="0 0 420 500" width="300" height="357" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit;"><defs><marker id="aY2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#D4A000"/></marker><marker id="aR2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#dc2626"/></marker><marker id="aP2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#831843"/></marker><marker id="aO2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#7c2d12"/></marker></defs><path d="M115,18 Q90,8 78,42 L68,145 Q62,228 68,308 Q74,385 110,438 L300,438 Q336,385 342,308 Q348,228 342,145 L330,42 Q318,8 295,18 Z" fill="#FFF8E7" stroke="#D4A000" stroke-width="2"/><line x1="208" y1="18" x2="208" y2="438" stroke="#E5E7EB" stroke-width="0.8" stroke-dasharray="4,4"/><line x1="72" y1="238" x2="338" y2="238" stroke="#E5E7EB" stroke-width="0.8" stroke-dasharray="4,4"/><text x="128" y="222" text-anchor="middle" font-size="9" fill="#9CA3AF" font-weight="700">HD</text><text x="288" y="222" text-anchor="middle" font-size="9" fill="#9CA3AF" font-weight="700">HI</text><text x="128" y="368" text-anchor="middle" font-size="9" fill="#9CA3AF" font-weight="700">FID</text><text x="288" y="368" text-anchor="middle" font-size="9" fill="#9CA3AF" font-weight="700">FII</text><text x="208" y="222" text-anchor="middle" font-size="8" fill="#9CA3AF">Epi</text><path d="M80,95 Q118,78 175,82 Q208,85 212,105 Q215,128 200,145 Q175,158 140,155 Q100,150 80,132 Z" fill="#FEF0A0" stroke="#D4A000" stroke-width="1.2" opacity="0.9"/><text x="148" y="120" text-anchor="middle" font-size="10" fill="#78350f" font-weight="700">Hígado</text><ellipse cx="188" cy="158" rx="13" ry="9" fill="#FEF9C3" stroke="#D4A000" stroke-width="1.2"/><path d="M196,80 Q230,74 248,92 Q262,112 256,138 Q248,158 228,163 Q208,166 198,152 Q186,136 185,112 Q184,92 196,80 Z" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.2" opacity="0.85"/><text x="224" y="120" text-anchor="middle" font-size="9" fill="#1e3a8a" font-weight="600">Estómago</text><ellipse cx="295" cy="122" rx="24" ry="17" fill="#ede9fe" stroke="#a78bfa" stroke-width="1.2" opacity="0.85"/><text x="295" y="126" text-anchor="middle" font-size="8.5" fill="#3b0764" font-weight="600">Bazo</text><path d="M138,172 Q175,164 210,167 Q240,170 262,178 Q254,188 220,186 Q180,185 138,185 Z" fill="#fce7f3" stroke="#f9a8d4" stroke-width="1" opacity="0.9"/><text x="200" y="180" text-anchor="middle" font-size="8" fill="#831843" font-weight="600">Páncreas</text><path d="M78,205 Q65,220 65,248 Q65,272 78,283 Q92,292 104,283 Q115,272 115,248 Q115,220 104,205 Q92,197 78,205 Z" fill="#ffedd5" stroke="#fdba74" stroke-width="1.2" opacity="0.8"/><text x="90" y="247" text-anchor="middle" font-size="7.5" fill="#7c2d12" font-weight="600">Riñón D</text><path d="M308,205 Q295,220 295,248 Q295,272 308,283 Q322,292 334,283 Q345,272 345,248 Q345,220 334,205 Q322,197 308,205 Z" fill="#ffedd5" stroke="#fdba74" stroke-width="1.2" opacity="0.8"/><text x="320" y="247" text-anchor="middle" font-size="7.5" fill="#7c2d12" font-weight="600">Riñón I</text><path d="M108,390 Q100,340 98,280 Q96,250 100,238" fill="none" stroke="#bbf7d0" stroke-width="9" stroke-linecap="round" opacity="0.75"/><path d="M100,238 Q155,220 208,218 Q262,220 316,238" fill="none" stroke="#bbf7d0" stroke-width="9" stroke-linecap="round" opacity="0.75"/><path d="M316,238 Q322,280 320,340 Q318,370 310,395" fill="none" stroke="#bbf7d0" stroke-width="9" stroke-linecap="round" opacity="0.75"/><path d="M310,395 Q285,415 260,410 Q238,405 232,425" fill="none" stroke="#86efac" stroke-width="7" stroke-linecap="round" opacity="0.85"/><path d="M108,392 Q100,408 104,422" fill="none" stroke="#fca5a5" stroke-width="5" stroke-linecap="round"/><ellipse cx="104" cy="426" rx="9" ry="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2"/><text x="82" y="442" font-size="7.5" fill="#7f1d1d" font-weight="600">Apéndice</text><path d="M175,155 Q120,80 52,32" fill="none" stroke="#D4A000" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#aY2)"/><text x="8" y="26" font-size="8" fill="#D4A000" font-weight="700">Escápula D</text><path d="M262,178 Q340,165 378,162" fill="none" stroke="#831843" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#aP2)"/><text x="352" y="155" font-size="8" fill="#831843" font-weight="700">Espalda</text><path d="M90,283 Q76,365 68,460" fill="none" stroke="#7c2d12" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#aO2)"/><text x="22" y="462" font-size="8" fill="#7c2d12" font-weight="700">Ingle</text><path d="M190,258 Q155,315 118,378" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="4,3" marker-end="url(#aR2)"/><text x="86" y="325" font-size="7.5" fill="#dc2626">migración</text></svg>`;
+
+</script>
+
+<script type="module">
+import { h, render } from 'preact';
+import { useState, useEffect, useCallback } from 'preact/hooks';
+import htm from 'htm';
+const html = htm.bind(h);
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function starsFor(stepIdx, knowledge) {
+  const step = STEPS[stepIdx];
+  if (!step || !step.items) return null;
+  const total = step.items.length;
+  const knew = step.items.filter((_, i) => knowledge[`s${stepIdx}_c${i}`] === 'knew').length;
+  const answered = step.items.filter((_, i) => knowledge[`s${stepIdx}_c${i}`]).length;
+  if (answered === 0) return null;
+  return Math.round((knew / total) * 3);
+}
+
+function StarDisplay({ count, small }) {
+  if (count === null) return null;
+  const size = small ? '.65rem' : '.85rem';
+  return html`<span style=${{ fontSize:size, letterSpacing:'-1px' }}>
+    ${[0,1,2].map(i => html`<span key=${i} style=${{ color: i < count ? '#F5C518' : '#D1D5DB' }}>★</span>`)}
+  </span>`;
+}
+
+// ── FLASHCARD ─────────────────────────────────────────────────────────────────
+function FlashCard({ id, label, badge, body, knowledge, onKnowledge }) {
+  const [flipped, setFlipped] = useState(false);
+  const k = knowledge[id];
+  const flip = useCallback(() => { setFlipped(f => !f); }, []);
+  const knew = useCallback(e => { e.stopPropagation(); onKnowledge(id, 'knew'); }, [id, onKnowledge]);
+  const unknown = useCallback(e => { e.stopPropagation(); onKnowledge(id, 'unknown'); }, [id, onKnowledge]);
+  return html`
+    <div class=${`fc ${flipped ? 'flipped' : ''}`} onClick=${flip}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`}>
+          <div class="fc-label">${label}</div>
+          <div class="fc-badge">${badge}</div>
+          ${!k && !flipped && html`<div class="fc-tap">tocar para ver</div>`}
+          ${k==='knew' && html`<div class="fc-state-badge knew">✓ Dominada</div>`}
+          ${k==='unknown' && html`<div class="fc-state-badge unknown">↩ Para repasar</div>`}
+        </div>
+        <div class="fc-back">
+          <div class="fc-back-header" style=${{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div class="fc-back-label">${label}</div>
+            <button onClick=${e => { e.stopPropagation(); setFlipped(false); }} style=${{ background:'rgba(255,255,255,.18)', border:'none', color:'#fff', borderRadius:'5px', padding:'2px 9px', fontSize:'.62rem', fontWeight:700, cursor:'pointer' }}>← Volver</button>
+          </div>
+          <div style=${{ fontSize:'.6rem', fontWeight:800, padding:'3px 9px', borderRadius:'4px', background:'var(--uva-red)', color:'#fff', textTransform:'uppercase', letterSpacing:'.5px', display:'inline-block', marginBottom:'.65rem' }}>${badge}</div>
+          <p dangerouslySetInnerHTML=${{ __html: body }}></p>
+          ${!k && html`<div class="knowledge-btns">
+            <button class="btn-knew" onClick=${knew}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${unknown}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── COMBO GRID ────────────────────────────────────────────────────────────────
+function ComboGrid() {
+  const combos = window.SYMPTOM_COMBOS;
+  if (!combos) return null;
+  const C = {
+    strong:   { bg:'linear-gradient(135deg,#002d5c,var(--uva-blue))', lbl:'rgba(160,180,210,.7)', tag:{bg:'rgba(255,255,255,.1)',color:'rgba(224,234,244,.9)',border:'rgba(255,255,255,.15)'}, key:'rgba(200,216,232,.8)', badge:{bg:'rgba(198,0,70,.3)',color:'#fca5a5'} },
+    positive: { bg:'linear-gradient(135deg,#1a3a5c,#2a5080)', lbl:'rgba(160,180,210,.65)', tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,220,240,.85)',border:'rgba(255,255,255,.1)'}, key:'rgba(180,200,224,.75)', badge:{bg:'rgba(245,197,24,.2)',color:'var(--yellow)'} },
+  };
+  return html`<div style=${{ marginTop:'1.4rem' }}>
+    <div class="sec-label">Combinaciones de síntomas → diagnóstico orientativo</div>
+    <p class="fc-hint">Ningún síntoma aislado es diagnóstico; la combinación es lo que orienta</p>
+    <div style=${{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:'.85rem' }}>
+      ${combos.map((c,i) => {
+        const col = C[c.compat] || C.positive;
+        return html`<div key=${i} style=${{ background:col.bg, borderRadius:'var(--radius-sm)', overflow:'hidden', boxShadow:'var(--shadow-card)' }}>
+          <div style=${{ padding:'.65rem 1rem', borderBottom:'1px solid rgba(255,255,255,.08)', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'.5rem' }}>
+            <div style=${{ fontSize:'.88rem', fontWeight:700, color:'#fff', fontFamily:'var(--font-serif)' }}>${c.dx}</div>
+            <div style=${{ fontSize:'.58rem', fontWeight:800, padding:'2px 8px', borderRadius:'4px', background:col.badge.bg, color:col.badge.color, textTransform:'uppercase', letterSpacing:'.4px', flexShrink:0 }}>${c.compat==='strong'?'Alta especificidad':'Orientativo'}</div>
+          </div>
+          <div style=${{ padding:'.75rem 1rem' }}>
+            <div style=${{ fontSize:'.58rem', fontWeight:800, color:col.lbl, textTransform:'uppercase', letterSpacing:'.8px', marginBottom:'.4rem' }}>Combinación típica</div>
+            <div style=${{ display:'flex', flexWrap:'wrap', gap:'.3rem', marginBottom:'.7rem' }}>
+              ${c.symptoms.map((s,j) => html`<span key=${j} style=${{ fontSize:'.72rem', fontWeight:600, padding:'2px 8px', borderRadius:'4px', background:col.tag.bg, color:col.tag.color, border:`1px solid ${col.tag.border}` }}>${s}</span>`)}
+            </div>
+            <div style=${{ fontSize:'.78rem', color:col.key, lineHeight:1.55, fontStyle:'italic', borderTop:'1px solid rgba(255,255,255,.07)', paddingTop:'.55rem' }}>${c.key}</div>
+          </div>
+        </div>`;
+      })}
+    </div>
+  </div>`;
+}
+
+// ── DIAGNOSTIC FEEDBACK ───────────────────────────────────────────────────────
+function DiagnosticFeedback({ stepIdx }) {
+  const dx = window.STEP_DX && window.STEP_DX[stepIdx];
+  if (!dx) return null;
+  const quote = PATIENT.quotes[dx.quoteIdx];
+  return html`<div class="dx-fb">
+    <div class="dx-fb-head">
+      <div>
+        <div class="dx-fb-eyebrow">Diagnóstico en construcción</div>
+        <div class="dx-fb-title">¿Qué nos dice este dato de Luis?</div>
+      </div>
+      <div class=${`dx-compat ${dx.compat}`}>${dx.compatLabel}</div>
+    </div>
+    <div class="dx-fb-body">
+      ${quote && html`<div class="dx-quote-box">
+        <div class="dx-quote-who">Luis dice</div>
+        <div class="dx-quote-text">${quote}</div>
+      </div>`}
+      <p class="dx-interp">${dx.interpretation}</p>
+      <div class="dx-tags-row">
+        ${dx.fitsFor && dx.fitsFor.length > 0 && html`<div>
+          <div class="dx-tags-label fits">Apunta hacia</div>
+          <div class="dx-tags">${dx.fitsFor.map((t,i) => html`<span key=${i} class="dx-tag fits">${t}</span>`)}</div>
+        </div>`}
+        ${dx.rulesOut && dx.rulesOut.length > 0 && html`<div>
+          <div class="dx-tags-label rules">Hace menos probable</div>
+          <div class="dx-tags">${dx.rulesOut.map((t,i) => html`<span key=${i} class="dx-tag rules">${t}</span>`)}</div>
+        </div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function EvidenceMeter({ revealedSteps }) {
+  const stepDx = window.STEP_DX;
+  if (!stepDx) return null;
+  const nSteps = STEPS.filter(s => !s.isSummaryStep && !s.isQuizStep).length;
+  const dots = Array.from({ length: nSteps }, (_, i) => revealedSteps[i] ? (stepDx[i] ? stepDx[i].compat : 'neutral') : 'empty');
+  const completados = dots.filter(d => d !== 'empty').length;
+  if (completados === 0) return null;
+  const sospecha = dots.filter(d => d === 'strong').length;
+  return html`<div>
+    <div class="ev-meter">
+      <div class="ev-meter-label">Bloques completados</div>
+      <div class="ev-dots">${dots.map((d,i) => html`<div key=${i} class=${`ev-dot ${d !== 'empty' ? d : ''}`}></div>`)}</div>
+      <div class="ev-score" style=${{ marginRight:'.2rem' }}>${completados}/${nSteps}</div>
+      ${sospecha > 0 && html`<div style=${{ fontSize:'.56rem', fontWeight:800, color:'var(--uva-red)', background:'rgba(198,0,70,.08)', border:'1px solid rgba(198,0,70,.2)', borderRadius:'4px', padding:'1px 7px', whiteSpace:'nowrap' }}>⚠ ${sospecha} señal${sospecha > 1 ? 'es' : ''} clave</div>`}
+    </div>
+    <div style=${{ display:'flex', gap:'.75rem', marginTop:'.3rem', flexWrap:'wrap' }}>
+      <div style=${{ display:'flex', alignItems:'center', gap:'.25rem' }}><div style=${{ width:'8px', height:'8px', borderRadius:'50%', background:'rgba(0,0,0,.12)' }}></div><span style=${{ fontSize:'.52rem', color:'rgba(0,0,0,.35)', fontWeight:600 }}>Pendiente</span></div>
+      <div style=${{ display:'flex', alignItems:'center', gap:'.25rem' }}><div style=${{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--uva-blue-2)' }}></div><span style=${{ fontSize:'.52rem', color:'rgba(0,0,0,.35)', fontWeight:600 }}>Dato orientativo</span></div>
+      <div style=${{ display:'flex', alignItems:'center', gap:'.25rem' }}><div style=${{ width:'8px', height:'8px', borderRadius:'50%', background:'var(--uva-red)' }}></div><span style=${{ fontSize:'.52rem', color:'rgba(0,0,0,.35)', fontWeight:600 }}>Evidencia fuerte</span></div>
+    </div>
+  </div>`;
+}
+
+// ── BODY MAP ABDOMINAL ────────────────────────────────────────────────────────
+const ABD_ZONES = {
+  epigastrio: { color:'#D4A000', label:'Epigastrio',
+    shapes:[{ type:'rect', x:148, y:78, w:64, h:52, rx:6, fill:'rgba(212,160,0,.22)', stroke:'#D4A000', sw:2.5 }],
+    labels:[{ x:180, y:108, t:'Epigastrio', c:'#78350f' }] },
+  hd: { color:'#D4A000', label:'Hipocondrio derecho',
+    shapes:[{ type:'rect', x:82, y:78, w:64, h:65, rx:6, fill:'rgba(212,160,0,.22)', stroke:'#D4A000', sw:2.5 }],
+    labels:[{ x:114, y:115, t:'HD', c:'#78350f' }] },
+  fid: { color:'#c60046', label:'Fosa ilíaca derecha',
+    shapes:[{ type:'rect', x:82, y:178, w:64, h:62, rx:6, fill:'rgba(198,0,70,.18)', stroke:'#c60046', sw:2.5 }],
+    labels:[{ x:114, y:213, t:'FID', c:'#7f1d1d' }] },
+  fii: { color:'#7c3aed', label:'Fosa ilíaca izquierda',
+    shapes:[{ type:'rect', x:214, y:178, w:64, h:62, rx:6, fill:'rgba(124,58,237,.18)', stroke:'#7c3aed', sw:2.5 }],
+    labels:[{ x:246, y:213, t:'FII', c:'#3b0764' }] },
+  biliar: { color:'#D4A000', label:'Irradia a escápula derecha',
+    shapes:[
+      { type:'ellipse', cx:114, cy:105, rx:28, ry:28, fill:'rgba(212,160,0,.15)', stroke:'#D4A000', sw:2 },
+      { type:'path', d:'M 90 80 Q 50 40 18 12', sw:2.5, dash:'6,3', col:'#D4A000' },
+    ],
+    labels:[{ x:180, y:108, t:'↖ Escápula D', c:'#D4A000' }] },
+  pancreas: { color:'#831843', label:'Irradia en cinturón a la espalda',
+    shapes:[
+      { type:'rect', x:120, y:128, w:120, h:32, rx:6, fill:'rgba(131,24,67,.15)', stroke:'#f9a8d4', sw:2 },
+      { type:'path', d:'M 278 144 Q 320 144 348 144', sw:2.5, dash:'6,3', col:'#831843' },
+    ],
+    labels:[{ x:180, y:148, t:'Cinturón → Espalda', c:'#831843' }] },
+  renal: { color:'#7c2d12', label:'Irradia a genitales / muslo interno',
+    shapes:[
+      { type:'ellipse', cx:100, cy:210, rx:18, ry:22, fill:'rgba(124,45,18,.15)', stroke:'#fdba74', sw:2 },
+      { type:'path', d:'M 100 232 Q 90 270 85 295', sw:2.5, dash:'6,3', col:'#7c2d12' },
+    ],
+    labels:[{ x:100, y:208, t:'Riñón → Ingle', c:'#7c2d12' }] },
+  difuso: { color:'#6b7280', label:'Difuso / generalizado',
+    shapes:[{ type:'rect', x:82, y:78, w:196, h:162, rx:8, fill:'rgba(107,114,128,.12)', stroke:'#6b7280', sw:2, dash:'5,3' }],
+    labels:[{ x:180, y:162, t:'Difuso', c:'#374151' }] },
+  apendix: { color:'#c60046', label:'Migración mesogastrio → FID',
+    shapes:[
+      { type:'ellipse', cx:180, cy:148, rx:10, ry:10, fill:'rgba(198,0,70,.2)', stroke:'#c60046', sw:2 },
+      { type:'path', d:'M 175 158 Q 135 190 105 218', sw:3, dash:'6,3', col:'#c60046' },
+      { type:'ellipse', cx:100, cy:225, rx:12, ry:8, fill:'rgba(198,0,70,.25)', stroke:'#c60046', sw:2 },
+    ],
+    labels:[
+      { x:180, y:145, t:'Periumbilical', c:'#c60046' },
+      { x:95, y:240, t:'→ FID', c:'#c60046' },
+    ] },
+};
+
+function AbdomenMap({ activeZone }) {
+  const z = activeZone ? ABD_ZONES[activeZone] : null;
+  return html`<svg viewBox="0 0 360 310" style=${{ width:'100%', maxWidth:240, display:'block', margin:'0 auto' }} xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="glowa"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <!-- Silueta abdominal -->
+    <path d="M 82 70 Q 68 58 62 80 L 56 160 Q 52 210 56 248 Q 60 282 82 296 L 278 296 Q 300 282 304 248 Q 308 210 304 160 L 298 80 Q 292 58 278 70 Z" fill="#FFF8E7" stroke="#D4A000" stroke-width="1.8"/>
+    <!-- Cuadrícula de cuadrantes -->
+    <line x1="62" y1="188" x2="304" y2="188" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="183" y1="70" x2="183" y2="296" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="4,4"/>
+    <!-- Etiquetas cuadrantes -->
+    <text x="110" y="140" text-anchor="middle" font-size="9" fill="#D1D5DB" font-weight="700">HD</text>
+    <text x="256" y="140" text-anchor="middle" font-size="9" fill="#D1D5DB" font-weight="700">HI</text>
+    <text x="110" y="248" text-anchor="middle" font-size="9" fill="#D1D5DB" font-weight="700">FID</text>
+    <text x="256" y="248" text-anchor="middle" font-size="9" fill="#D1D5DB" font-weight="700">FII</text>
+    <text x="183" y="135" text-anchor="middle" font-size="8" fill="#D1D5DB">Epi</text>
+    <!-- Órganos base -->
+    <path d="M 68 82 Q 100 72 148 76 Q 175 79 178 94 Q 180 110 168 118 Q 148 126 120 124 Q 88 120 68 108 Z" fill="#FEF0A0" stroke="#D4A000" stroke-width="1" opacity=".8"/>
+    <text x="118" y="102" text-anchor="middle" font-size="8" fill="#78350f" font-weight="700">Hígado</text>
+    <ellipse cx="162" cy="128" rx="10" ry="7" fill="#FEF9C3" stroke="#D4A000" stroke-width=".8"/>
+    <text x="162" y="142" text-anchor="middle" font-size="6.5" fill="#78350f">V.Biliar</text>
+    <path d="M 170 74 Q 200 68 214 82 Q 224 98 220 116 Q 214 128 200 132 Q 186 134 178 122 Q 168 108 168 92 Z" fill="#dbeafe" stroke="#93c5fd" stroke-width="1" opacity=".8"/>
+    <text x="196" y="104" text-anchor="middle" font-size="7.5" fill="#1e3a8a" font-weight="600">Estómago</text>
+    <path d="M 128 140 Q 158 134 178 136 Q 196 138 210 142 Q 206 150 184 149 Q 158 148 128 149 Z" fill="#fce7f3" stroke="#f9a8d4" stroke-width=".8" opacity=".9"/>
+    <text x="170" y="147" text-anchor="middle" font-size="7" fill="#831843" font-weight="600">Páncreas</text>
+    <path d="M 62 162 Q 54 172 54 188 Q 54 204 62 210 Q 72 216 80 210 Q 88 204 88 188 Q 88 172 80 162 Q 72 156 62 162 Z" fill="#ffedd5" stroke="#fdba74" stroke-width="1" opacity=".8"/>
+    <text x="71" y="188" text-anchor="middle" font-size="6.5" fill="#7c2d12" font-weight="600">Riñón D</text>
+    <path d="M 278 162 Q 270 172 270 188 Q 270 204 278 210 Q 288 216 296 210 Q 304 204 304 188 Q 304 172 296 162 Q 288 156 278 162 Z" fill="#ffedd5" stroke="#fdba74" stroke-width="1" opacity=".8"/>
+    <text x="287" y="188" text-anchor="middle" font-size="6.5" fill="#7c2d12" font-weight="600">Riñón I</text>
+    <!-- Intestino grueso esquemático -->
+    <path d="M 80 264 Q 74 228 72 198 Q 70 180 74 168" fill="none" stroke="#bbf7d0" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+    <path d="M 74 168 Q 118 156 183 154 Q 248 156 290 168" fill="none" stroke="#bbf7d0" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+    <path d="M 290 168 Q 294 198 292 228 Q 290 252 284 268" fill="none" stroke="#bbf7d0" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+    <!-- Apéndice base -->
+    <path d="M 80 265 Q 74 276 76 284" fill="none" stroke="#fca5a5" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="76" cy="287" rx="6" ry="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+
+    <!-- ZONA ACTIVA -->
+    ${z && z.shapes.map((s, i) => {
+      if (s.type === 'rect') return html`<rect key=${i} x=${s.x} y=${s.y} width=${s.w} height=${s.h} rx=${s.rx||4} fill=${s.fill||'none'} stroke=${s.stroke||z.color} stroke-width=${s.sw||2} stroke-dasharray=${s.dash||'none'} filter="url(#glowa)" opacity=".9"/>`;
+      if (s.type === 'ellipse') return html`<ellipse key=${i} cx=${s.cx} cy=${s.cy} rx=${s.rx} ry=${s.ry} fill=${s.fill||'none'} stroke=${s.stroke||z.color} stroke-width=${s.sw||2} filter="url(#glowa)" opacity=".85"/>`;
+      if (s.type === 'path') return html`<path key=${i} d=${s.d} fill="none" stroke=${s.col||z.color} stroke-width=${s.sw||2} stroke-dasharray=${s.dash||'none'} stroke-linecap="round" filter="url(#glowa)" opacity=".9"/>`;
+      return null;
+    })}
+    ${z && z.labels.map((lb, i) => html`<text key=${i} x=${lb.x} y=${lb.y} text-anchor="middle" font-size="8" font-weight="800" fill=${lb.c} font-family="Segoe UI,sans-serif">${lb.t}</text>`)}
+
+    <text x="183" y="307" text-anchor="middle" font-size="7" fill="#9AA0AD" font-family="Segoe UI,sans-serif">Vista anterior · Abdomen</text>
+  </svg>`;
+}
+
+// ── IRRADIATION ACCORDION ─────────────────────────────────────────────────────
+function IrrAccordion({ items }) {
+  const [open, setOpen] = useState(null);
+  const activeZone = open !== null ? items[open]?.svg : null;
+  return html`<div>
+    <p class="irr-hint">Pulsa cada zona — el mapa anatómico se actualiza</p>
+    <div style=${{ display:'grid', gridTemplateColumns:'170px 1fr', gap:'1rem', alignItems:'start' }}>
+
+      <!-- Mapa abdominal -->
+      <div style=${{ background:'var(--surface)', border:'1px solid var(--line)', borderRadius:10, padding:'.6rem .5rem' }}>
+        <div style=${{ fontSize:'.55rem', fontWeight:800, color:'var(--ink-4)', textTransform:'uppercase', letterSpacing:'1px', textAlign:'center', marginBottom:'.3rem' }}>
+          ${open === null ? 'Selecciona una zona ↓' : items[open].name}
+        </div>
+        <${AbdomenMap} activeZone=${activeZone} />
+        ${open !== null && html`<div style=${{ textAlign:'center', marginTop:'.35rem' }}>
+          <span style=${{ fontSize:'.56rem', fontWeight:800, padding:'2px 8px', borderRadius:4, background:'var(--uva-blue)', color:'#fff', textTransform:'uppercase', letterSpacing:'.4px' }}>${items[open].badge}</span>
+        </div>`}
+      </div>
+
+      <!-- Acordeón -->
+      <div class="irr-list" style=${{ margin:0 }}>
+        ${items.map((it, i) => html`
+          <div key=${i} class=${`irr-item ${open===i?'open':''}`}>
+            <button class="irr-trigger" onClick=${() => setOpen(open===i?null:i)}>
+              <span class="irr-name">${it.name}</span>
+              <span class="irr-badge">${it.badge}</span>
+              <span class="irr-arrow">▼</span>
+            </button>
+            ${open===i && html`<div style=${{ background:'var(--bg)', padding:'.75rem 1rem', display:'block' }}>
+              <div class="irr-text" dangerouslySetInnerHTML=${{ __html: it.text }}></div>
+            </div>`}
+          </div>`)}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── QUIZ CARD ─────────────────────────────────────────────────────────────────
+function QuizCard({ card, id, knowledge, onKnowledge }) {
+  const [flipped, setFlipped] = useState(false);
+  const k = knowledge[id];
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} style=${{ minHeight:'270px' }} onClick=${() => setFlipped(f => !f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`} style=${{ background:'#F8F9FA', border:'1.5px solid #e5e7eb', justifyContent:'flex-start', alignItems:'stretch', padding:0, textAlign:'left' }}>
+          <div style=${{ background:'var(--uva-blue)', padding:'.6rem 1rem', borderRadius:'8px 8px 0 0' }}>
+            <div style=${{ fontSize:'1rem', fontWeight:700, color:'#fff' }}>${card.dx}</div>
+          </div>
+          <div style=${{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem', flexDirection:'column', gap:'.4rem' }}>
+            <div style=${{ textAlign:'center', fontSize:'.9rem', fontWeight:600, color:'var(--ink-2)' }}>¿Cómo se caracteriza el dolor?</div>
+            ${k==='knew' && html`<div class="fc-state-badge knew" style=${{ fontSize:'.72rem', marginTop:'.4rem' }}>✓ Dominada</div>`}
+            ${k==='unknown' && html`<div class="fc-state-badge unknown" style=${{ fontSize:'.72rem', marginTop:'.4rem' }}>↩ Para repasar</div>`}
+            ${!k && html`<div style=${{ fontSize:'.65rem', color:'var(--ink-4)', fontStyle:'italic' }}>tocar para ver</div>`}
+          </div>
+        </div>
+        <div class="fc-back" style=${{ padding:'.65rem .85rem', background:'#F8F9FA' }}>
+          <div style=${{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'.5rem' }}>
+            <div style=${{ fontSize:'.75rem', fontWeight:700, color:'var(--uva-blue)' }}>${card.dx}</div>
+            <button onClick=${e => { e.stopPropagation(); setFlipped(false); }} style=${{ background:'var(--uva-blue)', border:'none', color:'#fff', borderRadius:'5px', padding:'2px 9px', fontSize:'.62rem', fontWeight:700, cursor:'pointer' }}>← Volver</button>
+          </div>
+          <div style=${{ display:'grid', gap:'.3rem', flex:1 }}>
+            ${[['¿Dónde?',card.loc],['¿Cómo es?',card.tipo],['Modificadores',card.mod],['Síntomas asociados',card.asoc]].map(([l,v]) => html`
+              <div key=${l} style=${{ background:'var(--white)', borderRadius:'6px', border:'1px solid var(--line-light)', padding:'.35rem .6rem' }}>
+                <div style=${{ fontSize:'.6rem', fontWeight:700, color:'var(--uva-red)', textTransform:'uppercase', letterSpacing:'.4px', marginBottom:'.1rem' }}>${l}</div>
+                <div style=${{ fontSize:'.75rem', color:'var(--ink-2)', lineHeight:1.4 }}>${v}</div>
+              </div>`)}
+            <div style=${{ background:'var(--yellow-pale)', borderLeft:'3px solid var(--yellow)', padding:'.35rem .6rem', borderRadius:'0 5px 5px 0' }}>
+              <div style=${{ fontSize:'.6rem', fontWeight:700, color:'var(--yellow-deep)', textTransform:'uppercase', letterSpacing:'.4px', marginBottom:'.1rem' }}>Por qué</div>
+              <div style=${{ fontSize:'.72rem', color:'var(--ink-2)', lineHeight:1.4, fontStyle:'italic' }}>${card.patofisio}</div>
+            </div>
+          </div>
+          ${!k && html`<div class="knowledge-btns" style=${{ marginTop:'.5rem' }}>
+            <button class="btn-knew" onClick=${e => { e.stopPropagation(); onKnowledge(id,'knew'); }}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${e => { e.stopPropagation(); onKnowledge(id,'unknown'); }}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── STEP CONTENT ──────────────────────────────────────────────────────────────
+function boldTip(p){return p.replace(/^([^\n:]{2,}?):/gm,'<strong style="color:var(--uva-blue);font-size:.88rem">$1:</strong>');}
+function StepContent({ step, stepIdx, revealed, knowledge, onReveal, onKnowledge, onNext }) {
+  if (step.isSummaryStep) {
+    const totalKnew = Object.values(knowledge).filter(v => v==='knew').length;
+    const totalAnswered = Object.values(knowledge).length;
+    const totalUnknown = Object.values(knowledge).filter(v => v==='unknown').length;
+    return html`<div>
+      <div class="dx-reveal">
+        <div class="dx-reveal-top">
+          <div class="dx-eyebrow">Diagnóstico del caso de Luis</div>
+          <div class="dx-name">${PATIENT.diagnosis}</div>
+        </div>
+        <div class="dx-evidence">
+          <h4>Claves de la anamnesis que lo orientaban</h4>
+          ${PATIENT.diagnosisKey.map((c,i) => html`<div key=${i} class="dx-clue"><div class="dx-clue-dot"></div><p>${c}</p></div>`)}
+        </div>
+      </div>
+      ${totalAnswered > 0 && html`<div class="score-panel">
+        <div class="score-stat yellow"><div class="num">${totalAnswered}</div><div class="lbl">Evaluadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat green"><div class="num">${totalKnew}</div><div class="lbl">Dominadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat red"><div class="num">${totalUnknown}</div><div class="lbl">Para repasar</div></div>
+      </div>`}
+      <div class="final-card">
+        <div style=${{ fontSize:'1.4rem', marginBottom:'.4rem' }}>✓</div>
+        <h2 style=${{ fontSize:'1rem', marginBottom:'.3rem' }}>Anamnesis completada</h2>
+        <p style=${{ fontSize:'.84rem', color:'var(--ink-2)', lineHeight:'1.6' }}>Una historia clínica bien realizada orienta el diagnóstico en el 80% de los casos antes de cualquier prueba complementaria.</p>
+      </div>
+      <div class="summary-card">
+        <div class="sc-head">Las 11 preguntas de la anamnesis del dolor abdominal</div>
+        <div class="sc-body">
+          ${ALL_QS.map(q => html`<div key=${q.n} class="q-row">
+            <div class="q-num">${q.n}</div>
+            <div><div class="q-title">${q.title}</div><div class="q-ex">${q.eq}</div></div>
+          </div>`)}
+        </div>
+      </div>
+      <button class="btn-next" onClick=${onNext}>¿Cuánto has aprendido? →</button>
+    </div>`;
+  }
+
+  if (step.isQuizStep) {
+    return html`<div>
+      <div class="quiz-intro">
+        <h2>Comprueba cuánto has aprendido</h2>
+        <p>Antes de girar cada tarjeta, intenta recordar localización, tipo de dolor, factores modificadores y síntomas asociados.</p>
+      </div>
+      <div class="fc-grid">
+        ${QUIZ_CARDS.map((q,i) => html`<${QuizCard} key=${i} card=${q} id=${`qc${i}`} knowledge=${knowledge} onKnowledge=${onKnowledge} />`)}
+      </div>
+    </div>`;
+  }
+
+  const tipParts = Array.isArray(step.tip) ? step.tip : (step.tip || '').split('\n\n');
+  let contentBlock = null;
+  if (step.irradiation) {
+    contentBlock = html`<div>
+      <div class="sec-label">Explora cada zona — pulsa para ver detalles</div>
+      <${IrrAccordion} items=${step.irrItems} />
+    </div>`;
+  } else if (step.isAtrib) {
+    contentBlock = html`<div class="attr-box">
+      <h3>¿Qué puede decirnos la atribución del paciente?</h3>
+      <div class="attr-list">
+        ${[
+          ['Relación con la comida','«Me pasa siempre después de comer grasa» orienta a origen biliar. «Mejora con la comida» sugiere úlcera duodenal.'],
+          ['Relación con fármaco o tóxico','«Tomo muchos ibuprofenos» o «bebo bastante» son datos de enorme valor que el paciente puede dar espontáneamente.'],
+          ['Antecedentes familiares','«Mi padre tenía lo mismo» puede orientar a patología hereditaria o infecciosa compartida.'],
+          ['Relación con evento previo','«Me empezó tras una cena copiosa» o «justo después de un traumatismo» contextualiza el inicio del cuadro.'],
+          ['Miedo concreto','El paciente que teme un cáncer necesita que se aborde esa preocupación explícitamente.'],
+          ['No sabe a qué atribuirlo','La ausencia de hipótesis obliga a una anamnesis más exhaustiva y sistemática.'],
+        ].map(([title, text], i) => html`<div key=${i} class="attr-item"><div class="attr-dot"></div><p><strong>${title}:</strong> ${text}</p></div>`)}
+      </div>
+      <div class="attr-tip">Escuchar la hipótesis del paciente mejora la alianza terapéutica y a veces revela el diagnóstico antes que cualquier prueba.</div>
+    </div>`;
+  } else if (step.items) {
+    contentBlock = html`<div>
+      <div class="sec-label">¿Qué nos dice cada respuesta? — Evalúa lo que sabes</div>
+      <p class="fc-hint">Toca cada tarjeta para ver la orientación diagnóstica, luego indica si ya lo sabías</p>
+      <div class="fc-grid">
+        ${step.items.map((it,i) => html`<${FlashCard} key=${i} id=${`s${stepIdx}_c${i}`} label=${it.label} badge=${it.badge} body=${it.body} knowledge=${knowledge} onKnowledge=${onKnowledge} />`)}
+      </div>
+      ${step.hasCombos && html`<${ComboGrid} />`}
+    </div>`;
+  }
+
+  const nextLabel = step.isFinal ? 'Ver ficha resumen →' : 'Siguiente bloque →';
+  return html`<div>
+    <div class="think-box">
+      <div class="lbl">Piensa antes de continuar</div>
+      <p>${step.think}</p>
+    </div>
+    <p class="pause-p">${step.pause}</p>
+    <button class="btn-reveal" disabled=${revealed} onClick=${onReveal}>Ver ejemplo y claves diagnósticas</button>
+    ${revealed && html`<div class="reveal on">
+      <div class="sec-label">Ejemplo de pregunta al paciente</div>
+      <div class="example-q">
+        <div class="lbl">Cómo preguntarlo</div>
+        <p>${step.eq}</p>
+      </div>
+      ${step.tipT && html`<div class="tip-box">
+        <div class="lbl">${step.tipT}</div>
+        ${tipParts.map((p,i)=>html`<p key=${i} dangerouslySetInnerHTML=${{__html:boldTip(p)}}/>`)} 
+      </div>`}
+      <${DiagnosticFeedback} stepIdx=${stepIdx} />
+      ${contentBlock}
+      <button class="btn-next" onClick=${onNext}>${nextLabel}</button>
+    </div>`}
+  </div>`;
+}
+
+// ── MAIN APP ──────────────────────────────────────────────────────────────────
+function App() {
+  const [cur, setCur] = useState(() => { try { return parseInt(localStorage.getItem('anam_step')||'0',10); } catch { return 0; } });
+  const [revealed, setRevealed] = useState(() => { try { return JSON.parse(localStorage.getItem('anam_revealed')||'{}'); } catch { return {}; } });
+  const [knowledge, setKnowledge] = useState(() => { try { return JSON.parse(localStorage.getItem('anam_knowledge')||'{}'); } catch { return {}; } });
+
+  useEffect(() => { localStorage.setItem('anam_step', cur); }, [cur]);
+  useEffect(() => { localStorage.setItem('anam_revealed', JSON.stringify(revealed)); }, [revealed]);
+  useEffect(() => { localStorage.setItem('anam_knowledge', JSON.stringify(knowledge)); }, [knowledge]);
+
+  const onKnowledge = useCallback((id, val) => setKnowledge(prev => ({ ...prev, [id]: val })), []);
+  const goTo = i => { setCur(i); window.scrollTo({ top:0 }); };
+  const doReveal = () => setRevealed(prev => ({ ...prev, [cur]: true }));
+  const doNext = () => { if (cur < STEPS.length-1) { setCur(c => c+1); window.scrollTo({ top:0 }); } };
+
+  const step = STEPS[cur];
+  const isLearning = !step.isSummaryStep && !step.isQuizStep;
+  const qIdx = isLearning ? Math.min(cur, PATIENT.quotes.length-1) : -1;
+  const progress = (cur / (STEPS.length-1)) * 100;
+
+  return html`<div>
+    <div class="topbar"><a href="index.html" class="back-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>← Volver al índice</a></div>
+<div class="header">
+      <div class="header-brand">
+        <span class="header-badge">EduMed · UVa</span>
+        <span class="header-sub">Educación Médica</span>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-text">
+        <h1>Anamnesis del Dolor Abdominal</h1>
+        <p>Facultad de Medicina · Universidad de Valladolid</p>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" style=${{ width:`${progress}%` }}></div></div>
+    <div class="step-nav">
+      ${STEPS.map((s,i) => {
+        const stars = starsFor(i, knowledge);
+        let cls = 'step-pill';
+        if (s.isSummaryStep) cls += ' summary';
+        else if (s.isQuizStep) cls += ' quiz';
+        else if (i < cur && revealed[i]) cls += ' done';
+        if (i === cur) cls += ' active';
+        return html`<div key=${i} class=${cls} onClick=${() => goTo(i)}>
+          ${s.nav}
+          ${stars !== null && html`<${StarDisplay} count=${stars} small />`}
+        </div>`;
+      })}
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">Paso ${cur+1} de ${STEPS.length}</div>
+          <div class="card-title">${step.title}</div>
+          ${isLearning && html`<${EvidenceMeter} revealedSteps=${revealed} />`}
+          ${isLearning && html`<span class="card-head-deco" aria-hidden="true">${String(cur+1).padStart(2,'0')}</span>`}
+        </div>
+        <div class="card-body">
+          ${isLearning && qIdx >= 0 && html`<div class="patient-card">
+            <div class="patient-stripe"></div>
+            <div class="patient-inner">
+              <div class="patient-meta">
+                <div class="patient-name-tag">${PATIENT.name}</div>
+                <div class="patient-age">${PATIENT.age} años · Varón</div>
+                <div class="patient-case">URG-2026 · 14:30 h</div>
+              </div>
+              <div class="patient-quote-area">
+                <div class="patient-quote-label">Dice el paciente</div>
+                <div class="patient-quote">${PATIENT.quotes[qIdx].replace(/^«|»$/g,'').replace(/^"|"$/g,'')}</div>
+              </div>
+            </div>
+          </div>`}
+          <${StepContent} step=${step} stepIdx=${cur} revealed=${!!revealed[cur]} knowledge=${knowledge} onReveal=${doReveal} onKnowledge=${onKnowledge} onNext=${doNext} />
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div><strong>Material docente</strong> para mejorar la anamnesis clínica</div>
+      <div>Propedéutica Clínica · Grado en Medicina · Universidad de Valladolid · Elaborado en mayo de 2026</div>
+    </footer>
+  </div>`;
+}
+
+render(h(App, null), document.getElementById('root'));
+</script>
+</body></html>

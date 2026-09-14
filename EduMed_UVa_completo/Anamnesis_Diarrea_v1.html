@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anamnesis de la Diarrea · UVa</title>
+<style>
+:root {
+  --yellow:#F5C518; --yellow-mid:#FEF0A0; --yellow-pale:#FFFDE7; --yellow-deep:#D4A000;
+  --uva-blue:#003973; --uva-blue-2:#00509e; --uva-red:#c60046;
+  --ink:#0F1117; --ink-2:#343A47; --ink-3:#5E6575; --ink-4:#9AA0AD;
+  --line:#DDD9CF; --line-light:#E8E4DB;
+  --surface:#FEFCF8; --bg:#EAE6DC;
+  --green:#059669; --green-pale:#D1FAE5; --green-border:#6EE7B7;
+  --red-pale:#FEE2E2; --red-border:#FCA5A5;
+  --radius:14px; --radius-sm:8px;
+  --shadow-card:0 1px 3px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.08);
+  --shadow-lift:0 4px 8px rgba(0,0,0,.07),0 16px 36px rgba(0,0,0,.11);
+  --shadow-fc:0 2px 6px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06),inset 0 -1px 0 rgba(0,0,0,.04);
+  --font-sans:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-serif:Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.65;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.022;pointer-events:none;z-index:9999;}
+.header{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 60%,#004d8f 100%);padding:1rem 1.6rem;display:flex;align-items:center;gap:1.1rem;border-bottom:3px solid var(--yellow);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(245,197,24,.12) 0%,transparent 70%);pointer-events:none;}
+.header-brand{display:flex;flex-direction:column;flex-shrink:0;}
+.header-badge{background:var(--uva-red);color:#fff;font-weight:800;font-size:.82rem;padding:3px 10px;border-radius:5px;letter-spacing:.6px;display:inline-block;}
+.header-sub{font-size:.6rem;color:rgba(160,180,204,.8);margin-top:4px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+.header-divider{width:1px;height:38px;background:rgba(255,255,255,.15);flex-shrink:0;}
+.header-text h1{font-family:var(--font-serif);font-size:1.05rem;font-weight:700;color:#fff;line-height:1.25;}
+.header-text p{font-size:.68rem;color:rgba(160,180,204,.85);margin-top:.2rem;}
+.progress-wrap{background:var(--line);height:6px;}
+.progress-fill{height:6px;background:linear-gradient(90deg,var(--uva-red),#e8005a);transition:width .55s cubic-bezier(.4,0,.2,1);}
+.step-nav{display:flex;flex-wrap:wrap;background:var(--surface);border-bottom:1px solid var(--line);padding:.55rem .75rem;gap:.35rem;align-items:center;}
+.step-pill{padding:.32rem .8rem;font-size:.7rem;border-radius:20px;font-weight:700;border:1.5px solid var(--line);cursor:pointer;transition:all .2s;white-space:nowrap;background:var(--surface);color:var(--ink-4);display:flex;align-items:center;gap:.3rem;}
+.step-pill:hover{background:var(--yellow-pale);border-color:var(--yellow-deep);color:var(--ink);transform:translateY(-1px);}
+.step-pill.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow-deep);font-weight:800;box-shadow:0 2px 10px rgba(245,197,24,.35);}
+.step-pill.done{background:var(--uva-blue);color:#fff;border-color:var(--uva-blue);}
+.step-pill.done:hover{background:var(--uva-blue-2);transform:translateY(-1px);}
+.step-pill.summary{background:var(--ink-2);color:#fff;border-color:var(--ink-2);}
+.step-pill.quiz{background:var(--uva-red);color:#fff;border-color:var(--uva-red);}
+.main{max-width:760px;margin:0 auto;padding:1.6rem 1.2rem 2.5rem;}
+.patient-card{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 55%,#004d8f 100%);border-radius:var(--radius);display:flex;overflow:hidden;margin-bottom:1.1rem;box-shadow:0 3px 12px rgba(0,57,115,.25);}
+.patient-stripe{background:var(--yellow);width:5px;flex-shrink:0;}
+.patient-inner{display:flex;gap:1rem;padding:.8rem 1rem;flex:1;position:relative;overflow:hidden;}
+.patient-inner::after{content:'URG';position:absolute;right:.6rem;top:50%;transform:translateY(-50%);font-size:3rem;font-weight:800;color:rgba(255,255,255,.04);pointer-events:none;line-height:1;}
+.patient-meta{flex-shrink:0;border-right:1px solid rgba(255,255,255,.12);padding-right:.9rem;display:flex;flex-direction:column;justify-content:center;gap:.25rem;}
+.patient-name-tag{font-size:.78rem;font-weight:800;color:var(--yellow);}
+.patient-age{font-size:.65rem;color:rgba(160,180,210,.8);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.patient-case{font-size:.58rem;color:rgba(160,180,210,.5);font-weight:600;}
+.patient-quote-area{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.patient-quote-label{font-size:.58rem;font-weight:700;color:rgba(245,197,24,.7);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.2rem;}
+.patient-quote{font-size:.88rem;color:rgba(230,238,250,.92);line-height:1.55;font-style:italic;}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line-light);box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:1.5rem;}
+.card-head{background:var(--yellow);padding:1.1rem 1.6rem;border-bottom:2px solid var(--yellow-deep);position:relative;overflow:hidden;}
+.card-head-deco{position:absolute;right:-.02em;bottom:-.18em;font-family:var(--font-serif);font-size:6.5rem;font-weight:700;line-height:1;color:rgba(0,0,0,.07);pointer-events:none;user-select:none;}
+.card-num{font-size:.6rem;color:rgba(61,68,81,.65);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.2rem;font-weight:700;}
+.card-title{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--ink);line-height:1.2;}
+.card-body{padding:1.4rem 1.6rem;}
+.think-box{background:var(--yellow-pale);border:1px solid rgba(212,160,0,.25);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.9rem 1.1rem;margin-bottom:.9rem;}
+.think-box .lbl{font-size:.6rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.think-box p{font-size:.88rem;color:var(--ink-2);line-height:1.6;}
+.pause-p{font-size:.8rem;color:var(--ink-4);font-style:italic;margin-bottom:1rem;}
+.btn-reveal{background:var(--yellow);color:var(--ink);border:none;padding:.7rem 1.5rem;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;cursor:pointer;font-weight:800;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-reveal:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.btn-reveal:disabled{background:var(--line-light);color:var(--ink-4);cursor:default;box-shadow:none;transform:none;}
+.btn-next{margin-top:1.1rem;background:var(--yellow);color:var(--ink);border:none;padding:.8rem 1.8rem;border-radius:var(--radius-sm);font-size:.9rem;font-family:inherit;cursor:pointer;font-weight:800;width:100%;transition:all .2s;box-shadow:0 2px 8px rgba(212,160,0,.25);}
+.btn-next:hover{background:var(--yellow-deep);color:#fff;transform:translateY(-1px);}
+.reveal{display:none;margin-top:1.3rem;border-top:1px solid var(--line-light);padding-top:1.3rem;}
+.reveal.on{display:block;animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.sec-label{font-size:.58rem;font-weight:800;color:var(--ink-4);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.65rem;}
+.example-q{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.85rem 1.1rem;margin-bottom:1rem;}
+.example-q .lbl{font-size:.58rem;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.example-q p{font-size:.9rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.tip-box{background:rgba(0,57,115,.03);border:1px solid rgba(0,57,115,.1);border-radius:var(--radius-sm);padding:.85rem 1.1rem;margin-bottom:1rem;}
+.tip-box .lbl{font-size:.58rem;color:var(--uva-blue);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:.25rem;}
+.tip-box p{font-size:.84rem;color:var(--ink-2);margin-bottom:.35rem;line-height:1.65;}
+.tip-box p strong{color:var(--uva-blue);font-size:.9rem;}
+.tip-box p:last-child{margin-bottom:0;}
+.fc-hint{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-bottom:.8rem;}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem;margin-bottom:1.3rem;grid-auto-rows:1fr;}
+.fc{perspective:1200px;height:190px;cursor:pointer;}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1),box-shadow .25s;border-radius:12px;box-shadow:var(--shadow-fc);}
+.fc:hover .fc-inner{box-shadow:var(--shadow-lift);transform:translateY(-3px);}
+.fc.flipped .fc-inner{transform:rotateY(180deg);}
+.fc.flipped:hover .fc-inner{transform:rotateY(180deg) translateY(-3px);}
+.fc-front,.fc-back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:1.1rem;text-align:center;}
+.fc-front{background:#FEFCF8;border:1px solid var(--line);transition:background .3s,border-color .3s;}
+.fc-front.knew-state{background:linear-gradient(148deg,#F0FDF4,#DCFCE7);border-color:var(--green-border);}
+.fc-front.unknown-state{background:linear-gradient(148deg,#FFF1F2,#FFE4E6);border-color:var(--red-border);}
+.fc-front .fc-label{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:.4rem;}
+.fc-front .fc-badge{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;background:var(--uva-red);color:#fff;text-transform:uppercase;letter-spacing:.5px;}
+.fc-front .fc-tap{font-size:.62rem;color:var(--ink-4);margin-top:.65rem;}
+.fc-front .fc-state-badge{font-size:.7rem;font-weight:700;margin-top:.55rem;padding:3px 9px;border-radius:5px;}
+.fc-front .fc-state-badge.knew{background:var(--green-pale);color:var(--green);border:1px solid var(--green-border);}
+.fc-front .fc-state-badge.unknown{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.fc-back{background:var(--surface);border:1.5px solid var(--uva-blue);transform:rotateY(180deg);justify-content:flex-start;align-items:flex-start;text-align:left;overflow-y:auto;}
+.fc-back-header{background:var(--uva-blue);width:calc(100% + 2.2rem);margin:-1.1rem -1.1rem .75rem;padding:.5rem 1.1rem;border-radius:11px 11px 0 0;display:flex;align-items:center;justify-content:space-between;}
+.fc-back .fc-back-label{font-size:.75rem;font-weight:700;color:#fff;}
+.fc-back p{font-size:.83rem;color:var(--ink-2);line-height:1.6;flex:1;}
+.knowledge-btns{display:flex;gap:.5rem;margin-top:.85rem;width:100%;}
+.btn-knew{background:var(--green-pale);color:#065F46;border:1.5px solid var(--green-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-knew:hover{background:#A7F3D0;}
+.btn-unknown{background:var(--red-pale);color:#991B1B;border:1.5px solid var(--red-border);border-radius:7px;padding:.48rem .7rem;font-size:.76rem;font-weight:800;cursor:pointer;flex:1;font-family:inherit;}
+.btn-unknown:hover{background:#FECACA;}
+.attr-box{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;}
+.attr-box h3{font-size:.72rem;font-weight:800;color:var(--uva-blue);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.8px;}
+.attr-list{display:grid;gap:.55rem;}
+.attr-item{display:flex;gap:.65rem;align-items:flex-start;}
+.attr-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.attr-item p{font-size:.86rem;color:var(--ink-2);line-height:1.6;}
+.attr-tip{background:var(--yellow-pale);border-left:4px solid var(--yellow);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.75rem 1.1rem;margin-top:.9rem;font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.6;}
+.final-card{background:var(--yellow-pale);border:1.5px solid rgba(212,160,0,.3);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:1rem;}
+.summary-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;margin-bottom:1rem;box-shadow:var(--shadow-card);}
+.summary-card .sc-head{background:var(--yellow);color:var(--ink);padding:.8rem 1.4rem;font-weight:800;font-size:.92rem;border-bottom:2px solid var(--yellow-deep);}
+.summary-card .sc-body{padding:1rem 1.4rem;}
+.q-row{display:flex;gap:.8rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--line-light);}
+.q-row:last-child{border-bottom:none;}
+.q-num{background:var(--yellow);color:var(--ink);font-size:.62rem;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.q-title{font-size:.86rem;font-weight:700;color:var(--ink);}
+.q-ex{font-size:.76rem;color:var(--ink-4);font-style:italic;margin-top:.05rem;}
+.score-panel{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.score-stat{text-align:center;flex:1;min-width:80px;}
+.score-stat .num{font-family:var(--font-serif);font-size:2rem;font-weight:700;line-height:1;}
+.score-stat .lbl{font-size:.6rem;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:.6px;margin-top:.15rem;}
+.score-stat.green .num{color:#6EE7B7;}.score-stat.red .num{color:#FCA5A5;}.score-stat.yellow .num{color:var(--yellow);}
+.score-divider{width:1px;height:44px;background:rgba(255,255,255,.12);}
+.dx-reveal{border-radius:var(--radius);overflow:hidden;margin-bottom:1.1rem;box-shadow:var(--shadow-card);}
+.dx-reveal-top{background:linear-gradient(135deg,var(--uva-red) 0%,#e8005a 100%);padding:1.4rem 1.6rem;text-align:center;}
+.dx-reveal-top .dx-eyebrow{font-size:.62rem;color:rgba(254,205,211,.85);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin-bottom:.4rem;}
+.dx-reveal-top .dx-name{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:#fff;}
+.dx-evidence{background:var(--surface);border:1.5px solid rgba(198,0,70,.15);border-top:none;padding:1.1rem 1.3rem;}
+.dx-evidence h4{font-size:.62rem;font-weight:800;color:var(--uva-blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.7rem;}
+.dx-clue{display:flex;gap:.65rem;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid var(--line-light);}
+.dx-clue:last-child{border-bottom:none;}
+.dx-clue-dot{width:7px;height:7px;border-radius:50%;background:var(--uva-red);flex-shrink:0;margin-top:.52rem;}
+.dx-clue p{font-size:.85rem;color:var(--ink-2);line-height:1.6;}
+.dx-fb{margin-top:1.3rem;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid rgba(0,57,115,.25);animation:fadeUp .35s ease both;}
+.dx-fb-head{background:linear-gradient(90deg,#002d5c,var(--uva-blue));padding:.6rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;}
+.dx-fb-eyebrow{font-size:.58rem;font-weight:800;color:rgba(160,180,210,.7);text-transform:uppercase;letter-spacing:1px;}
+.dx-fb-title{font-size:.78rem;font-weight:700;color:#fff;}
+.dx-compat{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;}
+.dx-compat.neutral{background:rgba(255,255,255,.12);color:rgba(200,216,232,.8);}
+.dx-compat.positive{background:rgba(245,197,24,.18);color:var(--yellow);}
+.dx-compat.strong{background:rgba(198,0,70,.25);color:#fca5a5;}
+.dx-fb-body{background:#eef4ff;padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.75rem;border-top:none;}
+.dx-quote-box{background:var(--yellow-pale);border-left:3px solid var(--yellow-deep);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6rem .9rem;}
+.dx-quote-who{font-size:.57rem;font-weight:800;color:var(--yellow-deep);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.2rem;}
+.dx-quote-text{font-size:.84rem;color:var(--ink-2);font-style:italic;line-height:1.55;}
+.dx-interp{font-size:.84rem;color:var(--ink);line-height:1.65;}
+.dx-tags-row{display:flex;flex-direction:column;gap:.4rem;}
+.dx-tags-label{font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.1rem;}
+.dx-tags-label.fits{color:var(--green);}.dx-tags-label.rules{color:#991b1b;}
+.dx-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.dx-tag{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:4px;}
+.dx-tag.fits{background:var(--green-pale);color:#065F46;border:1px solid var(--green-border);}
+.dx-tag.rules{background:var(--red-pale);color:#991b1b;border:1px solid var(--red-border);}
+.ev-meter{display:flex;align-items:center;gap:.55rem;margin-top:.5rem;}
+.ev-meter-label{font-size:.6rem;font-weight:700;color:rgba(0,0,0,.35);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+.ev-dots{display:flex;gap:3px;}
+.ev-dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.1);}
+.ev-dot.neutral{background:#D1D5DB;}.ev-dot.positive{background:var(--uva-blue-2);}.ev-dot.strong{background:var(--uva-red);}
+.ev-score{font-size:.62rem;font-weight:800;color:var(--ink-3);}
+.quiz-intro{background:linear-gradient(135deg,#002d5c 0%,var(--uva-blue) 100%);color:#fff;border-radius:var(--radius);padding:1.2rem 1.5rem;margin-bottom:1.2rem;}
+.quiz-intro h2{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;margin-bottom:.35rem;}
+.quiz-intro p{font-size:.84rem;color:rgba(160,180,210,.85);line-height:1.65;}
+.archiv-wrap{margin-bottom:1rem;}
+.archiv-tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:2px solid var(--uva-blue);margin-bottom:0;}
+.archiv-tab{padding:.5rem 1.1rem;font-size:.74rem;font-weight:700;border:none;background:var(--bg);color:var(--ink-4);cursor:pointer;font-family:inherit;border-radius:8px 8px 0 0;border:1.5px solid transparent;border-bottom:none;margin-bottom:-2px;transition:all .18s;}
+.archiv-tab:hover{background:var(--yellow-pale);color:var(--ink);}
+.archiv-tab.active{background:var(--surface);color:var(--uva-blue);border-color:var(--uva-blue);border-bottom-color:var(--surface);font-weight:800;z-index:1;position:relative;}
+.archiv-panel{background:var(--surface);border:1.5px solid var(--uva-blue);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:1.1rem 1.3rem;animation:fadeUp .22s ease both;}
+.archiv-badge{display:inline-block;font-size:.6rem;font-weight:800;padding:2px 9px;border-radius:4px;background:var(--uva-red);color:#fff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.55rem;}
+.archiv-panel h4{font-size:.74rem;font-weight:800;color:var(--uva-blue);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.55rem;}
+.archiv-panel p{font-size:.86rem;color:var(--ink-2);line-height:1.65;margin-bottom:.45rem;}
+.archiv-panel p:last-child{margin-bottom:0;}
+.archiv-sub{margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--line-light);font-size:.8rem;color:var(--uva-blue);font-weight:600;line-height:1.5;}
+
+footer{background:var(--surface);color:var(--ink-3);border-top:2px solid var(--yellow);text-align:center;padding:1.1rem 1.5rem;font-size:.7rem;line-height:1.9;}
+footer strong{color:var(--ink-2);}
+@media(max-width:520px){.fc-grid{grid-template-columns:1fr;}.header{padding:.75rem 1rem;gap:.75rem;}.card-title{font-size:1.25rem;}.card-body,.card-head{padding:.9rem 1.2rem;}}
+
+
+.topbar{background:var(--blue-deep,#002244);padding:.3rem 1.6rem;display:flex;align-items:center;}
+.back-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:700;color:rgba(180,210,250,.7);text-decoration:none;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+.back-btn svg{opacity:.7;}
+.back-btn:hover svg{opacity:1;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="importmap">
+{"imports":{"preact":"https://unpkg.com/preact@10.25.4/dist/preact.module.js","preact/hooks":"https://unpkg.com/preact@10.25.4/hooks/dist/hooks.module.js","htm":"https://unpkg.com/htm@3.1.1/dist/htm.module.js"}}
+</script>
+<script type="module">
+import{h,render}from'preact';
+import{useState,useCallback}from'preact/hooks';
+import htm from'htm';
+const html=htm.bind(h);
+
+// ── PACIENTE ──────────────────────────────────────────────────────────────────
+const PATIENT = {
+  name:'Marcos V.', age:26,
+  diagnosis:'Diarrea del viajero — gastroenteritis bacteriana por E. coli enterotoxigénica (ETEC)',
+  diagnosisKey:[
+    'Diarrea acuosa sin sangre — patrón secretor, no invasivo (paso 1)',
+    'Más de 6 deposiciones al día con importante repercusión funcional (paso 2)',
+    'Inicio agudo hace 3 días, tras viaje a Marruecos — temporalidad + exposición geográfica (paso 3)',
+    'Sin fiebre alta ni sangre — descarta disentería bacteriana invasiva (paso 4)',
+    'Empeora tras las comidas — diarrea postprandial típica de diarrea secretora (paso 5)',
+    'Sin antibióticos previos, sin EII, sin cirugía abdominal — diarrea del viajero como diagnóstico (paso 6)',
+  ],
+  quotes:[
+    '«Llevo tres días con diarrea muy líquida, muchas veces al día. Sin sangre, pero mucho volumen.»',
+    '«Unas 7 u 8 veces al día. Muy líquida, abundante. Estoy agotado y me mareo al levantarme.»',
+    '«Empezó al tercer día de estar en Marruecos. Volví antes porque me encontraba muy mal.»',
+    '«No tengo mucha fiebre, solo 37.5°C. Sin sangre en las heces. Algo de náuseas, pocos vómitos.»',
+    '«Empeora claramente después de comer. En ayunas estoy algo mejor, pero no del todo.»',
+    '«No he tomado antibióticos. No tengo ninguna enfermedad del intestino. No me han operado nunca.»',
+  ],
+};
+
+// ── RESUMEN ───────────────────────────────────────────────────────────────────
+const ALL_QS = [
+  {n:1,title:'¿Cómo? — Características de las heces: consistencia, sangre, moco',eq:'«¿Cómo son las deposiciones? ¿Líquidas, blandas, con sangre, con moco o pus?»'},
+  {n:2,title:'¿Cuánto? — Número de deposiciones y repercusión',eq:'«¿Cuántas veces va al baño al día? ¿Cuánto líquido sale cada vez? ¿Se marea al levantarse?»'},
+  {n:3,title:'¿Cuándo? — Inicio: aguda, persistente o crónica',eq:'«¿Cuándo empezó? ¿Fue de repente? ¿Ha tenido algo parecido antes?»'},
+  {n:4,title:'Asociado — Fiebre, dolor, vómitos y signos de alarma',eq:'«¿Tiene fiebre? ¿Le duele la tripa? ¿Ha vomitado? ¿Ha visto sangre en las heces?»'},
+  {n:5,title:'¿Modificadores? — Relación con comidas, ayuno, viajes, antibióticos',eq:'«¿Empeora después de comer? ¿Ha viajado recientemente? ¿Ha tomado antibióticos?»'},
+  {n:6,title:'Antecedentes — EII, cirugías, inmunodepresión, fármacos',eq:'«¿Tiene alguna enfermedad del intestino? ¿Le han operado del abdomen? ¿Toma algún medicamento?»'},
+];
+
+// ── FEEDBACK DIAGNÓSTICO ──────────────────────────────────────────────────────
+const STEP_DX = [
+  {quoteIdx:0,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'La diarrea acuosa abundante sin sangre ni moco orienta a un mecanismo SECRETOR: el agente causal produce toxinas que estimulan la secreción de agua y electrolitos hacia la luz intestinal sin dañar la mucosa. Los gérmenes productores de toxinas (ETEC, Vibrio cholerae, Staphylococcus aureus, Clostridium perfringens) producen este patrón. La ausencia de sangre hace menos probable una bacteria invasiva.',
+   fitsFor:['Diarrea secretora: ETEC, Vibrio, toxinas','Virus entéricos (rotavirus, norovirus)'],rulesOut:['Disentería bacteriana invasiva (Shigella, Salmonella, Campylobacter, E. coli O157)','Colitis isquémica','Colitis pseudomembranosa']},
+  {quoteIdx:1,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'Más de 6 deposiciones al día con gran volumen indica diarrea grave con riesgo de deshidratación. El mareo ortostático al levantarse es un signo de deshidratación clínicamente significativa (pérdida de >5% del volumen circulante). En una diarrea secretora intensa, la pérdida de líquido puede ser de varios litros al día. La rehidratación es la primera prioridad terapéutica, antes que identificar la causa.',
+   fitsFor:['Diarrea secretora grave','ETEC','Cólera (pérdidas extremas)'],rulesOut:['Diarrea leve (1-3 deposiciones/día)','SII (deposiciones de escaso volumen)']},
+  {quoteIdx:2,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'El inicio agudo al tercer día de estancia en Marruecos es el dato más orientador del caso. La diarrea del viajero afecta al 20-50% de los viajeros a países en desarrollo. El período de incubación de 1-3 días es compatible con ETEC (la causa más frecuente, 30-50% de los casos). La combinación viaje + diarrea acuosa aguda = diarrea del viajero hasta que se demuestre lo contrario.',
+   fitsFor:['Diarrea del viajero por ETEC','Diarrea del viajero por Campylobacter','Diarrea del viajero por Salmonella'],rulesOut:['EII (no debuta así)','SII (crónico, no en viaje)']},
+  {quoteIdx:3,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La ausencia de fiebre alta y de sangre en las heces es clave para diferenciar diarrea no invasiva (secretora, toxigénica) de diarrea invasiva (disentería). La disentería bacteriana (Shigella, Campylobacter, Salmonella, E. coli O157) produce fiebre alta, dolor abdominal intenso y deposiciones pequeñas con sangre y moco. La diarrea del viajero por ETEC produce deposiciones acuosas abundantes sin sangre y sin fiebre alta.',
+   fitsFor:['Diarrea secretora no invasiva (ETEC)'],rulesOut:['Disentería bacteriana (Shigella, E. coli O157)','Colitis isquémica','EII en brote']},
+  {quoteIdx:4,compat:'positive',compatLabel:'Dato orientativo',evidence:2,
+   interpretation:'La diarrea que empeora claramente tras las comidas es el patrón de la diarrea secretora: la ingesta estimula la motilidad intestinal y la secreción → más deposiciones postprandiales. En el síndrome de intestino irritable la diarrea también puede empeorar tras las comidas, pero el contexto (viaje, inicio agudo, volumen abundante) aleja este diagnóstico. El relativo alivio en ayunas es coherente con el mecanismo secretor.',
+   fitsFor:['Diarrea secretora','ETEC','SII-D (en contexto distinto)'],rulesOut:['Diarrea exudativa (EII): no mejora en ayunas']},
+  {quoteIdx:5,compat:'strong',compatLabel:'Evidencia fuerte',evidence:3,
+   interpretation:'La ausencia de antibióticos previos (descarta C. difficile), de EII conocida y de cirugía abdominal consolida el diagnóstico de diarrea del viajero. Un paciente joven sano, sin comorbilidades, con diarrea acuosa aguda tras viaje a zona endémica tiene una probabilidad muy alta de ETEC como agente causal. No requiere coprocultivo inicial si la evolución es favorable.',
+   fitsFor:['Diarrea del viajero no complicada'],rulesOut:['C. difficile (sin antibióticos previos)','EII (sin antecedentes)','Diarrea posquirúrgica']},
+];
+
+// ── COMBOS ────────────────────────────────────────────────────────────────────
+const COMBOS = [
+  {dx:'Gastroenteritis viral (norovirus, rotavirus)',compat:'strong',
+   symptoms:['Diarrea acuosa sin sangre','Vómitos predominantes','Brote familiar / colectivo','Autolimitada 24-72 h','Sin fiebre alta'],
+   key:'La causa más frecuente de diarrea aguda en países desarrollados. Los vómitos suelen preceder a la diarrea. Brotes en colectividades (barcos, residencias). Autolimitada en 1-3 días.'},
+  {dx:'Diarrea del viajero (ETEC)',compat:'strong',
+   symptoms:['Viaje a país en desarrollo','Diarrea acuosa abundante','Sin sangre','Inicio 1-3 días tras exposición','Sin fiebre alta'],
+   key:'La causa más frecuente de diarrea en viajeros. ETEC produce toxinas que estimulan la secreción. Autolimitada en 3-5 días. Rehidratación oral. Antibiótico si es grave.'},
+  {dx:'Disentería bacteriana (Shigella, Campylobacter)',compat:'strong',
+   symptoms:['Fiebre alta','Deposiciones pequeñas con sangre y moco','Dolor abdominal intenso','Tenesmo rectal','Inicio agudo'],
+   key:'Diarrea invasiva: la bacteria penetra la mucosa intestinal. Deposiciones frecuentes pero pequeñas (al contrario que en la secretora). Coprocultivo. Antibiótico.'},
+  {dx:'Enfermedad inflamatoria intestinal (Crohn / CU)',compat:'positive',
+   symptoms:['Diarrea crónica (>4 semanas)','Sangre en heces (CU)','Dolor abdominal cólico','Pérdida de peso','Joven adulto'],
+   key:'EII: diarrea crónica recidivante. La CU produce rectorragia. Crohn: dolor en fosa ilíaca derecha, aftas orales, manifestaciones extraintestinales. Colonoscopia + biopsia.'},
+  {dx:'Diarrea por C. difficile',compat:'positive',
+   symptoms:['Antibióticos en las últimas 8 semanas','Hospitalización reciente','Diarrea acuosa maloliente','Fiebre','Dolor abdominal'],
+   key:'Antibiótico previo → disbiosis → sobrecrecimiento de C. difficile → toxinas A y B → colitis. Toxina en heces. Riesgo de megacolon tóxico. Metronidazol o vancomicina oral.'},
+  {dx:'Síndrome de intestino irritable (SII)',compat:'neutral',
+   symptoms:['Crónico (>6 meses)','Deposiciones blandas / acuosas con el estrés','Alivia con la defecación','Sin sangre','Exploración normal'],
+   key:'SII-D: diarrea crónica funcional. Criterios Roma IV. Sin banderas rojas. Deposiciones de pequeño-mediano volumen. Empeora con el estrés. Sin pérdida de peso ni sangre.'},
+];
+
+// ── PASOS ─────────────────────────────────────────────────────────────────────
+const STEPS = [
+  {
+    nav:'¿Cómo?', title:'¿Cómo son las heces? — El primer filtro diagnóstico',
+    think:'La descripción de las heces es el primer dato que separa los dos grandes grupos de diarrea. ¿Cuál es la distinción más importante que permite hacer la anamnesis antes de cualquier prueba?',
+    pause:'¿Qué diferencia fisiopatológica hay entre una diarrea acuosa abundante sin sangre y unas deposiciones pequeñas con sangre y moco? ¿Qué mecanismo produce cada patrón?',
+    eq:'«¿Cómo son las deposiciones? ¿Líquidas como agua, o más blandas? ¿Ha visto sangre, moco o pus? ¿De qué color son?»',
+    tipT:'Secretora vs inflamatoria/invasiva: dos mecanismos, dos diagnósticos',
+    tip:'Esta distinción estructura todo el razonamiento diagnóstico de la diarrea. Casi todas las decisiones posteriores dependen de saber en qué grupo estamos.',
+    isTabStep:true,
+    tabTitle:'Tipo de diarrea — selecciona para ver cada mecanismo',
+    tabs:[
+      {label:'Secretora',badge:'TOXINA / VIRAL',title:'Diarrea secretora',
+       body:['Deposiciones acuosas y abundantes, sin sangre ni moco. La mucosa intestinal está intacta pero hipersecretora: la toxina o el virus estimulan la secreción de agua y electrolitos hacia la luz intestinal sin destruir el epitelio.','El intestino no está inflamado → no hay urgencia, no hay tenesmo, no hay fiebre alta, no hay sangre. El paciente pierde grandes volúmenes de líquido → deshidratación como principal complicación.','<strong>Causas:</strong> ETEC (diarrea del viajero), Vibrio cholerae, virus entéricos (norovirus, rotavirus), toxinas preformadas (Staphylococcus aureus, Bacillus cereus), tumores secretores (VIPoma, carcinoide).'],
+       sub:'→ Clave clínica: volumen abundante, sin sangre, deshidratación como riesgo principal. La rehidratación es la prioridad.'},
+      {label:'Inflamatoria / Invasiva',badge:'DISENTERÍA / EII',title:'Diarrea inflamatoria o invasiva',
+       body:['Deposiciones frecuentes pero de escaso volumen, con sangre, moco o pus. La bacteria penetra la mucosa del colon → inflamación → destrucción epitelial → sangre y moco en las heces.','El intestino está inflamado → urgencia imperiosa, tenesmo rectal (sensación de vaciado incompleto), fiebre alta, dolor abdominal intenso. Las deposiciones son pequeñas y frecuentes — al contrario que en la secretora.','<strong>Causas infecciosas:</strong> Shigella, Campylobacter, Salmonella invasiva, E. coli O157:H7 (riesgo de síndrome hemolítico-urémico). <strong>Causas no infecciosas:</strong> EII en brote (Crohn, colitis ulcerosa), colitis isquémica.'],
+       sub:'→ Clave clínica: sangre + moco + fiebre + tenesmo = diarrea invasiva. Coprocultivo. Descartar EII si es crónica.'},
+    ],
+    items:[
+      {label:'Acuosa y abundante — sin sangre ni moco',badge:'SECRETORA',body:'La diarrea acuosa abundante sin sangre es el patrón de la <strong>diarrea secretora</strong>. La mucosa está intacta pero hipersecretora por toxinas o virus. Sin inflamación → sin sangre, sin fiebre alta. Pérdida de gran volumen → riesgo de deshidratación.'},
+      {label:'Pequeñas deposiciones con sangre y moco',badge:'INVASIVA — DISENTERÍA',body:'Deposiciones frecuentes pero de escaso volumen con sangre, moco o pus = <strong>disentería</strong>. La bacteria penetra la mucosa → inflamación → sangre + moco + urgencia + tenesmo + fiebre alta. Causas: Shigella, Campylobacter, Salmonella, E. coli O157, EII en brote.'},
+      {label:'Pastosas o semiformadas — sin sangre',badge:'FUNCIONAL / SII / LEVE',body:'Deposiciones blandas sin sangre, de frecuencia moderada. El <strong>SII con predominio diarreico</strong> produce deposiciones de este tipo, frecuentes con el estrés, que alivian con la defecación y sin pérdida de peso.'},
+      {label:'Con sangre roja brillante — rectorragia',badge:'COLON / RECTO — EII / NEOPLASIA',body:'Sangre roja brillante indica origen colónico o rectal. En adulto joven con diarrea crónica → <strong>colitis ulcerosa</strong>. En >50 años o con anemia → descartar neoplasia colorrectal. Sin diarrea: pensar en hemorroides o fisura anal.'},
+      {label:'Oscura, muy maloliente, voluminosa',badge:'C. DIFFICILE / INTESTINO DELGADO',body:'Heces verdosas o muy malolientes y voluminosas orientan a <strong>C. difficile</strong> (tras antibióticos recientes) o a diarrea de intestino delgado (gran volumen sin urgencia rectal marcada).'},
+      {label:'Heces grasas — esteatorrea',badge:'MALABSORCIÓN — PÁNCREAS / CELIAQUÍA',body:'Heces grasas, brillantes, que flotan = <strong>esteatorrea</strong>. Malabsorción de grasas: insuficiencia pancreática exocrina, enfermedad celíaca, Crohn yeyunal. Produce déficit de vitaminas liposolubles y adelgazamiento progresivo.'},
+    ],
+  },
+  {
+    nav:'¿Cuánto?', title:'¿Cuánto? — Frecuencia, volumen y deshidratación',
+    think:'La frecuencia y el volumen de las deposiciones determinan la gravedad de la diarrea y el riesgo de deshidratación. ¿Cuántas deposiciones al día definen una diarrea grave? ¿Qué signos clínicos reflejan una deshidratación significativa?',
+    pause:'¿Qué preguntas harías para evaluar el grado de deshidratación en un paciente con diarrea sin poder explorarle? ¿A qué preguntas responde el signo de Romberg en la deshidratación?',
+    eq:'«¿Cuántas veces ha ido al baño hoy y ayer? ¿Cuánto líquido sale cada vez? ¿Se marea al levantarse? ¿Orina menos de lo normal? ¿Nota la boca muy seca?»',
+    tipT:'La deshidratación es la complicación más frecuente y más grave de la diarrea',
+    tip:'Clasificación por frecuencia: leve 1-3/día, moderada 4-6/día, grave >6/día.\n\nSignos de deshidratación que el paciente puede describir: mareo ortostático (pierde el equilibrio al levantarse — signo de >5% de pérdida de volumen), oliguria (orina oscura y escasa), sed intensa, boca seca, debilidad muscular. En niños y ancianos la deshidratación progresa más rápido y con menos síntomas previos.',
+    items:[
+      {label:'Leve — 1 a 3 deposiciones al día',badge:'AMBULATORIO',body:'Diarrea leve sin signos de deshidratación ni repercusión sistémica. Compatible con gastroenteritis viral leve, intoxicación alimentaria leve o inicio de SII. Manejo ambulatorio con hidratación oral adecuada.'},
+      {label:'Moderada — 4 a 6 deposiciones al día',badge:'VIGILANCIA — REHIDRATACIÓN',body:'Diarrea moderada con repercusión funcional. El paciente nota debilidad, puede tener sed intensa. Riesgo de deshidratación si la ingesta no compensa las pérdidas. Valorar solución de rehidratación oral (SRO) — más eficaz que el agua sola por el cotransporte sodio-glucosa.'},
+      {label:'Grave — más de 6 deposiciones al día',badge:'RIESGO DE DESHIDRATACIÓN',body:'Diarrea grave con alto riesgo de deshidratación. Valorar siempre signos de hipovolemia: mareo ortostático, oliguria, sequedad de mucosas, taquicardia. En la diarrea secretora intensa (cólera, ETEC grave) las pérdidas pueden superar varios litros al día.'},
+      {label:'Mareo al levantarse — signo ortostático',badge:'DESHIDRATACIÓN MODERADA-GRAVE',body:'El mareo ortostático al incorporarse es un indicador clínico de deshidratación moderada (pérdida >5% del volumen circulante). Es más fiable que la sed para estimar la gravedad. Preguntar: «¿Cuando se levanta de la cama o de la silla, siente que se marea o que le va a dar algo?»'},
+      {label:'Oliguria — orina escasa y oscura',badge:'DESHIDRATACIÓN — VIGILAR FUNCIÓN RENAL',body:'La disminución del volumen urinario con orina concentrada (oscura, de olor fuerte) indica que el riñón está conservando agua por hipovolemia. Si la deshidratación progresa puede haber insuficiencia renal prerrenal. Preguntar: «¿Está orinando menos que de costumbre? ¿De qué color tiene la orina?»'},
+    ],
+  },
+  {
+    nav:'¿Cuándo?', title:'¿Cuándo empezó? — Aguda, persistente o crónica',
+    think:'La duración de la diarrea divide el diferencial en tres grupos con causas muy distintas. ¿Cuántos días separan una diarrea aguda de una persistente? ¿Y una persistente de una crónica?',
+    pause:'¿Cuál es el diagnóstico más frecuente de una diarrea que lleva exactamente 2 semanas? ¿Y de una que lleva 6 meses en un adulto joven?',
+    eq:'«¿Cuándo empezó exactamente? ¿Fue de repente o fue aumentando? ¿Ha tenido episodios similares antes? ¿Siempre le ha sentado mal el mismo tipo de comida?»',
+    tipT:'La duración hace el diagnóstico diferencial de la diarrea',
+    tip:'Diarrea AGUDA (<2 semanas): infección (viral, bacteriana, parasitaria), intoxicación alimentaria, medicamentos. El 90% se resuelve sola en menos de una semana.\n\nDiarrea PERSISTENTE (2-4 semanas): puede ser prolongación de una infección aguda, parásitos (Giardia, Cryptosporidium), o inicio de una causa crónica.\n\nDiarrea CRÓNICA (>4 semanas): EII (Crohn, colitis ulcerosa), SII, malabsorción (celiaquía, insuficiencia pancreática), diarrea funcional, neoplasia colorrectal.',
+    items:[
+      {label:'Aguda — menos de 2 semanas',badge:'INFECCIOSA / INTOXICACIÓN',body:'La diarrea aguda es casi siempre infecciosa o por intoxicación alimentaria. El 90% se resuelve sola. Causas: virus (norovirus, rotavirus — la más frecuente), bacterias toxigénicas (ETEC, Staphylococcus aureus, Clostridium perfringens), bacterias invasivas (Salmonella, Campylobacter, Shigella). La intoxicación estafilocócica tiene un período de incubación muy breve (1-6 horas).'},
+      {label:'Persistente — 2 a 4 semanas',badge:'PARÁSITOS / PROLONGACIÓN INFECCIOSA',body:'La diarrea que no cede en 2 semanas orienta a infección parasitaria: Giardia lamblia (deposiciones grasas, meteorismo intenso, sin sangre, contacto con agua no tratada o viaje), Cryptosporidium (especialmente en inmunodeprimidos), Entamoeba histolytica (viaje a trópicos, puede tener sangre). También puede ser el inicio de una EII.'},
+      {label:'Crónica — más de 4 semanas',badge:'EII / SII / MALABSORCIÓN',body:'La diarrea crónica requiere estudio sistematizado. En joven con sangre y dolor → EII (Crohn o CU). Sin sangre, con relación al estrés, que alivia con la defecación → SII. Con esteatorrea y adelgazamiento → malabsorción (celiaquía, Crohn yeyunal, insuficiencia pancreática). En >50 años → descartar neoplasia.'},
+      {label:'Tras ingesta — debut en horas',badge:'INTOXICACIÓN ESTAFILOCÓCICA / TOXINA PREFORMADA',body:'La diarrea que empieza 1-6 horas después de una comida concreta es una <strong>intoxicación por toxina preformada</strong>: Staphylococcus aureus (mayonesa, cremas, carnes), Bacillus cereus (arroz recalentado), Clostridium botulinum (conservas caseras). Los vómitos suelen preceder o dominar sobre la diarrea.'},
+      {label:'Recidivante — va y viene en brotes',badge:'EII / SII / GIARDIA',body:'La diarrea que tiene períodos de mejoría y empeoramiento orientan a EII (brotes y remisiones), SII (empeora con el estrés, mejor en vacaciones), o Giardia crónica. En la EII los brotes pueden coincidir con infecciones intercurrentes o estrés. Preguntar: «¿Hay momentos en que está completamente bien? ¿Cuánto duran los buenos períodos?»'},
+      {label:'Nocturna — que despierta al paciente',badge:'ORGÁNICA — DESCARTAR EII / NEOPLASIA',body:'La diarrea que despierta al paciente de noche es una <strong>bandera roja</strong>: es orgánica. La diarrea funcional (SII) no despierta al paciente de noche porque es consecuencia de la motilidad intestinal estimulada por el estado de vigilia. La diarrea nocturna obliga a descartar EII, neoplasia y otras causas orgánicas.'},
+    ],
+  },
+  {
+    nav:'Asociado', title:'¿Qué la acompaña? — Síntomas que cambian el diagnóstico',
+    think:'Los síntomas acompañantes son los que distinguen una gastroenteritis banal de algo potencialmente grave. ¿Cuáles son las banderas rojas de la diarrea que obligan a estudio urgente?',
+    pause:'¿Qué combinación de síntomas en un paciente con diarrea te haría pensar en una situación urgente? Lista al menos 4 señales de alarma.',
+    eq:'«¿Tiene fiebre? ¿Cuánta? ¿Le duele la tripa? ¿Dónde? ¿Ha vomitado? ¿Ha visto sangre en las heces? ¿Ha perdido peso sin querer?»',
+    tipT:'Banderas rojas de la diarrea que obligan a estudio urgente',
+    tip:'Signos de alarma que requieren estudio urgente: fiebre alta (>38.5°C) + diarrea con sangre = disentería o EII en brote. Signos de deshidratación grave. Dolor abdominal intenso (descartar colitis pseudomembranosa, megacolon tóxico, isquemia intestinal). Diarrea en inmunodeprimido. Diarrea con pérdida de peso involuntaria. Diarrea nocturna. Brote en colectividad (notificación epidemiológica).',
+    hasCombos:true,
+    items:[
+      {label:'Fiebre alta + sangre en heces',badge:'DISENTERÍA — URGENTE',body:'La combinación fiebre alta (>38.5°C) + sangre en heces = disentería bacteriana hasta que se demuestre lo contrario. Causas: Shigella, Campylobacter, Salmonella invasiva, E. coli O157:H7 (riesgo de síndrome hemolítico urémico — especialmente en niños). Coprocultivo urgente. Algunos requieren antibiótico.'},
+      {label:'Dolor abdominal intenso + distensión',badge:'MEGACOLON / ISQUEMIA — EMERGENCIA',body:'Diarrea + dolor abdominal muy intenso + distensión abdominal = emergencia. Descartar megacolon tóxico (complicación de EII o C. difficile), colitis isquémica (en anciano con arteriosclerosis) o perforación intestinal. Rx abdomen urgente. Cirugía puede ser necesaria.'},
+      {label:'Pérdida de peso involuntaria',badge:'EII / MALABSORCIÓN / NEOPLASIA',body:'La pérdida de peso no intencional acompañando a diarrea crónica es una bandera roja que obliga a descartar: EII (Crohn con malabsorción), malabsorción (celiaquía, insuficiencia pancreática), neoplasia colorrectal. En el Crohn la pérdida de peso puede ser el síntoma inicial más relevante.'},
+      {label:'Vómitos + diarrea — inicio simultáneo',badge:'VIRAL / INTOXICACIÓN ALIMENTARIA',body:'El inicio simultáneo de vómitos y diarrea, especialmente en un brote familiar o colectivo tras una comida compartida, orienta a gastroenteritis viral (norovirus: los vómitos dominan) o intoxicación alimentaria (estafilocócica: vómitos + diarrea en pocas horas). La gastroenteritis viral es autolimitada en 1-3 días.'},
+      {label:'Tenesmo rectal — urgencia sin salida',badge:'RECTOSIGMA — CU / DISENTERÍA',body:'El tenesmo rectal (sensación imperiosa de defecar con escasa o nula salida) indica inflamación del rectosigma. Es el síntoma cardinal de la colitis ulcerosa (especialmente la proctitis) y de la disentería. El paciente va al baño repetidamente expulsando solo moco y sangre o nada.'},
+      {label:'Sin síntomas sistémicos — solo diarrea',badge:'VIRAL LEVE / INTOXICACIÓN LEVE',body:'La diarrea sin fiebre, sin sangre, sin dolor intenso y sin signos de deshidratación en un adulto previamente sano es casi siempre una gastroenteritis viral o intoxicación leve. Manejo ambulatorio con hidratación. No requiere coprocultivo ni antibiótico. Resolución espontánea en 1-5 días.'},
+    ],
+  },
+  {
+    nav:'¿Modificadores?', title:'¿Qué la modifica? — Viajes, comidas, antibióticos',
+    think:'Los factores que modifican o desencadenan la diarrea tienen alto valor diagnóstico. Un viaje reciente, un antibiótico en las últimas semanas o una comida concreta pueden hacer el diagnóstico por sí solos.',
+    pause:'¿Por qué los antibióticos producen diarrea? ¿Qué mecanismo explica la diarrea por C. difficile? ¿Qué alimentos asociarías a cada tipo de intoxicación alimentaria?',
+    eq:'«¿Ha viajado a algún país en los últimos meses? ¿Ha tomado antibióticos en las últimas 8 semanas? ¿La diarrea empezó después de alguna comida concreta? ¿Empeora con el estrés?»',
+    tipT:'Viaje + diarrea, antibiótico + diarrea, estrés + diarrea — tres contextos diagnósticos',
+    tip:'VIAJE + diarrea acuosa aguda: diarrea del viajero (ETEC más frecuente, Campylobacter, Salmonella según destino).\n\nANTIBIÓTICO previo + diarrea: C. difficile — hasta 8 semanas después de terminar el antibiótico. Cualquier antibiótico puede causarla, especialmente clindamicina, cefalosporinas, fluoroquinolonas.\n\nESTRÉS + diarrea crónica intermitente: SII. La relación con situaciones estresantes y la mejoría en vacaciones es muy orientadora.',
+    items:[
+      {label:'Viaje reciente a país en desarrollo',badge:'DIARREA DEL VIAJERO',body:'La diarrea que aparece durante o poco después de un viaje a zona de riesgo (África, Asia, América Latina) es diarrea del viajero en el 80-90% de los casos. La causa más frecuente es ETEC (30-50%). Campylobacter es frecuente en Asia. Salmonella en cualquier destino. <strong>El origen del agua y la comida es el factor de riesgo principal.</strong> Regla de oro: «cocer, pelar o desechar».'},
+      {label:'Antibiótico en las últimas 8 semanas',badge:'C. DIFFICILE',body:'La diarrea que aparece hasta 8 semanas después de un antibiótico debe hacer pensar en <strong>C. difficile</strong>. El antibiótico altera la microbiota → disbiosis → sobrecrecimiento de C. difficile → toxinas A y B → daño de la mucosa colónica. Diarrea acuosa maloliente, fiebre, dolor abdominal. Detectar toxina en heces. Riesgo de megacolon tóxico.'},
+      {label:'Inicio horas tras comida concreta',badge:'INTOXICACIÓN ALIMENTARIA',body:'El período de incubación orientaa la causa: <1-6 h → toxina preformada (Staphylococcus aureus en mayonesa, cremas; Bacillus cereus en arroz). 6-24 h → Clostridium perfringens (carnes cocinadas y enfriadas). 24-72 h → Salmonella (huevo crudo, aves), Campylobacter (pollo poco hecho). Varios afectados con la misma comida = brote.'},
+      {label:'Empeora con el estrés — mejora en vacaciones',badge:'SII — INTESTINO IRRITABLE',body:'La diarrea que empeora claramente en situaciones de estrés y mejora en vacaciones o períodos tranquilos es el patrón del <strong>SII-D</strong>. El intestino es hipersensible a los estímulos del sistema nervioso entérico. Sin bandera roja, sin sangre, sin pérdida de peso. El dolor abdominal alivia con la defecación.'},
+      {label:'Empeora tras ciertos alimentos',badge:'INTOLERANCIA / MALABSORCIÓN',body:'La diarrea que empeora sistemáticamente tras ingerir leche y derivados (intolerancia a la lactosa), gluten (enfermedad celíaca), fructosa o sorbitol (malabsorción de fructosa) orienta a intolerancias alimentarias. La intolerancia a la lactosa produce diarrea acuosa + meteorismo + dolor cólico 30-90 minutos tras la ingesta de lácteos.'},
+      {label:'Tras cirugía abdominal o resección intestinal',badge:'DIARREA POSQUIRÚRGICA',body:'La resección de íleon terminal altera la circulación enterohepática de sales biliares → malabsorción de sales biliares → diarrea coleréica. La vagotomía y la gastrectomía producen síndrome de dumping (diarrea postprandial precoz por vaciamiento gástrico acelerado). La colectomía parcial reduce la capacidad de absorción de agua.'},
+    ],
+  },
+  {
+    nav:'Antecedentes', title:'Antecedentes — Los que cambian el enfoque',
+    think:'Los antecedentes del paciente con diarrea determinan si estamos ante una diarrea simple o ante algo potencialmente grave. ¿Qué antecedentes convierten una diarrea aparentemente banal en una emergencia?',
+    pause:'¿Por qué la diarrea en un paciente inmunodeprimido es una emergencia? ¿Qué patógenos oportunistas producen diarrea en el VIH?',
+    eq:'«¿Tiene alguna enfermedad del intestino, del páncreas o del hígado? ¿Toma algún medicamento habitualmente? ¿Le han operado del abdomen? ¿Tiene el sistema inmune comprometido de alguna forma?»',
+    tipT:'Diarrea en el inmunodeprimido — reglas distintas',
+    tip:'En el paciente inmunodeprimido (VIH, trasplantado, en quimioterapia, con corticoides crónicos), la diarrea tiene un diferencial mucho más amplio: Cryptosporidium, Microsporidium, CMV, Mycobacterium avium complex, Isospora belli. Una diarrea crónica en paciente con VIH es una emergencia diagnóstica.\n\nLos fármacos son una causa frecuente e infradiagnosticada de diarrea crónica: metformina, IECAs, AINEs, magnesio, lactulosa, ISRS, colchicina.',
+    isAtrib:true,
+  },
+  {nav:'Resumen',title:'Resumen: Anamnesis de la Diarrea',isSummaryStep:true,isFinal:true},
+  {nav:'Pruébate',title:'Comprueba cuánto has aprendido',isQuizStep:true},
+];
+
+// ── QUIZ CARDS ────────────────────────────────────────────────────────────────
+const QUIZ_CARDS = [
+  {dx:'Gastroenteritis viral (norovirus)',
+   caso:'Familia de 4 miembros. En 24 horas, todos desarrollan vómitos intensos seguidos de diarrea acuosa sin sangre. Temperatura 37.8°C. Se resuelve completamente en 48 horas.',
+   claves:'Brote familiar simultáneo · Vómitos predominantes antes que diarrea · Sin sangre · Fiebre baja · Autolimitada en 24-72 h · Sin viaje previo',
+   prueba:'Clínico. No requiere coprocultivo en presentación típica. Norovirus es la causa más frecuente de gastroenteritis en adultos en países desarrollados.',
+   pat:'Norovirus daña vellosidades intestinales → secreción de agua → diarrea acuosa. Los vómitos son prominentes por afectación del nervio vago gástrico.',
+   orienta:'Brote colectivo + vómitos + diarrea autolimitada en 48-72 h = viral. No requiere antibiótico ni coprocultivo. Hidratación oral.'},
+  {dx:'Diarrea del viajero (ETEC)',
+   caso:'Hombre de 26 años. Diarrea acuosa abundante al tercer día de viaje a Marruecos. 7-8 deposiciones/día. Sin sangre. Fiebre 37.5°C. Mareo al levantarse.',
+   claves:'Viaje a zona endémica · Diarrea acuosa abundante · Sin sangre · Inicio 1-3 días tras exposición · Fiebre baja o ausente · Signo ortostático',
+   prueba:'Clínico en presentación típica. Coprocultivo si hay sangre, fiebre alta o no mejora. Valorar coproparasitario si persiste >2 semanas.',
+   pat:'ETEC produce toxinas LT y ST → activan adenilato ciclasa → ↑ AMPc → hipersecreción de agua y electrolitos sin dañar la mucosa → diarrea acuosa abundante.',
+   orienta:'Viaje a zona de riesgo + diarrea acuosa sin sangre + deshidratación = diarrea del viajero. Rehidratación oral. Autolimitada en 3-5 días.'},
+  {dx:'Disentería bacteriana (Shigella / Campylobacter)',
+   caso:'Mujer de 32 años. Desde hace 2 días: diarrea con sangre y moco, muchas deposiciones pequeñas, dolor abdominal intenso, fiebre de 39°C. Comió pollo a la plancha poco hecho hace 4 días.',
+   claves:'Fiebre alta · Deposiciones con sangre y moco · Dolor abdominal intenso · Tenesmo rectal · Exposición alimentaria (pollo poco hecho → Campylobacter)',
+   prueba:'Coprocultivo (antes de cualquier antibiótico). Hemocultivos si fiebre muy alta. Analítica: leucocitosis, PCR elevada.',
+   pat:'Bacteria invade la mucosa del colon → inflamación → destrucción epitelial → sangre + moco en las heces + fiebre + dolor. Sin producción de toxinas secretoras.',
+   orienta:'Fiebre alta + sangre + moco + dolor = diarrea invasiva. El patrón es opuesto al secretor: deposiciones pequeñas y frecuentes, no abundantes.'},
+  {dx:'Enfermedad inflamatoria intestinal (Colitis ulcerosa)',
+   caso:'Mujer de 24 años. Desde hace 6 semanas: diarrea con sangre y moco, urgencia para ir al baño, dolor en el bajo vientre, tenesmo. Sin viaje previo. Ha perdido 4 kg. Analítica: anemia leve, PCR 35 mg/L.',
+   claves:'Diarrea crónica (>4 semanas) · Sangre y moco · Tenesmo rectal · Pérdida de peso · Joven adulto · PCR y VSG elevadas · Sin causa infecciosa identificada',
+   prueba:'Colonoscopia con biopsias: mucosa eritematosa, friable, con úlceras superficiales continuas desde el recto. Calprotectina fecal muy elevada.',
+   pat:'Activación inmune aberrante contra la flora bacteriana intestinal → inflamación crónica de la mucosa colónica (continua, desde el recto) → ulceración → sangre + moco + urgencia.',
+   orienta:'Diarrea crónica con sangre + tenesmo + pérdida de peso + joven = EII hasta que se demuestre. La colonoscopia + biopsia hace el diagnóstico.'},
+  {dx:'Diarrea por C. difficile',
+   caso:'Hombre de 68 años hospitalizado. Lleva 5 días con diarrea acuosa maloliente, 8-10 deposiciones al día, fiebre 38.5°C, dolor abdominal cólico. Recibió amoxicilina-clavulánico hace 3 semanas por una neumonía.',
+   claves:'Antibiótico en las últimas 8 semanas · Hospitalización reciente · Diarrea acuosa maloliente · Fiebre · Dolor abdominal · Paciente mayor o inmunodeprimido',
+   prueba:'Toxina A y B de C. difficile en heces (PCR o enzimoinmunoanálisis). Colonoscopia: placas pseudomembranosas amarillo-blanquecinas. Leucocitosis marcada.',
+   pat:'Antibiótico → disbiosis intestinal → sobrecrecimiento de C. difficile → producción de toxinas A (enterotóxica) y B (citotóxica) → daño de la mucosa colónica → colitis pseudomembranosa.',
+   orienta:'Antibiótico previo + diarrea nosocomial = C. difficile hasta que se demuestre. Riesgo de megacolon tóxico. Aislar al paciente. No usar antiperistálticos.'},
+];
+
+// ── TAB PANEL COMPONENT ──────────────────────────────────────────────────────
+function TabPanel({tabs, title}){
+  const[active,setActive]=useState(0);
+  const tab=tabs[active];
+  return html`<div class="archiv-wrap">
+    ${title&&html`<div class="sec-label">${title}</div>`}
+    <div class="archiv-tabs">
+      ${tabs.map((tb,i)=>html`<button key=${i} class=${`archiv-tab ${i===active?'active':''}`} onClick=${()=>setActive(i)}>${tb.label}</button>`)}
+    </div>
+    <div class="archiv-panel">
+      <div class="archiv-badge">${tab.badge}</div>
+      <h4>${tab.title}</h4>
+      ${tab.body.map((p,i)=>html`<p key=${i} dangerouslySetInnerHTML=${{__html:p}}></p>`)}
+      ${tab.sub&&html`<div class="archiv-sub" dangerouslySetInnerHTML=${{__html:tab.sub}}></div>`}
+    </div>
+  </div>`;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function starsFor(si,kn){const s=STEPS[si];if(!s?.items)return null;const tot=s.items.length;const ans=s.items.filter((_,i)=>kn[`s${si}_c${i}`]).length;if(!ans)return null;const k=s.items.filter((_,i)=>kn[`s${si}_c${i}`]==='knew').length;return Math.round(k/tot*3);}
+function StarDisplay({count,small}){if(count===null)return null;return html`<span style=${{fontSize:small?'.65rem':'.85rem',letterSpacing:'-1px'}}>${[0,1,2].map(i=>html`<span key=${i} style=${{color:i<count?'#F5C518':'#D1D5DB'}}>★</span>`)}</span>`;}
+
+// ── FLASHCARD ─────────────────────────────────────────────────────────────────
+function FlashCard({id,label,badge,body,knowledge,onKnowledge}){
+  const[flipped,setFlipped]=useState(false);
+  const k=knowledge[id];
+  const knew=useCallback(e=>{e.stopPropagation();onKnowledge(id,'knew');},[id,onKnowledge]);
+  const unknown=useCallback(e=>{e.stopPropagation();onKnowledge(id,'unknown');},[id,onKnowledge]);
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`}>
+          <div class="fc-label">${label}</div>
+          <div class="fc-badge">${badge}</div>
+          ${!k&&!flipped&&html`<div class="fc-tap">tocar para ver</div>`}
+          ${k==='knew'&&html`<div class="fc-state-badge knew">✓ Dominada</div>`}
+          ${k==='unknown'&&html`<div class="fc-state-badge unknown">↩ Para repasar</div>`}
+        </div>
+        <div class="fc-back">
+          <div class="fc-back-header">
+            <div class="fc-back-label">${label}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'rgba(255,255,255,.18)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{fontSize:'.6rem',fontWeight:800,padding:'3px 9px',borderRadius:'4px',background:'var(--uva-red)',color:'#fff',textTransform:'uppercase',letterSpacing:'.5px',display:'inline-block',marginBottom:'.65rem'}}>${badge}</div>
+          <p dangerouslySetInnerHTML=${{__html:body}}></p>
+          ${!k&&html`<div class="knowledge-btns">
+            <button class="btn-knew" onClick=${knew}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${unknown}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── COMBO GRID ────────────────────────────────────────────────────────────────
+function ComboGrid(){
+  const C={
+    strong:{bg:'linear-gradient(135deg,#002d5c,var(--uva-blue))',tag:{bg:'rgba(255,255,255,.1)',color:'rgba(224,234,244,.9)',border:'rgba(255,255,255,.15)'},key:'rgba(200,216,232,.8)',badge:{bg:'rgba(198,0,70,.3)',color:'#fca5a5'}},
+    positive:{bg:'linear-gradient(135deg,#1a3a5c,#2a5080)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,220,240,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(180,200,224,.75)',badge:{bg:'rgba(245,197,24,.2)',color:'var(--yellow)'}},
+    neutral:{bg:'linear-gradient(135deg,#374151,#4b5563)',tag:{bg:'rgba(255,255,255,.08)',color:'rgba(200,210,220,.85)',border:'rgba(255,255,255,.1)'},key:'rgba(200,210,220,.75)',badge:{bg:'rgba(255,255,255,.12)',color:'rgba(220,228,236,.8)'}},
+  };
+  return html`<div style=${{marginTop:'1.4rem'}}>
+    <div class="sec-label">Combinaciones clave → diagnóstico orientativo</div>
+    <p class="fc-hint">El contexto + el tipo de heces + los síntomas acompañantes orientan el diagnóstico en la mayoría de casos</p>
+    <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'.85rem'}}>
+      ${COMBOS.map((c,i)=>{
+        const col=C[c.compat]||C.neutral;
+        return html`<div key=${i} style=${{background:col.bg,borderRadius:'var(--radius-sm)',overflow:'hidden',boxShadow:'var(--shadow-card)'}}>
+          <div style=${{padding:'.65rem 1rem',borderBottom:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'.5rem'}}>
+            <div style=${{fontSize:'.88rem',fontWeight:700,color:'#fff',fontFamily:'var(--font-serif)'}}>${c.dx}</div>
+            <div style=${{fontSize:'.58rem',fontWeight:800,padding:'2px 8px',borderRadius:'4px',background:col.badge.bg,color:col.badge.color,textTransform:'uppercase',letterSpacing:'.4px',flexShrink:0}}>${c.compat==='strong'?'Alta especificidad':'Orientativo'}</div>
+          </div>
+          <div style=${{padding:'.75rem 1rem'}}>
+            <div style=${{display:'flex',flexWrap:'wrap',gap:'.3rem',marginBottom:'.7rem'}}>
+              ${c.symptoms.map((s,j)=>html`<span key=${j} style=${{fontSize:'.72rem',fontWeight:600,padding:'2px 8px',borderRadius:'4px',background:col.tag.bg,color:col.tag.color,border:`1px solid ${col.tag.border}`}}>${s}</span>`)}
+            </div>
+            <div style=${{fontSize:'.78rem',color:col.key,lineHeight:1.55,fontStyle:'italic',borderTop:'1px solid rgba(255,255,255,.07)',paddingTop:'.55rem'}}>${c.key}</div>
+          </div>
+        </div>`;
+      })}
+    </div>
+  </div>`;
+}
+
+// ── DX FEEDBACK ───────────────────────────────────────────────────────────────
+function DiagnosticFeedback({stepIdx}){
+  const dx=STEP_DX[stepIdx];if(!dx)return null;
+  const quote=PATIENT.quotes[dx.quoteIdx];
+  return html`<div class="dx-fb">
+    <div class="dx-fb-head">
+      <div><div class="dx-fb-eyebrow">Diagnóstico en construcción</div><div class="dx-fb-title">¿Qué nos dice este dato de Marcos?</div></div>
+      <div class=${`dx-compat ${dx.compat}`}>${dx.compatLabel}</div>
+    </div>
+    <div class="dx-fb-body">
+      ${quote&&html`<div class="dx-quote-box"><div class="dx-quote-who">Marcos dice</div><div class="dx-quote-text">${quote}</div></div>`}
+      <p class="dx-interp">${dx.interpretation}</p>
+      <div class="dx-tags-row">
+        ${dx.fitsFor?.length>0&&html`<div><div class="dx-tags-label fits">Apunta hacia</div><div class="dx-tags">${dx.fitsFor.map((t,i)=>html`<span key=${i} class="dx-tag fits">${t}</span>`)}</div></div>`}
+        ${dx.rulesOut?.length>0&&html`<div><div class="dx-tags-label rules">Hace menos probable</div><div class="dx-tags">${dx.rulesOut.map((t,i)=>html`<span key=${i} class="dx-tag rules">${t}</span>`)}</div></div>`}
+      </div>
+    </div>
+  </div>`;}
+
+// ── EVIDENCE METER ────────────────────────────────────────────────────────────
+function EvidenceMeter({revealedSteps}){
+  const nSteps=STEPS.filter(s=>!s.isSummaryStep&&!s.isQuizStep).length;
+  const dots=Array.from({length:nSteps},(_,i)=>revealedSteps[i]?(STEP_DX[i]?STEP_DX[i].compat:'neutral'):'empty');
+  const completados=dots.filter(d=>d!=='empty').length;
+  if(!completados)return null;
+  const sospecha=dots.filter(d=>d==='strong').length;
+  return html`<div>
+    <div class="ev-meter">
+      <div class="ev-meter-label">Bloques completados</div>
+      <div class="ev-dots">${dots.map((d,i)=>html`<div key=${i} class=${`ev-dot ${d!=='empty'?d:''}`}></div>`)}</div>
+      <div class="ev-score" style=${{marginRight:'.2rem'}}>${completados}/${nSteps}</div>
+      ${sospecha>0&&html`<div style=${{fontSize:'.56rem',fontWeight:800,color:'var(--uva-red)',background:'rgba(198,0,70,.08)',border:'1px solid rgba(198,0,70,.2)',borderRadius:'4px',padding:'1px 7px',whiteSpace:'nowrap'}}>⚠ ${sospecha} señal${sospecha>1?'es':''} clave</div>`}
+    </div>
+    <div style=${{display:'flex',gap:'.75rem',marginTop:'.3rem',flexWrap:'wrap'}}>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'rgba(0,0,0,.12)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Pendiente</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-blue-2)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Dato orientativo</span></div>
+      <div style=${{display:'flex',alignItems:'center',gap:'.25rem'}}><div style=${{width:'8px',height:'8px',borderRadius:'50%',background:'var(--uva-red)'}}></div><span style=${{fontSize:'.52rem',color:'rgba(0,0,0,.35)',fontWeight:600}}>Evidencia fuerte</span></div>
+    </div>
+  </div>`;}
+
+// ── ATRIB BOX ─────────────────────────────────────────────────────────────────
+function AtribBox(){
+  const items=[
+    ['EII conocida (Crohn o colitis ulcerosa)','Un brote de EII puede parecerse a una gastroenteritis infecciosa. Preguntar siempre: «¿Le han diagnosticado alguna vez enfermedad de Crohn o colitis ulcerosa?» Un brote de CU con sangre puede confundirse con disentería. La calprotectina fecal muy elevada en un paciente con EII conocida indica actividad inflamatoria.'],
+    ['Antibióticos en las últimas 8 semanas','La diarrea por C. difficile puede aparecer hasta 8 semanas después de terminar el antibiótico. Los antibióticos de mayor riesgo: clindamicina, cefalosporinas de 3ª generación, fluoroquinolonas, amoxicilina-clavulánico. Pero cualquier antibiótico puede causarla. La hospitalización es un factor de riesgo adicional.'],
+    ['Cirugía abdominal previa','La resección de íleon terminal produce diarrea coleréica (malabsorción de sales biliares). La gastrectomía produce síndrome de dumping. La colectomía parcial reduce la capacidad de absorción de agua. Preguntar siempre por cirugías previas abdominales en la diarrea crónica sin causa clara.'],
+    ['Inmunodepresión (VIH, trasplante, quimioterapia, corticoides)','En el inmunodeprimido el diferencial de diarrea se amplía con patógenos oportunistas: Cryptosporidium (diarrea masiva en VIH con CD4 <100), CMV (colitis con úlceras profundas), Microsporidium, Isospora belli, Mycobacterium avium complex. Una diarrea crónica en VIH es siempre una urgencia diagnóstica.'],
+    ['Fármacos que producen diarrea','Metformina (diarrea frecuente al inicio, mejora con el tiempo), IECAs, AINEs, lactulosa, magnesio, ISRS, colchicina, digoxina, inhibidores de la bomba de protones (microbiota). La diarrea por fármacos es crónica, sin sangre, mejora al suspender el fármaco. Siempre revisar la medicación completa.'],
+    ['Antecedente de celiaquía o malabsorción','La celiaquía produce diarrea crónica con esteatorrea, distensión abdominal, pérdida de peso y déficit de vitaminas liposolubles. Puede debutar en la edad adulta. Anticuerpos anti-transglutaminasa tisular (anti-tTG). Confirmar con biopsia duodenal. La dieta sin gluten mejora los síntomas en semanas.'],
+  ];
+  return html`<div class="attr-box">
+    <h3>Antecedentes clave en la diarrea</h3>
+    <div class="attr-list">
+      ${items.map(([title,txt],i)=>html`<div key=${i} class="attr-item"><div class="attr-dot"></div><p><strong>${title}:</strong> ${txt}</p></div>`)}
+    </div>
+    <div class="attr-tip">Banderas rojas que obligan a estudio urgente: sangre en heces + fiebre alta, diarrea nocturna, pérdida de peso involuntaria, diarrea en inmunodeprimido, signos de deshidratación grave, sospecha de megacolon.</div>
+  </div>`;}
+
+// ── QUIZ CARD ─────────────────────────────────────────────────────────────────
+function QuizCard({card,id,knowledge,onKnowledge}){
+  const[flipped,setFlipped]=useState(false);const k=knowledge[id];
+  const rows=[['Claves diagnósticas',card.claves],['Exploración / Prueba clave',card.prueba],['Mecanismo fisiopatológico',card.pat],['Orientación diagnóstica',card.orienta]];
+  return html`
+    <div class=${`fc ${flipped?'flipped':''}`} style=${{minHeight:'290px'}} onClick=${()=>setFlipped(f=>!f)}>
+      <div class="fc-inner">
+        <div class=${`fc-front ${k==='knew'?'knew-state':k==='unknown'?'unknown-state':''}`} style=${{background:'#F8F9FA',border:'1.5px solid var(--line)',justifyContent:'flex-start',alignItems:'stretch',padding:0,textAlign:'left',minHeight:'290px'}}>
+          <div style=${{background:'var(--uva-blue)',padding:'.6rem 1rem',borderRadius:'8px 8px 0 0'}}>
+            <div style=${{fontSize:'1rem',fontWeight:700,color:'#fff'}}>${card.dx}</div>
+          </div>
+          <div style=${{flex:1,padding:'.7rem 1rem',display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+            <div style=${{fontSize:'.81rem',color:'var(--ink-2)',lineHeight:1.55,fontStyle:'italic'}}>${card.caso}</div>
+            <div style=${{fontSize:'.68rem',color:'var(--uva-blue)',fontWeight:700,textAlign:'center',marginTop:'.5rem'}}>¿Cuál es el diagnóstico más probable?</div>
+          </div>
+        </div>
+        <div class="fc-back" style=${{padding:'.6rem .85rem',background:'#F8F9FA',minHeight:'290px'}}>
+          <div style=${{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'.5rem'}}>
+            <div style=${{fontSize:'.76rem',fontWeight:800,color:'var(--uva-blue)'}}>${card.dx}</div>
+            <button onClick=${e=>{e.stopPropagation();setFlipped(false);}} style=${{background:'var(--uva-blue)',border:'none',color:'#fff',borderRadius:'5px',padding:'2px 9px',fontSize:'.62rem',fontWeight:700,cursor:'pointer'}}>← Volver</button>
+          </div>
+          <div style=${{display:'grid',gap:'.3rem'}}>
+            ${rows.map(([l,v])=>html`<div key=${l} style=${{background:'#fff',borderRadius:'6px',border:'1px solid var(--line-light)',padding:'.32rem .6rem'}}>
+              <div style=${{fontSize:'.58rem',fontWeight:700,color:'var(--uva-red)',textTransform:'uppercase',letterSpacing:'.4px',marginBottom:'.08rem'}}>${l}</div>
+              <div style=${{fontSize:'.72rem',color:'var(--ink-2)',lineHeight:1.38}}>${v}</div>
+            </div>`)}
+          </div>
+          ${!k&&html`<div class="knowledge-btns" style=${{marginTop:'.4rem'}}>
+            <button class="btn-knew" onClick=${e=>{e.stopPropagation();onKnowledge(id,'knew');}}>✓ Ya lo sabía</button>
+            <button class="btn-unknown" onClick=${e=>{e.stopPropagation();onKnowledge(id,'unknown');}}>↩ Repasar</button>
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── STEP CONTENT ──────────────────────────────────────────────────────────────
+function boldTip(p){return p.replace(/^([^\n:]{2,}?):/gm,'<strong style="color:var(--uva-blue);font-size:.88rem">$1:</strong>');}
+function StepContent({step,stepIdx,revealed,knowledge,onReveal,onKnowledge,onNext}){
+  if(step.isSummaryStep){
+    const kw=Object.values(knowledge).filter(v=>v==='knew').length;
+    const an=Object.values(knowledge).length;
+    const uk=Object.values(knowledge).filter(v=>v==='unknown').length;
+    return html`<div>
+      <div class="dx-reveal">
+        <div class="dx-reveal-top"><div class="dx-eyebrow">Diagnóstico del caso de Marcos</div><div class="dx-name">${PATIENT.diagnosis}</div></div>
+        <div class="dx-evidence">
+          <h4>Claves de la anamnesis que lo orientaban</h4>
+          ${PATIENT.diagnosisKey.map((c,i)=>html`<div key=${i} class="dx-clue"><div class="dx-clue-dot"></div><p>${c}</p></div>`)}
+        </div>
+      </div>
+      ${an>0&&html`<div class="score-panel">
+        <div class="score-stat yellow"><div class="num">${an}</div><div class="lbl">Evaluadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat green"><div class="num">${kw}</div><div class="lbl">Dominadas</div></div>
+        <div class="score-divider"></div>
+        <div class="score-stat red"><div class="num">${uk}</div><div class="lbl">Para repasar</div></div>
+      </div>`}
+      <div class="final-card">
+        <div style=${{fontSize:'1.4rem',marginBottom:'.4rem'}}>✓</div>
+        <h2 style=${{fontSize:'1rem',marginBottom:'.3rem'}}>Anamnesis completada</h2>
+        <p style=${{fontSize:'.84rem',color:'var(--ink-2)',lineHeight:'1.6'}}>La anamnesis de la diarrea permite orientar el diagnóstico en la mayoría de casos. El tipo de heces, la duración y el contexto (viaje, antibióticos, antecedentes) son los tres pilares del diagnóstico diferencial.</p>
+      </div>
+      <div class="summary-card">
+        <div class="sc-head">Las 6 preguntas clave de la anamnesis de la diarrea</div>
+        <div class="sc-body">${ALL_QS.map(q=>html`<div key=${q.n} class="q-row"><div class="q-num">${q.n}</div><div><div class="q-title">${q.title}</div><div class="q-ex">${q.eq}</div></div></div>`)}</div>
+      </div>
+      <button class="btn-next" onClick=${onNext}>¿Cuánto has aprendido? →</button>
+    </div>`;}
+
+  if(step.isQuizStep){return html`<div>
+    <div class="quiz-intro"><h2>Comprueba cuánto has aprendido</h2><p>Cada tarjeta muestra un caso clínico. Antes de girarla, identifica el diagnóstico más probable a partir de la anamnesis.</p></div>
+    <div class="fc-grid">${QUIZ_CARDS.map((q,i)=>html`<${QuizCard} key=${i} card=${q} id=${`qc${i}`} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}
+    </div>
+  </div>`;}
+
+  const tipParts=Array.isArray(step.tip)?step.tip:(step.tip||'').split('\n\n');
+  let contentBlock=null;
+  const tabHeader=step.isTabStep?html`<div style=${{marginBottom:'1rem'}}><${TabPanel} tabs=${step.tabs} title=${step.tabTitle}/></div>`:null;
+  if(step.isAtrib){contentBlock=html`<${AtribBox}/>`;}  else if(step.items){
+    contentBlock=html`<div>
+      <div class="sec-label">¿Qué nos dice cada hallazgo? — Evalúa lo que sabes</div>
+      <p class="fc-hint">Toca cada tarjeta para ver la orientación diagnóstica, luego indica si ya lo sabías</p>
+      <div class="fc-grid">${step.items.map((it,i)=>html`<${FlashCard} key=${i} id=${`s${stepIdx}_c${i}`} label=${it.label} badge=${it.badge} body=${it.body} knowledge=${knowledge} onKnowledge=${onKnowledge}/>`)}</div>
+      ${step.hasCombos&&html`<${ComboGrid}/>`}
+    </div>`;}
+
+  return html`<div>
+    <div class="think-box"><div class="lbl">Piensa antes de continuar</div><p>${step.think}</p></div>
+    <p class="pause-p">${step.pause}</p>
+    <button class="btn-reveal" disabled=${revealed} onClick=${onReveal}>Ver ejemplo y claves diagnósticas</button>
+    ${revealed&&html`<div class="reveal on">
+      <div class="sec-label">Ejemplo de pregunta al paciente</div>
+      <div class="example-q"><div class="lbl">Cómo preguntarlo</div><p>${step.eq}</p></div>
+      ${step.tipT&&html`<div class="tip-box"><div class="lbl">${step.tipT}</div>${tipParts.map((p,i)=>html`<p key=${i} dangerouslySetInnerHTML=${{__html:boldTip(p)}}/>`)} </div>`}
+      <${DiagnosticFeedback} stepIdx=${stepIdx}/>
+      ${tabHeader}
+      ${contentBlock}
+      <button class="btn-next" onClick=${onNext}>${step.isFinal?'Ver ficha resumen →':'Siguiente bloque →'}</button>
+    </div>`}
+  </div>`;}
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+function App(){
+  const[cur,setCur]=useState(0);
+  const[revealed,setRevealed]=useState({});
+  const[knowledge,setKnowledge]=useState({});
+  const onKnowledge=useCallback((id,val)=>setKnowledge(p=>({...p,[id]:val})),[]);
+  const goTo=i=>{setCur(i);window.scrollTo({top:0});};
+  const doReveal=()=>setRevealed(p=>({...p,[cur]:true}));
+  const doNext=()=>{if(cur<STEPS.length-1){setCur(c=>c+1);window.scrollTo({top:0});}};
+  const step=STEPS[cur];
+  const isL=!step.isSummaryStep&&!step.isQuizStep;
+  const qIdx=isL?Math.min(cur,PATIENT.quotes.length-1):-1;
+  const pct=(cur/(STEPS.length-1))*100;
+
+  return html`<div>
+    <div class="topbar"><a href="index.html" class="back-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>← Volver al índice</a></div>
+<div class="header">
+      <div class="header-brand"><span class="header-badge">EduMed · UVa</span><span class="header-sub">Educación Médica</span></div>
+      <div class="header-divider"></div>
+      <div class="header-text"><h1>Anamnesis de la Diarrea</h1><p>Facultad de Medicina · Universidad de Valladolid</p></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" style=${{width:`${pct}%`}}></div></div>
+    <div class="step-nav">
+      ${STEPS.map((s,i)=>{
+        const st=starsFor(i,knowledge);
+        let cls='step-pill';
+        if(s.isSummaryStep)cls+=' summary';
+        else if(s.isQuizStep)cls+=' quiz';
+        else if(i<cur&&revealed[i])cls+=' done';
+        if(i===cur)cls+=' active';
+        return html`<div key=${i} class=${cls} onClick=${()=>goTo(i)}>
+          ${s.nav}${st!==null&&html`<${StarDisplay} count=${st} small/>`}
+        </div>`;
+      })}
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-num">Paso ${cur+1} de ${STEPS.length}</div>
+          <div class="card-title">${step.title}</div>
+          ${isL&&html`<${EvidenceMeter} revealedSteps=${revealed}/>`}
+          ${isL&&html`<span class="card-head-deco" aria-hidden="true">${String(cur+1).padStart(2,'0')}</span>`}
+        </div>
+        <div class="card-body">
+          ${isL&&qIdx>=0&&html`<div class="patient-card">
+            <div class="patient-stripe"></div>
+            <div class="patient-inner">
+              <div class="patient-meta">
+                <div class="patient-name-tag">${PATIENT.name}</div>
+                <div class="patient-age">${PATIENT.age} años · Varón</div>
+                <div class="patient-case">URG-2026 · 15:00 h</div>
+              </div>
+              <div class="patient-quote-area">
+                <div class="patient-quote-label">Dice el paciente</div>
+                <div class="patient-quote">${PATIENT.quotes[qIdx]}</div>
+              </div>
+            </div>
+          </div>`}
+          <${StepContent} step=${step} stepIdx=${cur} revealed=${!!revealed[cur]} knowledge=${knowledge} onReveal=${doReveal} onKnowledge=${onKnowledge} onNext=${doNext}/>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div><strong>Material docente</strong> para mejorar la anamnesis clínica</div>
+      <div>Propedéutica Clínica · Grado en Medicina · Universidad de Valladolid · Elaborado en mayo de 2026</div>
+    </footer>
+  </div>`;}
+
+render(h(App,null),document.getElementById('root'));
+</script>
+</body></html>
